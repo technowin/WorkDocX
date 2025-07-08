@@ -1,0 +1,31 @@
+{% load static i18n %}
+
+{% if rtl %}
+    {% if demo == "creative" %}
+    <!-- App css -->
+    <link href="{% static 'css/app-creative-rtl.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    {% elif demo == "modern" %}
+    <!-- App css -->
+    <link href="{% static 'css/app-modern-rtl.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    {% else %}
+    <!-- App css -->
+    <link href="{% static 'css/app-saas-rtl.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    {% endif %}
+{% else %}
+    {% if demo == "creative" %}
+    <!-- App css -->
+    <link href="{% static 'css/app-creative.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    {% elif demo == "modern" %}
+    <!-- App css -->
+    <link href="{% static 'css/app-modern.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    {% else %}
+    <!-- App css -->
+    <link href="{% static 'css/app-saas.min.css' %}" rel="stylesheet" type="text/css" id="app-style" />
+
+    {% endif %}
+{% endif %}

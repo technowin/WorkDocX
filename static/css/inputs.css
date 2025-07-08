@@ -1,0 +1,140 @@
+
+select.select {
+  border-radius: 10px!important ; 
+  border: 1px solid grey!important ;
+}
+select.select:focus {
+  border-radius: 10px!important ; 
+  border: 1px solid grey!important ;
+}
+
+select{
+  border-radius: 10px!important ; 
+  border: 1px solid grey!important ;
+  /* font-weight: 600 !important ; */
+  font-size: 16px !important ;
+
+}
+select:focus {
+  border-radius: 10px!important ; 
+  border: 1px solid grey!important ;
+  /* font-weight: 600 !important ; */
+  font-size: 16px !important ;
+}
+
+select.select_multiple {
+  border-radius: 10px!important ; 
+  border: 1px solid grey!important ;
+  font-size: 16px !important ;
+}
+select.select_multiple:focus {
+  border-radius: 10px!important ; 
+  border: 1px solid grey!important ;
+  font-size: 16px !important ;
+}
+textarea {
+  border-radius: 10px !important ; /* Bootstrap standard rounded */
+  border: 1px solid grey !important ;
+  font-size: 16px !important ;
+ 
+}
+
+/* Optional focus effect */
+textarea:focus {
+  border-radius: 10px !important ; /* Bootstrap standard rounded */
+  border: 1px solid grey !important ;
+  font-size: 16px !important ;
+ 
+}
+
+
+input[type="text"], 
+input[type="number"], 
+input[type="email"], 
+input[type="month"], 
+input[type="date"], 
+input[type="time"], 
+input[type="checkbox"], 
+input[type="color"],
+input[type="password"],
+input[type="tel"],
+input[type="file"]{
+    border-radius: 10px!important ; 
+    border: 1px solid grey !important ;
+    padding: 8px !important ;
+    /* font-weight: bold !important ; */
+    font-size: 16px !important ;
+}
+
+
+#dropdown,#fa-icons-dropdown{
+  border-radius: 10px!important ; 
+  border-color: grey!important ;
+  font-size: 16px !important ;
+  
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="month"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="password"]:focus,
+input[type="color"]:focus,
+input[type="tel"]:focus,
+input[type="checkbox"]:focus,
+input[type="file"]:focus,
+select:focus,
+textarea:focus,
+.custom-textarea:focus,
+#dropdown:focus,
+#fa-icons-dropdown:focus{
+  border-radius: 10px!important ; 
+  border-color: grey!important ;
+  /* font-weight: bold !important ; */
+  font-size: 16px !important ;
+}
+
+
+
+/* Custom File Input */
+.custom-file-input {
+  all: unset; /* Remove all default styles */
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: var(--ct-body-color);
+  background-color: var(--ct-body-bg);
+  border: 1px solid var(--ct-border-color);
+  border-radius: 0.375rem; /* Bootstrap rounded */
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.custom-file-input:hover {
+  border-color: var(--ct-primary);
+  background-color: var(--ct-tertiary-bg);
+}
+
+/* Eye Icon (e.g., for password toggle) */
+.eye-icon {
+  color: var(--ct-primary);
+  font-size: 1.25rem;
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.eye-icon:hover {
+  font-size: 1.5rem;
+  color: var(--ct-link-hover-color); /* fallback if not defined */
+  text-shadow: 0 0 8px rgba(13, 110, 253, 0.5); /* Bootstrap primary glow */
+}
+

@@ -1,0 +1,45 @@
+{% extends "bootstrap/base.html" %}
+{% load static i18n %}
+
+{% block html %}
+    data-layout="topnav" data-bs-theme="{% if dark %}dark{% else %}light{% endif %}" data-layout-mode="{% if boxed %}boxed{% else %}fluid{% endif %}"
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block page_content %}
+
+    {% block preloader %}
+    {% endblock %}
+
+    <div class="wrapper">
+
+        {% include 'bootstrap/partials/topbar.html' %}
+        {% include 'bootstrap/partials/horizontal-nav.html' %}
+
+        <div class="content-page">
+            <div class="content">
+
+                <div class="container-fluid">
+
+                    {% block page_title %}
+                    {% endblock %}
+
+                    {% block content %}
+                    {% endblock %}
+                </div>
+
+            </div>
+
+            {% include 'bootstrap/partials/footer.html' %}
+        </div>
+    </div>
+ {% block modal %}{% endblock %}
+    {% include 'bootstrap/partials/right-sidebar.html' %}
+
+{% endblock %}
+
+{% block extra_javascript %}
+         <script src="{% static 'js/app.min.js' %}"></script>
+{% endblock %}

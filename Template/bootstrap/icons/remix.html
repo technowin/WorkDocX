@@ -1,0 +1,27 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Remix Icons{% endblock title %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block page_title %}
+{% include "bootstrap/partials/page-title.html" with page_title='Remix Icons' sub_title='Icons' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12" id="icons"></div> <!-- end col-->
+</div><!-- end row -->
+<!-- end row -->
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+<script src="{% static 'js/pages/demo.remixicons.js' %}"></script>
+
+{% endblock %}

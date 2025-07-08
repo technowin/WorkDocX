@@ -1,0 +1,479 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %} 
+{% block title %}Menu{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+
+
+<!-- third party css -->
+<link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/select.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedColumns.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- third party css end -->
+
+
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Menu' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+ 
+
+{% if type == "create"%}
+<div class="container mt-5" style="max-width: 700px;">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="text-center" style="color:#4e73df;">
+                </h2>
+                <form method="POST" action="{% url 'menu_master' %}?type=create">
+                    <input type="hidden" name="menu_id" value="{{ menu_id }}">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="menu_name" class="form-label">Menu Name<span style="color:red;"> *</span> :</label>
+                            <input type="text" value="{{ menus.menu_name }}" name="menu_name" class="form-control" id="menu_name" placeholder="Enter Menu Name" required>
+                        </div>
+                    </div>
+                  <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="menu_action" class="form-label">Menu Action<span style="color:red;"></span></label>
+                            <input type="text" value="{{ menus.menu_action }}" name="menu_action" class="form-control" id="menu_action" placeholder="Enter Menu Action">
+                        </div>
+                    </div> 
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <!-- Hidden field to ensure that 0 is submitted if checkbox is unchecked -->
+                                <input type="hidden" name="parent" value="0">
+                                
+                                <input class="form-check-input" value="1" name="parent" type="checkbox" id="parent" onclick="toggleDropdown()"
+                                {% if menus.menu_is_parent == 1 %} checked {% endif %}>
+                                <label class="form-check-label" for="parent">Is Menu Parent</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="menu_parent" class="form-label">Menu Parent<span style="color:red;"></span></label>
+                            <select name="menu_parent" id="dropdown" class="form-control">
+                                <option value="" Selected disabled>Select</option>
+                                {% for item in menu %}
+                                    <option value="{{ item.0 }}" {% if item.0 == menus.menu_parent_id %}selected{% endif %}>
+                                        {{ item.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <!-- Hidden field to ensure that 0 is submitted if checkbox is unchecked -->
+                                <input type="hidden" name="sub_parent" value="0">
+                    
+                                <input class="form-check-input" name="sub_parent" value="1" type="checkbox" id="subparent" onclick="toggleDropdown()"
+                                {% if menus.is_sub_menu == 1 %} checked {% endif %}>
+                                <label class="form-check-label" for="subparent">Is Sub Parent</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="sub_menu_parent" class="form-label">Sub Menu Parent<span style="color:red;"></span></label>
+                            <select name="sub_menu_parent" id="dropdown" class="form-control">
+                                <option value="" Selected disabled >Select</option>
+                                {% for item in menu %}
+                                    <option value="{{ item.0 }}" {% if item.0 == menus.sub_menu %}selected{% endif %}>
+                                        {{ item.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <!-- Hidden field to ensure that 0 is submitted if checkbox is unchecked -->
+                                <input type="hidden" name="sub_parent1" value="0">
+                    
+                                <input class="form-check-input" value="1" name="sub_parent1" type="checkbox" id="subparent1" onclick="toggleDropdown()"
+                                {% if menus.is_sub_menu2 == 1 %} checked {% endif %}>
+                                <label class="form-check-label" for="subparent1">Is Sub Parent 2</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="sub_menu_parent1" class="form-label">Sub Menu Parent 2<span style="color:red;"></span></label>
+                            <select name="sub_menu_parent1" id="dropdown" class="form-control">
+                                <option value="" Selected disabled>Select</option>
+                                {% for item in menu %}
+                                    <option value="{{ item.0 }}" {% if item.0 == menus.sub_menu2 %}selected{% endif %}>
+                                        {{ item.1 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="fa-icons-dropdown" class="form-label">fa fa-icons</label>
+                            <select id="fa-icons-dropdown" name="menu_icon" class="form-control" > <option value="">Select</option></select>
+                        </div>
+                    </div> 
+
+
+                    <div class="text-center">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+</div>
+{% elif type == 'role'%}
+
+<div class="container mt-5" style="max-width: 700px;">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="text-center" style="color:#4e73df;">
+            </h2>
+            <form method="POST" action="{% url 'assign_menu' %}">
+                {% csrf_token %}
+                <input type="hidden" name="type" value="role" id="datatype">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="dropdown" class="form-label">Roles<span style="color:red;"> *</span> :</label>
+                        <select name="role_id" id="dropdown" class="form-control" >
+                            <option value="" Selected disabled>Select</option>
+                            {% for item in roles %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %} 
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="dropdown" class="form-label">Menu List<span style="color:red;"> *</span> :</label>
+                        <select name="menu_list" id="MenuDropdown" class="menudropdown" multiple required>
+                            <option value="" disabled>Select</option>
+                            {% for item in menu %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                    </div>
+                </div>
+                
+                
+                
+
+                <div class="text-center">
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+
+{% elif type == 'user'%}
+
+<div class="container mt-5" style="max-width: 700px;">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="text-center" style="color:#4e73df;">
+            </h2>
+            <form method="POST" action="{% url 'assign_menu' %}">
+                {% csrf_token %}
+                <input type="hidden" name="type" value="user" id="datatype">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="dropdown" class="form-label">Users<span style="color:red;"> *</span> :</label>
+                        <select name="user_id" id="dropdown" class="form-control">
+                            <option value=""  Selected disabled>Select</option>
+                            {% for item in users %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %} 
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="dropdown" class="form-label">Menu List<span style="color:red;"> *</span> :</label>
+                        <select name="menu_list" id="MenuDropdown" class="menudropdown" multiple required>
+                            <option value="" disabled>Select</option>
+                            {% for item in menu %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                    </div>
+                </div>
+                
+
+                <div class="text-center">
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+{% elif type == 'order'%}
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Index Card -->
+        <div class="card mb-12"style="zoom:90%" >
+              <div class="card-header d-flex justify-content-between align-items-center">
+                 <h4 class="header-title"> Menu Order </h4> 
+              </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'menu_order' %}">
+                        {% csrf_token %}
+                        <table style="width: 100%;" class="table" id="datatable">
+                        <thead>
+                          <tr>
+                            <th scope="col" >Sr.No</th>
+                            <th scope="col"  hidden>Menu Id</th>
+                            <th scope="col" >Menu Name</th>
+                            <th scope="col" >Menu Action</th>
+                            <th scope="col" >Menu Is Parent</th>
+                            <th scope="col" >Parent Menu Name</th>
+                            <th scope="col" >Menu Order</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in data %}
+                          <tr style="color:black">
+                            <td>{{ forloop.counter }}</td> <!-- Serial Number -->
+                            <td style="display:none;">{{ row.0 }}</td> <!-- Menu Id, hidden -->
+                            <td>{{ row.1 }}</td> <!-- Menu Name -->
+                            <td>{{ row.2 }}</td> <!-- Menu Action -->
+                            <td>{{ row.3 }}</td> <!-- Menu Is Parent -->
+                            <td>{{ row.4 }}</td> <!-- Parent Menu Name -->
+                            <td>
+                              {% if row.5 %}
+                              <input type="hidden" name="menu_id_{{ forloop.counter }}" value="{{ row.0 }}">
+                              <input type="number" name="menu_order_{{ forloop.counter }}" value="{{ row.5 }}" step=".0001">
+                              {% else %}
+                              {{ row.5 }}
+                              {% endif %}
+                            </td> <!-- Menu Order -->
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                        </table>
+                    
+                    <div class="text-center">
+                        <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+                 
+{% endif %}
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.menudropdown').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            persist: false,
+            create: false, // Prevents creating new items
+            //selectOnTab: false, // Disables item creation on tab
+            //maxItems: null,
+            onInitialize: function() {
+                var control = this;
+                control.clear();
+            }
+        });
+    });
+
+    
+</script>
+
+<script>
+
+    $('#dropdown').change(function() {
+        var selectedValue = $(this).val(); 
+        var type = $('#datatype').val();
+    
+        if (selectedValue) {
+            $.ajax({
+                url: 'get_assigned_values',  
+                type: 'POST', 
+                data: {
+                    id: selectedValue,
+                    type:type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}' 
+                },
+                success: function(response) {
+                    var menuArray = response.menu_array;
+                    var dropdown = $('#MenuDropdown');
+                    var selectizeInstance = dropdown[0].selectize;
+                    
+                    if (selectizeInstance) {
+                        menuArray.forEach(function(item) {
+                            selectizeInstance.addOption({ value: item[0], text: item[1] });
+                        });
+    
+                        var selectedValues = menuArray.map(item => item[0]);
+                        selectizeInstance.setValue(selectedValues, true); 
+                    } else {
+                        dropdown.selectize({
+                            valueField: 'value',
+                            labelField: 'text',
+                            options: menuArray.map(function(item) {
+                                return { value: item[0], text: item[1] };
+                            }),
+                            items: menuArray.map(item => item[0])  
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                }
+            });
+        }
+    });
+    
+    
+    
+</script>
+    
+<script>
+    async function loadCSS(url) {
+        const response = await fetch(url);
+        const cssText = await response.text();
+        return cssText;
+    }
+    
+    function extractIconClassNames(cssText) {
+        // Regular expression to match classes starting with 'fa-'
+        const regex = /\.fa-([a-z0-9-]+):before/g;
+        let classNames = [];
+        let match;
+        while ((match = regex.exec(cssText)) !== null) {
+            classNames.push(`fa-${match[1]}`);
+        }
+        return classNames;
+    }
+    
+    function populateDropdown(classNames) {
+        const dropdown = document.getElementById('fa-icons-dropdown');
+        classNames.forEach(className => {
+            const option = document.createElement('option');
+            option.value = className;
+            option.textContent = className;
+            dropdown.appendChild(option);
+        });
+    }
+    
+    {% comment %} async function init() {
+        const cssUrl = "{% static 'vendor/fontawesome-free/css/all.min.css' %}";
+        const cssText = await loadCSS(cssUrl);
+        const iconClassNames = extractIconClassNames(cssText);
+        populateDropdown(iconClassNames);
+    }
+    
+    window.onload = init; {% endcomment %}
+</script>
+
+
+ {% endblock %} 
+
+
+ 
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'js/vendor/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.fixedHeader.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.html5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
+<script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+<!-- Third party js ends --> 
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<script>
+    $('#datatable').DataTable({
+        "pagingType": "full_numbers",
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+</script>
+{% endblock %}

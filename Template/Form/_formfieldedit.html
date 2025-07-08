@@ -1,0 +1,1298 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/select.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedColumns.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block content %}
+
+<style>
+      
+</style>
+
+<div class="modal fade" id="livePreviewModal" tabindex="-1" aria-labelledby="livePreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2 class="modal-title fs-4" id="livePreviewModalLabel">Actions</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table id="actionTable" class="table table-bordered table-hover align-middle mb-0">
+            <thead class="table-light text-center">
+              <tr>
+                <th>Sr No</th>
+                <th>Step</th>
+                <th>Action / Comments</th>
+                <th>Role</th>
+                <th>Created At</th>
+                <th>Created By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in grouped_data %}
+                {% for item in row.comments %}
+                  <tr>
+                    {% if forloop.first %}
+                      <td rowspan="{{ row.rowspan }}" class="text-center align-middle">{{ row.sr_no }}</td>
+                      <td rowspan="{{ row.rowspan }}" class="text-center align-middle">
+                        <span class="badge bg-primary text-white px-3 py-2 fs-6">
+                          {{ row.step_name }}
+                        </span>
+                      </td>
+                    {% endif %}
+
+                    <td class="text-break">{{ item.value }}</td>
+
+                    {% if forloop.first %}
+                      <td rowspan="{{ row.rowspan }}" class="text-center align-middle">{{ row.role_name }}</td>
+                      <td class="text-nowrap">{{ item.created_at|date:"d-m-Y, h:i A" }}</td>
+                      <td rowspan="{{ row.rowspan }}" class="text-center align-middle">{{ row.email }}</td>
+                    {% else %}
+                      <td class="text-nowrap">{{ item.created_at|date:"d-m-Y, h:i A" }}</td>
+                    {% endif %}
+                  </tr>
+                {% endfor %}
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card shadow" style="border-radius: 15px;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="header-title">Insert Form Data - {% if sectioned_fields %}{{ form.name }}{% else %}{% endif %} </h4> 
+            </div>
+            <div class="card-body">
+    <form id="dynamicForm" method="POST" action="" enctype="multipart/form-data">
+        
+        <br>
+    {% csrf_token %}
+<div class="row">
+
+    {% for section_name, fields in sectioned_fields.items %}
+    <div class="section-wrapper col-md-12 my-4 p-3 {% if not section_name %}no-section{% endif %}">
+        {% if section_name %}
+            <div class="section-header">{{ section_name }}</div>
+        {% endif %}
+
+        {% for field in fields %}
+            {% if forloop.counter0|divisibleby:4 %}
+                <div class="row">
+            {% endif %}
+
+        <div class="col-md-3 mb-2">
+            <input type="hidden" name="form_name" value="{{ form.name }}">
+            <input type="hidden"  id="form_data_id" name="form_data_id" value="{{form_data_id}}">
+            <input type="hidden"  id="matched_form_data_id" name="matched_form_data_id" value="{{matched_form_data_id}}">
+            {% comment %} <input type="hidden" id="form_id" name="form_id_{{ field.id }}" value="{{ field.form_id }}"> {% endcomment %}
+            <input type="hidden" id="action_id" name="action_id_{{ field.id }}" value="{{ field.action_id }}">
+            <input type="hidden" id="field_id" name="field_id_{{ field.id }}" value="{{ field.id }}">
+
+            <input type="hidden" id="workflow_YN" name="workflow_YN" value="{{ workflow }}">
+            <input type="hidden" id="role_id" name="role_id" value="{{ role_id }}">
+            <input type="hidden" id="action_detail_id" name="action_detail_id" value="{{ action_detail_id }}">
+            <input type="hidden" id="form_id" name="form_id" value="{{ form.id }}">
+            <input type="hidden" id="action_id" name="action_id" value="{{ action_id }}">
+            <input type="hidden" id="step_id" name="step_id" value="{{ step_id }}">
+            <input type="hidden" id="wfdetailsid" name="wfdetailsid" value="{{ wfdetailsid }}">
+            <input type="hidden" id="status_wfM" name="status_wfM" value="{{ status_wfM }}">
+            <input type="hidden" id="new_data_id" name="new_data_id" value="{{ new_data_id }}">
+            <input type="hidden" id="reference_type" name="reference_type" value="{{ reference_type }}">
+
+
+            <input type="hidden" id="custom_dropdownOpr" name="custom_dropdownOpr">
+            <input type="hidden" id="firstStep" name="firstStep" value="{{ firstStep }}">
+
+            <label class="form-label fw-bold">{{ field.label }}</label>
+            <input type="hidden" id = "type" name = "type" value ="{{type}}">
+            <input type="hidden" id = "editORcreate" name = "editORcreate" value ="{{editORcreate}}">
+            <input type="hidden" id = "file_ref_value" name = "file_ref_value" value ="{{file_ref_value}}">
+            <input type="hidden" id = "readonlyWF" name = "readonlyWF" value ="{{readonlyWF}}">
+            <input type="hidden" id = "viewStepWFSeq" name = "viewStepWFSeq" value ="{{viewStepWFSeq}}">
+            <input type="hidden" id = "new_form_data_id" name = "new_form_data_id" value ="{{new_form_data_id}}">
+            <input type="hidden" id = "inward_req_id" name = "inward_req_id" value ="{{inward_req_id}}">
+            <input type="hidden" id="category_dropdownOpr" name="category_dropdownOpr">
+            
+
+            {% comment %} {% if field.field_type == "select"  %}
+                <select class="form-control select" name="field_{{ field.id }}"
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
+                    <option value="" selected disabled>-- Select --</option>
+                    {% for option in field.values %}
+                        <option value="{{ option }}" {% if option == field.value %} selected {% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select> {% endcomment %}
+
+        {% if field.field_type == "select" %}
+    
+                {% if file_no_value %}
+                    <!-- Hidden input to submit the value even if the dropdown is disabled -->
+                    <input type="hidden" name="field_{{ field.id }}" value="{{ file_no_value }}">
+                {% endif %}
+
+                <select class="form-control select" name="field_{{ field.id }}"
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                    {% if   readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                    
+                    <option value="" disabled {% if not field.value %} selected {% endif %}>-- Select --</option>
+
+                    {% for option in field.values %}
+                        <option value="{{ option }}"
+                            {% if option == file_no_value %}
+                                selected
+                            {% elif option == field.value %}
+                                selected
+                            {% endif %}
+                        >{{ option }}</option>
+                    {% endfor %}
+                </select>
+
+             
+
+
+            {% elif field.field_type == "master dropdown" %}
+                <select class="form-control select" name="field_{{ field.id }}"
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
+                    <option value="" disabled {% if not field.value %} selected {% endif %}>Select</option>
+                    {% for option in field.values %}
+                        <option value="{{ option.id }}" {% if option.id|stringformat:"s" == field.value|stringformat:"s" %} selected {% endif %}>{{ option.name }}</option>
+                    {% endfor %}
+                </select>
+
+
+
+
+            {% elif field.field_type == "select multiple" %}
+                <select class="form-control select_multiple" name="field_{{ field.id }}" multiple
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'   %} disabled {% endif %}>
+                    {% for option in field.values %}
+                        <option value="{{ option }}" {% if option in field.value %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+
+            {% elif field.field_type == "field_dropdown" %}
+                <select class="form-control field_dropdown select" name="field_{{ field.id }}"
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                    {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                    <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
+                    {% for option in field.dropdown_data %}
+                      <option value="{{ option.value }}" {% if option.value == field.saved_value %}selected{% endif %}
+                     >
+                        {{ option.value }}
+                      </option>
+                    {% endfor %}
+                </select>
+
+
+            {% elif field.field_type == "file_name" %}
+            <select class="form-control field_select select" name="field_{{ field.id }}"
+                {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                
+                <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
+                <option value="New File" {% if field.saved_value == "New File" %}selected{% endif %}>New File</option>
+
+                {% for option in field.file_name_options %}
+                    <option value="{{ option }}" {% if option == field.saved_value %}selected{% endif %}>
+                        {{ option }}
+                    </option>
+                {% endfor %}
+            </select>
+
+
+            {% elif field.field_type == "radio" %}
+                <div class="d-flex flex-wrap">
+                    {% for option in field.values %}
+                        <div style="font-size:18px;" class="form-check me-2">
+                            <input class="form-check-input" type="radio" name="field_{{ field.id }}" value="{{ option }}" id="radio_{{ field.id }}_{{ forloop.counter }}"
+                                {% if option == field.value %} checked {% endif %}
+
+                                {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                            <label class="form-check-label" for="radio_{{ field.id }}_{{ forloop.counter }}">{{ option }}&nbsp;&nbsp;</label>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% elif field.field_type == "checkbox" %}
+                <br>
+                <label class="switch">
+                    <input type="checkbox" name="field_{{ field.id }}"
+                        {% if field.value == "on" %} checked {% endif %}
+                        {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+                    <span class="slider"></span>
+                </label>
+
+            {% elif field.field_type == "file" %}
+                {% comment %} <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}" class="form-control custom-file-input"
+                    {% for attr in field.attributes %} {{ attr }} {% endfor %}> {% endcomment %}
+                    <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                        <input type="file" accept="{{ field.accept }}"  name="field_{{ field.id }}"
+                               class="form-control custom-file-input" style="padding-right: 100px;" id="file_input_{{ field.id }}"
+                               {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
+
+                        <i class="fa-solid fa-eye eye-icon"
+                           {% if type == "create" %}
+                               onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
+                            {% elif  type == "reference" %}
+                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }}, {{reference_type}},'{{type}}')"
+        
+                           {% else %}
+                               onclick="showScript({{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                           {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
+                        </i>
+                    </div>
+
+            {% elif field.field_type == "file multiple" %}
+                <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                    <input type="file" accept="{{ field.accept }}"name="field_{{ field.id }}" multiple
+                           class="form-control custom-file-input"style="padding-right: 100px;" id="file_input_{{ field.id }}"
+                           {% for attr in field.attributes %} {{ attr }} {% endfor %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
+
+                    <i class="fa-solid fa-eye eye-icon"
+                       {% if type == "create" %}
+                           onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
+                        {% elif type == "reference"%}
+                           onclick="showScript( {{ matched_form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                        
+                       {% else %}
+                           onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                       {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
+                    </i>
+                </div>
+
+
+
+            {% elif field.field_type == "textarea" %}
+                <textarea data-toggle="maxlength"  maxlength="150"  class="form-control custom-textarea"
+                          name="field_{{ field.id }}"
+                          rows="3"
+                          {% for attr in field.attributes %}{{ attr }} {% endfor %}
+                          {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}>{{ field.value }}</textarea>
+
+            {% elif field.field_type == "generative" %}
+                <input type="text" class="form-control" disabled
+                       name="field_{{ field.id }}"
+                       value="{{ field.value }}"
+                       placeholder="This Field is System Generated"
+                       {% for attr in field.attributes %}{{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'  %}readonly{% endif %}/>
+
+            {% elif field.field_type == "number" %}
+                <input type="number" class="form-control"
+                       name="field_{{ field.id }}"
+                       value="{{ field.value }}"
+                       placeholder="Enter Numeric Value"
+                       {% for attr in field.attributes %}{{ attr }} {% endfor %} {% if readonlyWF == '1' or viewStepWFSeq == '3'  %}readonly{% endif %}/>
+
+            {% elif field.field_type == "text" %}
+                <input type="text" class="form-control"
+                       name="field_{{ field.id }}"
+                       value="{{ field.value }}"
+                       {% if field.accept %}maxlength="{{ field.accept }}" {% endif %}
+                       {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}
+                       placeholder="{% if field.accept %}Enter up to {{ field.accept }} characters{% else %}Enter text{% endif %}"
+                       {% for attr in field.attributes %}{{ attr }} {% endfor %}/>
+
+            {% elif field.field_type == "regex" %}
+                <input type="text" class="form-control"
+                       name="field_{{ field.id }}"
+                       id="regex-{{ field.id }}"
+                       data-regex="{{ field.validations.0.value }}"
+                       data-regex-id="{{ field.regex_id }}"
+                       {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}
+                       value="{{ field.value|default:'' }}"
+                       oninput="formatInputByPattern(this, '{{ field.regex_id }}'); validateRegexInput(this);"
+                       placeholder="{{ field.regex_description }}"
+
+                       {% for attr in field.attributes %} {{ attr }} {% endfor %}>
+
+            {% else %}
+                <input type="{{ field.field_type }}" class="form-control"
+                       name="field_{{ field.id }}"
+                       value="{{ field.value }}"
+                       {% for attr in field.attributes %}{{ attr }} {% endfor %}
+                       {% if readonlyWF == '1' or viewStepWFSeq == '3' %}readonly{% endif %}/>
+            {% endif %}
+
+
+
+        </div> {% if forloop.counter0|add:1|divisibleby:4 or forloop.last %}
+    </div>
+{% endif %}
+{% endfor %}
+
+{% endfor %}
+</div>
+
+
+
+</div>
+</div>
+
+<br/>
+{% if grouped_data %}
+
+  <div class="row col-lg-12 mb-2 shadow justify-content-center" style="padding: 10px;text-align:center;border-radius: 15px;margin-left:0px;align-items:center;justify-items:center;">
+        <input type="hidden" id="clicked_action_id" name="clicked_action_id">
+
+
+        <div class="col-md-3">
+            <button type="button" class="btn btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#livePreviewModal">
+                Show Actions
+            </button>
+            </div>
+
+        <div class="col-md-2">
+            <a href="{% url 'workflow_starts' %}" class="btn btn-secondary rounded-pill ms-2">Back</a>
+        </div>
+    </div>
+{% endif %}
+
+<br/>
+{% if readonlyWF != '1' %}
+<div class="card shadow" style=" border-radius: 15px; padding: 20px;" >
+<div class="row col-md-12 justify-content-center">
+    <input type="hidden" id="clicked_action_id" name="clicked_action_id">
+
+        {% if reference_type == "1" or  type == 'reference' %} 
+        {% if viewStepWFSeq != '3' %}
+            <div class="col-md-2 mt-4 text-center">
+                <button type="submit"
+                        class="btn btn-success rounded-pill submit-btn w-100"
+                        id="saveDataButton"
+                        style="border-radius: 15px;">
+                    Save Data
+                </button>
+            </div>
+          {% endif %}  
+    <div class="col-md-2 mt-4 text-center">
+            <button type="button"
+                    class="btn btn-primary rounded-pill w-100"
+                    id="compareButton"  {% if data_save_status != '1' and  type == 'reference' and viewStepWFSeq != '3'%} disabled{% endif %} 
+                    style="border-radius: 15px;">
+                Compare Data
+            </button>
+        </div>
+
+    {% endif %}  
+
+
+
+
+    {% if action_fields %}
+    {% for action in action_fields %}
+    <div class="{% if action.type == 'button' %}col-md-2{% else %}col-md-3{% endif %} mt-1 text-center">
+            <input type="hidden" name="action_field_id_{{ action.id }}" value="{{ action.action_id }}">
+
+            {% if action.type != "button" %}
+                <label class="form-label fw-bold mb-1">{{ action.label_name }}</label>
+            {% endif %}
+
+            {% if action.type == "button" %}
+                <button type="submit"
+                        name="button_type"
+                        value="{{ action.button_type|default:'button' }}"
+                        data-button-type="{{ action.button_type|default:'button' }}"
+                        data-action-id="{{ action.id }}"
+                        {% if viewStepWFSeq != '3' %}
+                            {% if  type == 'reference' %}
+                                {% if data_save_status != '1' and action.button_type != 'Version' %} disabled {% endif %}
+                            {% else %}
+                                {% if readonlyWF == '1' %} disabled {% endif %}
+                            {% endif %}
+                        {% endif %}
+
+                        class="btn w-100 mt-4 submit-btn rounded-pill"
+                        style="background-color: {{ action.bg_color }}; color: {{ action.text_color }}; ">
+                    {{ action.button_name }}
+                </button>
+
+
+            {% elif action.type == "textarea" %}
+                <textarea class="form-control custom-textarea" data-toggle="maxlength"  maxlength="150" rows="3" name="action_field_{{ action.id }}" {% if readonlyWF == '1' %} disabled {% endif %}></textarea>
+
+            {% elif action.type == "text" %}
+                <input type="text" class="form-control" name="action_field_{{ action.id }}">
+
+            {% elif action.type == "select" %}
+                <select class="form-control select" name="action_field_{{ action.id }}">
+                    <option value="" selected disabled>Select</option>
+                    {% for val in action.dropdown_values %}
+                        <option value="{{ val }}">{{ val }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <!-- Show default Update button if no actions exist -->
+    <div class="col-md-2 mt-1 text-center">
+        <button type="submit"
+                class="btn btn-primary w-100 mt-4 rounded-pill submit-btn"
+                data-button-type="Submit"
+                data-action-id="0">
+            Update
+        </button>
+    </div>
+{% endif %}
+{% endif %}
+{% comment %} {% endif %} {% endcomment %}
+
+
+
+
+<div>
+
+{% comment %} added for operator dropdown {% endcomment %}
+
+<div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
+
+    <label for="custom_dropdownOpr">Select Operator:</label>
+    <select name="custom_dropdownOpr" id="custom_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in WFoperator_dropdown %}
+            <option value="{{ item.0 }}">{{ item.1 }}</option>
+        {% endfor %}
+    </select>
+
+    <br>
+    <div style="margin-top: 15px; text-align: right;">
+        <button id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
+        <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
+    </div>
+
+</div>
+
+{% comment %} <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
+
+<div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 30vh; "></div>
+
+{% comment %} ends here {% endcomment %}
+
+
+
+{% comment %} added for category dropdown {% endcomment %}
+
+<div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
+
+    <label for="category_dropdownOpr">Select Category:</label>
+    {% comment %} <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in category_dropD %}
+            <option value="{{ item.value }}">{{ item.text }}</option>
+        {% endfor %}
+    </select> {% endcomment %}
+    <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in category_dropD %}
+            <option value="{{ item.value }}" {% if item.value == file_cat_val %}selected{% endif %}>{{ item.text }}</option>
+        {% endfor %}
+    </select>
+
+    <br>
+    <div style="margin-top: 15px; text-align: center;">
+        <button id="catconfirmSubmitBtn" class="btn btn-primary">Confirm</button>
+        <button id="catcancelPopupBtn" class="btn btn-secondary" type="button">Cancel</button>
+    </div>
+
+</div>
+
+<div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
+    {% comment %} added for category dropdown {% endcomment %}
+
+</form>
+
+  </div>
+    </div>
+  </div>
+</div>
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+{% comment %} <script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script> {% endcomment %}
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'js/vendor/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.fixedHeader.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.html5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
+<script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+
+{% endblock %}
+
+<script>
+        $(document).ready(function() {
+            $('.select_multiple').selectize({
+                plugins: ['remove_button'],
+                delimiter: ',',
+                placeholder: "-- Select Options --",
+                persist: false,
+                create: false,
+                selectOnTab: false,
+                maxItems: null
+                // Do not clear values on initialize!
+            });
+        });
+
+</script>
+
+<script>
+    const readonlyWF = "{{ readonlyWF }}";
+    const viewStepWFSeq = "{{ viewStepWFSeq }}";
+</script>
+
+
+<script>
+
+
+        let selectedNewFiles = []; // Global array to store new files
+
+        function showScript(form_data_id, field_id,reference_type, type) {
+            debugger;
+            
+            const inputElement = document.getElementById('file_input_' + field_id);
+            const newFiles = inputElement.files;
+        
+            if (selectedNewFiles.length === 0 && newFiles.length > 0) {
+                selectedNewFiles = Array.from(newFiles);
+            }
+        
+            $.ajax({
+                url: "{% url 'get_uploaded_files' %}",
+                type: 'POST',
+                data: {
+                    field_id: field_id,
+                    form_data_id: form_data_id,
+                    reference_type:reference_type,
+                    type:type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (data) {
+                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3');
+        
+                    let tableHTML = `
+                        <table style="width:100%; text-align:left; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
+                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
+                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">Download</th>`;
+        
+                    if (showDelete) {
+                        tableHTML += `<th style="border-bottom: 1px solid #ccc; padding: 8px;">Delete</th>`;
+                    }
+        
+                    tableHTML += `</tr></thead><tbody>`;
+        
+                    let srNo = 1;
+        
+                    if (data.files && data.files.length > 0) {
+                        data.files.forEach((file) => {
+                            let downloadIcon = file.status === 1
+                                ? `<a href="javascript:void(0);" onclick="downloadFile('${file.encrypted_url}')" title="Download File"><i class="fa-solid fa-download"></i></a>`
+                                : `--`;
+        
+                            let deleteIcon = file.status === 1
+                                ? `<a href="javascript:void(0);" onclick="deleteFile('${file.encrypted_url}', '${file.file_id}','${reference_type}','${type}')" ><i class="fa fa-trash" style="color:red;" aria-hidden="true"></i></a>`
+                                : `--`;
+        
+                            tableHTML += `
+                                <tr>
+                                    <td style="padding: 8px;">${srNo++}</td>
+                                    <td style="padding: 8px;">${file.name}</td>
+                                    <td style="padding: 8px;">${downloadIcon}</td>`;
+        
+                            if (showDelete) {
+                                tableHTML += `<td style="padding: 8px;">${deleteIcon}</td>`;
+                            }
+        
+                            tableHTML += `</tr>`;
+                        });
+                    }
+        
+                    selectedNewFiles.forEach((file, index) => {
+                        tableHTML += `
+                            <tr>
+                                <td style="padding: 8px;">${srNo++}</td>
+                                <td style="padding: 8px;">${file.name}</td>
+                                <td style="padding: 8px;">
+                                    <i class="fa-solid fa-file-circle-plus" title="File will be uploaded after saving"></i>
+                                </td>`;
+        
+                        if (showDelete) {
+                            tableHTML += `<td style="padding: 8px;"></td>`;
+                        }
+        
+                        tableHTML += `</tr>`;
+                    });
+        
+                    const colspan = showDelete ? 4 : 3;
+        
+                    if ((data.files?.length ?? 0) === 0 && selectedNewFiles.length === 0) {
+                        tableHTML += `
+                            <tr>
+                                <td colspan="${colspan}" style="padding: 8px; text-align: center; color: #111;">
+                                    No files available
+                                </td>
+                            </tr>
+                        `;
+                    }
+        
+                    tableHTML += `</tbody></table>`;
+        
+                    Swal.fire({
+                        title: 'Uploaded Files',
+                        html: tableHTML,
+                        width: '800px',
+                        confirmButtonText: 'Close'
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    Swal.fire('Error', 'Something went wrong while fetching documents.', 'error');
+                }
+            });
+        }
+        
+
+
+
+    </script>
+    <script>
+
+    function removeNewFile(index) {
+        selectedNewFiles.splice(index, 1);
+        // Refresh the popup
+        const field_id = document.querySelector('[id^="file_input_"]').id.split('file_input_')[1];
+        showScript('{{ form_data_id }}', field_id);
+    }
+
+    function downloadFile(encryptedPath) {
+        debugger;
+        const baseUrl = "{% url 'download_file' %}";
+        const downloadUrl = `${baseUrl}?file=${encodeURIComponent(encryptedPath)}`;
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = encryptedPath;  // Optional: specify the filename here if you want
+        a.style.display = 'none';  // Make it invisible
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+
+
+  </script>
+
+  <script>
+    function deleteFile(encryptedPath, encryptedId,reference_type, type) {
+        debugger;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{% url 'delete_file' %}",
+                    method: "POST",
+                    contentType: "application/json",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    data: JSON.stringify({
+                        id: encryptedId,
+                        path: encryptedPath,
+                        reference_type :reference_type,
+                        type: type
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire('Deleted!', 'File has been deleted.', 'success').then(() => {
+                                location.reload(); // or remove the DOM element here
+                            });
+                        } else {
+                            Swal.fire('Error', response.error || 'Something went wrong.', 'error');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                        Swal.fire('Error', 'Error deleting file.', 'error');
+                    }
+                });
+            }
+        });
+    }
+
+
+
+    </script>
+
+
+<script>
+
+    function showFile(input) {
+        debugger;
+        const files = input.files;
+
+        if (!files || files.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'No Files Selected',
+                text: 'Please select files to view them.',
+                confirmButtonText: 'Okay'
+            });
+            return;
+        }
+
+        let tableHTML = `
+            <table style="width:100%; text-align:left; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
+                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        Array.from(files).forEach((file, index) => {
+            tableHTML += `
+                <tr>
+                    <td style="padding: 8px;">${index + 1}</td>
+                    <td style="padding: 8px;">${file.name}</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `</tbody></table>`;
+
+        Swal.fire({
+            title: 'Selected Files',
+            html: tableHTML,
+            width: '600px',
+            confirmButtonText: 'Close'
+        });
+    }
+
+    function removeNewFile(rowId, index) {
+        document.getElementById(rowId)?.remove();
+        if (newFiles) {
+            newFiles.splice(index, 1); // remove the file from array
+        }
+
+        // Optional: if all files removed, show "No files available"
+        if (newFiles.length === 0 && (!data.files || data.files.length === 0)) {
+            const tableBody = document.getElementById("your-table-body-id");
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="padding: 8px; text-align: center; color: gray;">
+                        No files available
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+
+
+</script>
+
+<script>
+
+        document.querySelectorAll('.submit-btn').forEach(button => {
+            debugger;
+            button.addEventListener('click', function (e) {
+                
+                debugger;
+                const form = document.getElementById('dynamicForm');
+                const buttonType = this.getAttribute('data-button-type');
+                const actionId = this.getAttribute('data-action-id');
+
+                const workflow_YN = document.getElementById('workflow_YN');
+                //const dropdownContainer = document.getElementById('workflowDropdownContainer');
+                const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+                const cancelPopupBtn = document.getElementById('cancelPopupBtn');
+                const firstStep = document.getElementById('firstStep');
+
+                const popup = document.getElementById('workflowPopup');
+                const overlay = document.getElementById('popupOverlay');
+                const operatorDropdown = document.getElementById('custom_dropdownOpr');
+                
+                const editORcreate = document.getElementById('editORcreate');
+                const categorydropdownDprt = document.getElementById('category_dropdownOpr');
+                const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
+                const catcancelPopupBtn = document.getElementById('catcancelPopupBtn');
+
+
+
+                if (buttonType === 'Action') {
+                    document.getElementById('clicked_action_id').value = actionId;
+                }
+                const type = $('#type').val();
+                const reference_type = $('#reference_type').val();
+
+                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                    
+
+                    e.preventDefault();
+
+                    const popup = document.getElementById('workflowPopup');
+                    const overlay = document.getElementById('popupOverlay');
+
+                    // ✅ Show popup and overlay
+                    popup.style.display = 'block';
+                    overlay.style.display = 'block';
+                    operatorDropdown.setAttribute('required', true);
+
+                    confirmSubmitBtn.onclick = function () {
+                        debugger;
+                        
+                            form.action = "{% url 'common_form_post' %}";
+                            form.submit(); // Manual submit
+                        
+                    };
+
+
+                    
+
+                    // Cancel button inside popup
+                    cancelPopupBtn.onclick = function () {
+                        workflowPopup.style.display = 'none';
+                        popupOverlay.style.display = 'none';
+                    };
+
+                }
+                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
+                    debugger;
+
+                    e.preventDefault();
+
+                    const popupD = document.getElementById('categoryPopup');
+                    const overlayD = document.getElementById('categoryOverlay');
+
+                    // ✅ Show popup and overlay
+                    popupD.style.display = 'block';
+                    overlayD.style.display = 'block';
+                    categorydropdownDprt.setAttribute('required', true);
+
+                    catconfirmSubmitBtn.onclick = function () {
+                        // operatorDropdown.removeAttribute('required');
+                        form.action = "{% url 'common_form_action' %}";
+
+                    };
+
+                    // Cancel button inside popup
+                    
+                    if (catcancelPopupBtn) {
+                        debugger;
+                        e.preventDefault();
+                        catcancelPopupBtn.onclick = function () {
+                            popupD.style.display = 'none';
+                            overlayD.style.display = 'none';
+                            
+                        };
+                    } else {
+                        console.error("catcancelPopupBtn not found in the DOM.");
+                    }
+
+                }
+                else if (buttonType === 'Submit' && type === 'create') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_post' %}";
+                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reject_workflow_step' %}";
+                } else if (buttonType === 'Submit' && type === 'edit') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                }else if (buttonType === 'Submit' && type === 'reference') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                } else if (reference_type == "1" && viewStepWFSeq != '3' && buttonType != 'Version') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reference_workflow' %}";
+                } else if (buttonType === 'Action    ') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_action' %}";
+                }else if (type == "reference" && buttonType != 'Version') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reference_workflow' %}";
+                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_post' %}";
+                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 2) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                }else if (buttonType === 'Action' && parseInt(editORcreate.value) === 3) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_action' %}";
+                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reject_workflow_step' %}";
+                }
+                else if (buttonType === 'Version') {
+                    e.preventDefault();
+                    const newFormDataId = document.getElementById('new_data_id').value;
+                    const newFormDataId_op = document.getElementById('matched_form_data_id').value;
+                    fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
+                    .then(response => response.json())
+                    .then(response_data => {
+
+                    // Simulate fetch or AJAX to get version data
+                    // get_dataVersion().then(response_data => {
+                        let tableHtml = '';
+                        response_data.data_versions.forEach((row, index) => {
+                            tableHtml += `
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${index + 1}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.file_name}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.version_no}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.baseline_date || ''}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_by}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_at}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_by || ''}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_at || ''}</td>
+                                </tr>`;
+                        });
+
+                        Swal.fire({
+                            title: `Version Details`,
+                            html: `
+                                <div style="max-height: 300px; overflow-y: auto; text-align: left;">
+                                    <table style="width:100%; border-collapse: collapse;" border="1">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr No.</th>
+                                                <th>File Name</th>
+                                                <th style="width: 80px">Version</th>
+                                                <th>Baseline Date</th>
+                                                <th>Modified By</th>
+                                                <th>Modified At</th>
+                                                <th>Approved By</th>
+                                                <th>Approved At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${tableHtml}
+                                        </tbody>
+                                    </table>
+                                </div>`,
+                            width: '80%',
+                            confirmButtonText: 'Close'
+                        });
+                    }).catch(err => {
+                        Swal.fire('Not Found', 'Version not found!', 'warning');
+                    });
+
+                    return;
+                }
+            });
+        });
+
+
+</script>
+
+<script>
+function validateRegexInput(inputElement) {
+        const pattern = inputElement.getAttribute("data-regex");
+        const value = inputElement.value;
+    
+        if (!pattern) return true; // No pattern to validate against
+    
+        const regex = new RegExp(pattern);
+        if (!regex.test(value)) {
+            inputElement.classList.add("is-invalid");
+            inputElement.setCustomValidity("Invalid input pattern.");
+            inputElement.reportValidity(); // Show browser validation message
+            return false;
+        } else {
+            inputElement.classList.remove("is-invalid");
+            inputElement.setCustomValidity(""); // Reset validity
+            return true;
+        }
+    }
+
+
+     function formatInputByPattern(inputElement, regexId) {
+        
+        let value = inputElement.value;
+    
+        const numericOnly = v => v.replace(/\D/g, "");
+        const alnumUpper = v => v.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    
+        switch (parseInt(regexId)) {
+            case 1: // Aadhar
+                value = numericOnly(value).substring(0, 12);
+                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                break;
+            case 2: // PAN
+                value = value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // Remove non-alphanumerics
+                value = value.substring(0, 10); // Enforce 10-char limit
+                break;
+            case 3: // IFSC
+                value = alnumUpper(value).substring(0, 11);
+                break;
+            case 5: // Mobile Number
+                value = numericOnly(value).substring(0, 10);
+                break;
+            case 6: // Pincode
+                value = numericOnly(value).substring(0, 6);
+                break;
+            case 7: // Passport
+                value = alnumUpper(value).substring(0, 8);
+                break;
+            case 8: // Voter ID
+                value = alnumUpper(value).substring(0, 10);
+                break;
+            case 9: // Driving License
+                value = alnumUpper(value).substring(0, 16);
+                break;
+            case 10: // UPI
+                value = value.replace(/[^\w@.]/g, "").substring(0, 50);
+                break;
+            case 16: // Credit Card
+                value = numericOnly(value).substring(0, 16);
+                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                break;
+            case 17: // Landline Number (XXX-XXXXXXX)
+                // Remove all non-digit characters
+                value = numericOnly(value).substring(0, 11);
+                // Format as XXX-XXXXXXX
+                value = value.replace(/^(\d{3})(\d{0,8})/, "$1-$2");
+                break;
+            case 20: // PNR
+                // Allow only numeric values, limit to 10 digits
+                value = numericOnly(value).substring(0, 10);
+                break;
+            default:
+                value = value.replace(/[^\w\s]/g, "");
+                break;
+        }
+    
+        inputElement.value = value;
+    }
+</script>
+
+ <script>
+$(document).ready(function () {
+    $('.field_select').on('change', function () {
+        const selectedValue = $(this).val();
+        const selectElement = $(this);
+
+        if (selectedValue === "New File") return;
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'check_file_status' %}",
+            data: {
+                file_name: selectedValue,
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            success: function (response) {
+                if (response.status !== 1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Ongoing File',
+                        text: response.message || "This file version is ongoing and you cant use this file.",
+                    }).then(() => {
+                        selectElement.val(""); // Reset dropdown only when status is not 1
+                    });
+                }
+                // If status is 1, do nothing (keep the selected value)
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", error);
+                selectElement.val(""); // Reset dropdown on error
+            }
+        });
+    });
+});
+</script> 
+
+<script>
+   {% comment %} $('#compareButton').click(function () {
+    // Assume you get these values from somewhere (input fields, data attributes, etc.)
+    let matched_form_data_id = $('#matched_form_data_id').val();  // or use a JS variable
+    let new_data_id = $('#new_data_id').val();
+
+    // Decide which one to send based on matched_form_data_id
+    let data_id_to_send = (matched_form_data_id === null || matched_form_data_id === '') 
+                          ? new_data_id 
+                          : matched_form_data_id;
+
+    $.ajax({
+        url: "{% url 'get_compare_data' %}",
+        type: 'POST',
+        data: {
+            data_id: data_id_to_send,
+            csrfmiddlewaretoken: '{{ csrf_token }}'  // if using Django
+        },
+        success: function (response) {
+            debugger;
+            console.log('Success:', response);
+            
+            // 🔁 Redirect to another page (example: /comparison-result/)
+           window.location.href = 'Form/compare_data.html' ;
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', error);
+            alert('Error occurred while comparing.');
+        }
+    });
+}); {% endcomment %}
+
+document.getElementById('compareButton').addEventListener('click', function () {
+    let matchedId = document.getElementById('matched_form_data_id').value;
+    let newId = document.getElementById('new_data_id').value;
+
+    let finalId = matchedId && matchedId.trim() !== "" ? matchedId : newId;
+
+    // Open the compare data page in a new tab/window
+    window.open(`/get_compare_data/${finalId}/`, '_blank');
+});
+
+
+</script>
+
+<script>
+
+     $('.field_dropdown').change(function() {
+        debugger;
+        var selectedValue = $(this).val(); 
+    
+        if (selectedValue) {
+            $.ajax({
+                
+                url: "{% url 'check_fileNameExistsInVersion' %}",
+                type: 'POST', 
+                data: {
+                    id: selectedValue,
+                    csrfmiddlewaretoken: '{{ csrf_token }}' 
+                    
+                },
+                success: function(response) {
+                    debugger;
+                    if (response.status === 0) {                    
+                    
+                    Swal.fire("You Can't Use This File Name.");
+                    $('.field_dropdown').val("");  // Clear selected value
+                    return;
+                }
+                },
+                
+            });
+        }
+    });
+    
+</script>
+
+
+
+<script>
+    $(document).ready(function() {
+        $('.field_select').selectize({
+            plugins: [],
+            delimiter: ',',
+            placeholder: "--Select--",
+            persist: false,
+            create: false,
+            selectOnTab: false,
+            onInitialize: function() {
+            }
+        });
+    });
+
+
+</script>
+
+{% if messages %}
+{% for message in messages %}
+  <script>
+  Swal.fire({
+    title: "{{ message.tags }}",
+    text: "{{ message }}",
+    icon: "{{ message.tags }}",
+    confirmButtonText: "OK",
+  });
+</script>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

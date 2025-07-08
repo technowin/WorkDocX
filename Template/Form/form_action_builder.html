@@ -1,0 +1,431 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Search{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<link href="{% static 'css/app-checkbox-css.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Search' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <!-- Card 1: Form Inputs + Add Field -->
+        <div class="card shadow mb-4" style="border-radius: 15px;">
+            <div class="card-body">
+                <form method="POST"
+                    action="{% if form %}{% url 'update_action_form' form.id %}{% else %}{% url 'save_form_action' %}{% endif %}"
+                    id="main-form"
+                    style="padding: 20px;">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label  class="form-label">Form Action Name:</label>
+                            <input type="text" placeholder="Enter Action Template Name" class="form-control"
+                                name="action_name" value="{{ form.name }}" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Master Actions</label>
+                            <select name="action_master" id="dropdown" class="form-control">
+                                <option value="">Select</option>
+                                {% for item in master_values %}
+                                    <option value="{{ item.id }}">{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-center justify-content-center">
+                            <div>
+                                <label class="form-label" for="add_into_master">Add to Master</label><br>
+                                <label class="switch">
+                                    <input type="checkbox" name="is_master" class="form-control salary-checkbox" id="add_into_master"
+                                        {% if form.is_master == True %}checked{% endif %}>
+                                    {% comment %} <span class="slider"></span> {% endcomment %}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                {% if form %}Update{% else %}Save{% endif %} Form
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="form_data" id="form-data-input">
+                </form>
+
+                <hr>
+
+                <div class="text-center mb-3">
+                    <h5 class="fw-bold text-dark">
+                        {% if form %}Edit{% else %}Create{% endif %} Form Footer
+                        <button class="btn btn-success ms-3 rounded-pill" onclick="addField(event)">Add Field</button>
+                    </h5>
+                </div>
+
+                <div id="form-builder" class="col-12"></div>
+            </div>
+        </div>
+
+        <!-- Card 2: Live Preview -->
+        <div class="card shadow" style="border-radius: 15px;">
+            <div class="card-body">
+                <h5 class="text-center fw-bold text-dark mb-4">Live Preview</h5>
+                <div id="dynamic-form" class="row justify-content-center align-items-center">
+                    <!-- Live preview content will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<script>
+
+    $('#dropdown').change(function() {
+        debugger;
+        var selectedValue = $(this).val(); 
+    
+        if (selectedValue) {
+            $.ajax({
+                url: "{% url 'form_action_builder_master' %}",   
+                type: 'GET', 
+                data: {
+                    action_id: selectedValue,
+                    csrfmiddlewaretoken: '{{ csrf_token }}' 
+                },
+                success: function(response) {
+                    debugger;
+                    formFields = response.formFields;
+                    renderFormBuilder();
+                    renderFormPreview();
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                }
+            });
+        }
+    });
+    
+</script> 
+
+<script>
+
+    
+
+
+let dropdownOptions = JSON.parse('{{ dropdown_options|escapejs|safe }}');
+let buttontype = JSON.parse('{{ button_type|escapejs|safe }}');
+
+
+{% if form %}  
+    let formFields = JSON.parse('{{ form_fields_json|escapejs|safe }}');
+
+    function addField() {
+        let newField = {
+            id: formFields.length + 1,
+            label: "Label Name",
+            type: "text",
+            value: "",
+            status:"",
+            bg_color: "#4e73df",
+            text_color: "#ffffff",
+            buttonType: "",
+            options: [],
+            status: []
+        };
+        formFields.push(newField);
+        renderFormBuilder(); 
+        renderFormPreview(); 
+    }
+
+{% else %}
+
+let formFields = [];
+function addField() {
+    let newField = {
+        id: formFields.length + 1,
+        label: "Label Name",
+        type: "text",
+        value: "",
+        status:"",
+        bg_color: "#4e73df",
+        text_color: "#ffffff",
+        buttonType: "",
+        options: [],
+        status: []
+    };
+    formFields.push(newField);
+    renderFormBuilder(); 
+    renderFormPreview(); 
+}
+
+{% endif %}
+
+function renderFormBuilder() {
+    let builder = document.getElementById("form-builder");
+    builder.innerHTML = "";  // Clear the builder before rendering
+
+    formFields.forEach(field => {
+        let fieldId = field.id;
+        let dropdownHtml = `<select class="form-control select" onchange="updateField(${fieldId}, 'type', this.value)">`;
+
+        // Render the dropdown options for field type selection
+        dropdownOptions.forEach(option => {
+            dropdownHtml += `<option value="${option.control_value}" ${field.type === option.control_value ? "selected" : ""}>${option.control_name}</option>`;
+        });
+        dropdownHtml += `</select>`;
+
+        let fieldHtml = "";
+
+        if (field.type === "button") {
+            debugger;
+            fieldHtml = `
+                <div class="col-md-1 mb-3">
+                    <label>Type</label>
+                    ${dropdownHtml}
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label>Button text</label>
+                    <input class="form-control" type="text" value="${field.value}" placeholder="Button Text" onchange="updateField(${fieldId}, 'value', this.value)">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label>Background Color</label>
+                    <input class="form-control" type="color" value="${field.bg_color || '#4e73df'}" onchange="updateField(${fieldId}, 'bg_color', this.value)">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label>Text Color</label>
+                    <input class="form-control" type="color" value="${field.text_color || '#fffff'}" onchange="updateField(${fieldId}, 'text_color', this.value)">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label>Button Type</label>
+                    <select class="form-control select" onchange="updateField(${field.id}, 'button_type', this.value)">
+                        <option value="" disabled ${!field.button_type ? "selected" : ""}>Select button type</option>
+                        ${buttontype.map(option => {
+                            const value = String(option.control_value).trim();
+                            const selected = String(field.button_type || '').trim() === value ? "selected" : "";
+                            return `<option value="${value}" ${selected}>${value}</option>`;
+                        }).join('')}
+                    </select>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    <label>Select Status</label>
+                    <input class="form-control" type="text" value="${field.status || ''}" placeholder="Enter Status" onchange="updateField(${fieldId}, 'status', this.value)">
+                </div>
+            `;
+        } else {
+            fieldHtml = `
+                <div class="col-md-2 mb-3">
+                    ${dropdownHtml}
+                </div>
+                <div class="col-md-2 mb-3">
+                    <input class="form-control" type="text" 
+                        value="${field.label}" 
+                        onchange="validateAndUpdateLabel(this, ${fieldId})">
+                </div>
+            `;
+
+            if (field.type === "select") {
+                // If the field type is "select", add an option dropdown
+                let optionDropdownHtml = `<select id="option-dropdown-${fieldId}" class="form-control option-select" multiple>`;
+                
+                // Loop through options and create <option> elements
+                (field.options || []).forEach(option => {
+                    optionDropdownHtml += `<option value="${option}" ${field.options.includes(option) ? "selected" : ""}>${option}</option>`;
+                });
+                
+                optionDropdownHtml += `</select>`;
+
+                fieldHtml += `
+                    <div class="col-md-4 mb-3">
+                        ${optionDropdownHtml}
+                    </div>
+                `;
+            }
+        }
+
+        builder.innerHTML += `
+            <div class="row">
+                ${fieldHtml}
+                <div class="col-md-1 mt-2">
+                    <span onclick="removeField(${fieldId})" style="cursor: pointer;">
+                        <i class="fa-solid fa-trash" style="color: #dc3545; font-size: 1.5rem;"></i>
+                    </span>
+                </div>
+            </div>
+        `;
+    });
+
+    // Initialize selectize for all option dropdowns
+    document.querySelectorAll(".option-select").forEach(select => {
+        $(select).selectize({
+            plugins: ["remove_button"],
+            delimiter: ",",
+            placeholder: "Enter options",
+            persist: false,
+            create: true,
+            onChange: function(value) {
+                let fieldId = select.id.split("-").pop();
+                updateField(parseInt(fieldId), 'options', value);
+            }
+        });
+    });
+}
+
+function validateAndUpdateLabel(inputElement, fieldId) {
+    debugger;
+let newLabel = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+
+// Check for duplicates (excluding current field)
+// let isDuplicate = formFields.some(field => field.id !== fieldId && field.label.toLowerCase() === newLabel.toLowerCase());
+ let isDuplicate = formFields.some(field => {
+        if (field.id === fieldId) return false;
+        const label = field.label || "";
+        return label.toLowerCase() === newLabel.toLowerCase();
+    });
+
+if (isDuplicate) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Duplicate Label',
+        text: `A field with the label "${newLabel}" already exists.`,
+    });
+    inputElement.value = ""; // Clear the input
+    return;
+}
+
+updateField(fieldId, 'label', newLabel);
+}
+
+
+
+function renderFormPreview() {
+    debugger;
+    let preview = document.getElementById("dynamic-form");
+    preview.innerHTML = "";
+    
+    formFields.forEach(field => {
+        let inputHtml = "";
+        
+        if (field.type === "button") {
+            inputHtml = `<button type="button" class="btn w-100 mt-4" style="border-radius:15px;background-color:${field.bg_color}; color:${field.text_color};">${field.value}</button>`;
+        } else if (field.type === "select") {
+            // For select, add the label along with the select dropdown
+            inputHtml = `<label class="fw-bold">${field.label}</label>` + 
+                        `<select class="form-control select w-100" name="field_${field.id}">`;
+            (field.options || []).forEach(option => {
+                inputHtml += `<option value="${option}" ${field.value === option ? "selected" : ""}>${option}</option>`;
+            });
+            inputHtml += `</select>`;
+        } else if(field.type === "textarea") {
+            inputHtml = `<label class="fw-bold">${field.label}</label>` + `<textarea type="text" class="btn w-100 custom-textarea"></textarea>`
+        
+        }else {
+            inputHtml = `<label class="fw-bold">${field.label}</label>` + 
+                        `<input type="${field.type}" class="form-control w-100" name="field_${field.id}" >`;
+        }
+        
+        let fieldContainer = document.createElement("div");
+        fieldContainer.classList.add("col-md-2", "mb-3", "d-flex", "flex-column");
+        fieldContainer.innerHTML = inputHtml;
+        preview.appendChild(fieldContainer);
+    });
+}
+
+document.getElementById("main-form").addEventListener("submit", function() {
+    document.getElementById("form-data-input").value = JSON.stringify(formFields);
+});
+
+
+function updateField(id, key, value) {
+    formFields = formFields.map(f => f.id === id ? { ...f, [key]: value } : f);
+    renderFormBuilder();
+    renderFormPreview();
+}
+    
+function removeField(id) {
+    formFields = formFields.filter(f => f.id !== id);
+    renderFormBuilder();
+    renderFormPreview();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    renderFormBuilder();
+    renderFormPreview();
+});
+</script>
+
+
+{% if messages %}
+{% for message in messages %}
+  <script>
+  Swal.fire({
+    title: "{{ message.tags }}",
+    text: "{{ message }}",
+    icon: "{{ message.tags }}",
+    confirmButtonText: "OK",
+  });=
+</script>
+{% endfor %}
+{% endif %}
+
+
+  {% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+{% endblock %}

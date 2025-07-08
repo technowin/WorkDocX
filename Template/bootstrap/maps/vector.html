@@ -1,0 +1,118 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Vector Maps{% endblock title %}
+
+{% block extra_css %}
+
+<!-- Vector Maps css -->
+<link href="{% static 'css/vendor/jsvectormap.min.css' %}" rel="stylesheet" type="text/css" />
+
+{% endblock %}
+
+{% block page_title %}
+{% include "bootstrap/partials/page-title.html" with page_title='Vector Maps' sub_title='Maps' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">World Vector Map</h4>
+                <div id="world-map-markers" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+    </div> <!-- end col-->
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Markers Line Vector Map</h4>
+                <div id="world-map-markers-line" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+    </div> <!-- end col-->
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">India Vector Map</h4>
+                <div id="india-vector-map" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- card end -->
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Canada Vector Map</h4>
+
+                <div id="canada-vector-map" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- card end -->
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Russia Vector Map</h4>
+
+                <div id="russia-vector-map" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- card end -->
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">US Vector Map</h4>
+                <div id="usa-vector-map" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- card end -->
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Iraq Vector Map</h4>
+
+                <div id="iraq-vector-map" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- card end -->
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-3">Spain Vector Map</h4>
+                <div id="spain-vector-map" style="height: 360px"></div>
+            </div> <!-- end card-body-->
+        </div> <!-- card end -->
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/jsvectormap.min.js' %}"></script>
+<script src="{% static 'js/vendor/world.js' %}"></script>
+<script src="{% static 'js/vendor/world-merc.js' %}"></script>
+<script src="{% static 'js/maps/in-mill-en.js' %}"></script>
+<script src="{% static 'js/maps/canada.js' %}"></script>
+<script src="{% static 'js/maps/russia.js' %}"></script>
+<script src="{% static 'js/maps/us-area-en.js' %}"></script>
+<script src="{% static 'js/maps/iraq.js' %}"></script>
+<script src="{% static 'js/maps/spain.js' %}"></script>
+<script src="{% static 'js/maps/us-lcc-en.js' %}"></script>
+<script src="{% static 'js/maps/us-mill-en.js' %}"></script>
+<!-- Third party js ends -->
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.vector-maps.js' %}"></script>
+<!-- Init js end -->
+
+{% endblock %}`

@@ -1,0 +1,128 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+{% block title %}Search{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Search' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .keyword-btn {
+        margin: 0.25rem;
+    }
+
+    .highlight {
+        background-color: var(--ct-warning-bg-subtle) !important;
+        color: var(--ct-body-color) !important;
+        font-weight: bold;
+    }
+
+    .kw {
+        color: black !important;
+        font-weight: bold;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+    }
+
+    {% for i in keywords %}
+    .kw{{ forloop.counter0 }} {
+        background-color: hsl({{ forloop.counter0|stringformat:"d" }}0, 70%, 85%);
+    }
+    {% endfor %}
+
+    #pdf-viewer {
+        width: 100%;
+        height: 600px;
+        border: 1px solid var(--ct-border-color);
+        border-radius: 0.375rem;
+    }
+</style>
+
+<div class="mb-4 shadow-sm rounded border border-secondary-subtle p-4 bg-body text-body">
+    <h2 class="mb-3">{{ document.title }}</h2>
+
+    <div class="mb-3">
+        <div class="d-flex flex-wrap">
+            {% for keyword in keywords %}
+                <button class="btn btn-primary btn-sm keyword-btn" onclick="highlightKeyword('{{ keyword|escapejs }}')">
+                    {{ keyword }}
+                </button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6 bg-body-tertiary p-3 shadow-sm rounded overflow-auto" style="max-height: 650px;">
+            <h5 class="fw-bold mb-3">Extracted Text with Highlights:</h5>
+            <p id="text-content" class="mb-0">{{ highlighted_text|safe }}</p>
+        </div>
+
+        <div class="col-md-6 bg-body-tertiary p-3 shadow-sm rounded">
+            <embed id="pdf-viewer" src="{{ full_path }}" type="application/pdf">
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+{% block extra_javascript %}
+
+    {% include "bootstrap/partials/syntax-highlight.html" %}
+    <!-- Third party js -->
+    <script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+    <script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+        <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+    <!-- Third party js ends -->
+    <script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+    <!-- Init js -->
+    <script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+    <script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+    <!-- Init js end -->
+    <!-- Selectize.js JS -->
+    <script src="{% static 'js/selectize.min.js' %}"></script>
+
+{% endblock %}
+
+     <script>
+        function highlightKeyword(keyword) {
+            const container = document.getElementById("text-content");
+            const spans = container.querySelectorAll("span.kw");
+
+            spans.forEach(span => {
+                if (span.textContent.toLowerCase() === keyword.toLowerCase()) {
+                    span.classList.add("highlight");
+                } else {
+                    span.classList.remove("highlight");
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,322 @@
+{% extends "Shared/Layout.html" %} {% block username %}{{username}}{% endblock %}
+{% block content %}
+{% load static %}
+{% csrf_token %}
+{% load custom_filters %}
+
+ <!-- Custom styles for this html-->
+<link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
+<link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/checkbox.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/workflow.css' %}" rel="stylesheet" type="text/css" >
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+ <!-- Selectize css -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+ 
+
+<style>
+
+</style>
+
+ <!-- Begin Page Content -->
+ <form id="main_form" method="POST" enctype="multipart/form-data"  action="{% url 'work_flow' %}">
+    {% csrf_token %}
+    <input type="hidden" id="wfh_id" name="wf_id" value="{{wf_id}}" />
+    <!-- Content Row -->
+    <div class="row mb-2" >
+        <!-- Dispatch Details -->
+        <div class="col-md-7" >
+            <div class="shadow " style="padding: 10px;border: 2px solid #b3b3b3;border-radius: 15px;">
+                <div class="card-header"> <h5 class="m-0 font-weight-bold text-primary">Dispatch Details</h5></div>
+                <div class="card-body" style="height:400px;border: 2px solid #b3b3b3;">
+                    <div class="table-container">
+                        <br>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="disp_type" class="form-label">Dispatch Type:</label>
+                                <select id="disp_type" name="disp_type" class="form-control" style="border-color: black; border-radius: 10px; " {% if wf %}disabled{% else %}required{% endif %} >
+                                    <option value="" disabled>Select</option>
+                                    {% for item in dt %}
+                                        <option value="{{ item.0 }}" {% if item.0 == def_dt %}selected{% endif %}>{{ item.1 }}</option>
+                                    {% endfor %}
+                                </select>                          
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dispatch_no" id="dispatch_lbl" class="form-label">Inward No:</label>
+                                <input type="text" id="dispatch_no" name="dispatch_no" value="{% if wf %}{{wf.dispatch_no}}{% else %}[Auto]{% endif %}" class="form-control" readonly>                   
+                            </div>
+                            <div class="col-md-4">
+                                <label for="received_date" class="form-label">Received Date:</label>
+                                <input type="date" id="received_date" name = "received_date" value="{% if wf %}{{ wf.received_date|date:'Y-m-d' }}{% endif %}" class="form-control" required>                   
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="from" class="form-label">From:</label>
+                                <input type="text" id="from" name = "from" value="{% if wf %}{{wf.from_field}}{% endif %}" class="form-control" required>                   
+                            </div>
+                            <div class="col-md-4">
+                                <label for="to" class="form-label">To:</label>
+                                <input type="text" id="to" name = "to" value="{% if wf %}{{wf.to}}{% endif %}" class="form-control" required>                   
+                            </div>
+                            <div class="col-md-4">
+                                <label for="subject" class="form-label">Subject:</label>
+                                <input type="text" id="subject" name = "subject" value="{% if wf %}{{wf.subject}}{% endif %}" class="form-control" required>                   
+                            </div>
+                        </div>
+                        <div class="row mb-3 justify-content-center">
+                            <div class="col-md-4">
+                                <label for="comment" class="">Comment:</label>
+                                <textarea rows="3" cols="10" id="comment" name="comment" value="{% if wf %}{{wf.comment}}{% endif %}" placeholder="Write your comments here..." class="form-control" style="border-color: black; border-radius: 10px; " required>{% if wf %}{{wf.comment}}{% endif %}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="col-md-5" style="margin-left:0px;">
+            <div class=" shadow " style="padding: 10px; border: 2px solid #b3b3b3;border-radius: 15px;">
+                <div class="card-header"> <h5 class="m-0 font-weight-bold text-primary">Documents</h5></div>
+                <div class="card-body formupl" style="height:400px;">
+                    <div class="table-container ">
+                       
+                        <div class="">
+                            <a type="button" id="Btn3" class="btn btn-primary" style="margin-top:8%" data-toggle="modal" data-target="#docs_model_id" >Uploaded Docs</a>
+                            <label for="file-input1" class="drop-container">
+                                <span class="drop-title">Drop files here</span>or
+                                <input type="file" id="file-input1" class="file-input" name="fileInput" multiple >
+                            </label>
+                        </div>
+                      
+                        <div id = "in_div" style="text-align:left;{% if def_dt != "Inward" %}display:none{% endif %}">
+                            <div class="row mb-3 justify-content-center" >
+                                <div class="col-md-6">
+                                    <label for="department" class="form-label">Department:</label>
+                                    <select id="department" name="department" class="form-control" style="border-color: black; border-radius: 10px;">
+                                        <option value="" selected disabled>Select</option>
+                                        {% for item in dp %}
+                                            <option value="{{ item.0 }}" {% if wf and item.0|to_str == wf.department %}selected{% endif %}>{{ item.1 }}</option>
+                                        {% endfor %}
+                                    </select>                                                             
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="send_user" class="form-label">Send-User:</label>
+                                    <select  id="send_user" name="send_user" class="form-control" style="border-color: black; border-radius: 10px; " >
+                                        <option value=""  selected disabled>Select</option>
+                                        {% for item in su %}
+                                            <option value="{{ item.0 }}" {% if wf and item.0|to_str == wf.send_user %}selected{% endif %} >{{ item.1 }}</option>
+                                        {% endfor %}
+                                    </select>                          
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "out_div" style="text-align:left;{% if def_dt != "Outward" %}display:none{% endif %}">
+                            <div class="row mb-3 justify-content-center">
+                                <div class="col-md-6">
+                                    <label for="branch" class="form-label">Branch:</label>
+                                    <select  id="branch" name="branch" class="form-control" style="border-color: black; border-radius: 10px; " >
+                                        <option value="" selected  disabled>Select</option>
+                                        {% for item in bh %}
+                                            <option value="{{ item.0 }}" {% if wf and item.0|to_str == wf.branch %}selected{% endif %} >{{ item.1 }}</option>
+                                        {% endfor %}
+                                    </select>                          
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="hidden" id="shh_id" name="shh_id" value="{{wf.stakeholders}}" />
+                                    <label for="stakeholder" class="form-label">Stakeholder:</label>
+                                    <select  id="stakeholder" name="stakeholder"  style="border-color: black; border-radius: 10px; " >
+                                        <option value="" selected  disabled>Select</option>
+                                        {% for item in sh %}
+                                            <option value="{{ item.0 }}" >{{ item.1 }}</option>
+                                        {% endfor %}
+                                    </select>     
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row col-lg-12 mb-2 shadow justify-content-center" style="padding: 10px;text-align:center;border: 2px solid #b3b3b3;border-radius: 15px;margin-left:0px;align-items:center;justify-items:center;">
+        <div class="col-md-3" style="">
+            <button type="submit" id="submitBtn" class="btn btn-primary"  >{% if wf %}Update{% else %}Submit{% endif %}</button>
+        </div>
+        <div class="col-md-2">
+            <a type="button" href="/index" id="backBtn" class="btn btn-primary">Back</a>
+        </div>
+    </div>
+</form>
+
+ <!-- Selectize css -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+ 
+<!-- Documents Modal -->
+<div class="modal fade" id="docs_model_id" >
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color:black">Uploaded Documents </h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-container">
+                    <table class="table table-bordered" id = "docs_id" >
+                        <thead style="font-weight:bold;">
+                            <tr>    
+                                {% for col in header %}
+                                    <th style="font-weight: bold; color: black; {% if col.1 != "" %} width: {{ col.1 }};{% endif %}">{{ col.0 }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                                <tr style="color:black">
+                                    <td>{{ forloop.counter }}</td>
+                                    {% for cell in row %}
+                                        {% if forloop.counter == 5 %}
+                                            <td>
+                                                {% if cell %}
+                                                    <a href="{% url 'download_doc' cell %}" style="font-weight: bold; font-size: 15px" download >
+                                                    <img src={% static 'images/download2.png' %}  width="42" height = "42" title="{{row.0}}" target="_blank"></a>
+                                                {% endif %}
+                                            </td>
+                                        {% else %}
+                                            <td>{{ cell }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>    
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+
+{% if messages %}
+  {% for message in messages %}
+    <script>
+    Swal.fire({
+      title: "{{ message.tags }}",
+      text: "{{ message }}",
+      icon: "{{ message.tags }}",
+      confirmButtonText: "OK",
+    });
+  </script>
+  {% endfor %}
+{% endif %}
+
+<script>
+    $(document).ready(function () {
+        debugger;
+        var selectedValue = $("#shh_id").val();; // Pre-selected value for edit form
+        
+        var selectizeControl = $('#stakeholder').selectize({
+            plugins: [], // Remove the 'remove_button' plugin as it's for multi-select
+            persist: false,
+            create: true, // Allow adding new options
+            maxItems: 1, // Limit to a single selection
+            selectOnTab: true, // Select the item when pressing Tab
+            dropdownParent: 'body',
+            onInitialize: function () {
+                console.log('Selectize initialized!');
+            }
+        });
+        
+        // Set the pre-selected value for edit mode
+        var selectizeInstance = selectizeControl[0].selectize; // Access the Selectize instance
+        if (selectedValue) {
+            selectizeInstance.setValue(selectedValue);
+        }
+    });    
+</script>
+
+<script>
+    // Handle form submission
+    $("#submitBtn").click(function () {
+        debugger;
+        const selectedType = $("#disp_type").val();
+        let isValid = false;
+
+        if (selectedType === "Inward") {
+            const input1 = $("#department").val();
+            const input2 = $("#send_user").val();
+
+            if (input1 || input2) {
+                isValid = true;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required',
+                    text: 'Please select at least one option from the Department or Send User dropdown.',
+                });
+                return false; 
+            }
+        } else if (selectedType === "Outward") {
+            const input3 = $("#branch").val();
+            const input4 = $("#stakeholder").val();
+
+            if (input3 || input4) {
+                isValid = true;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Required',
+                    text: 'Please select at least one option from the Branch or Stakeholder dropdown.',
+                });
+                return false; 
+            }
+        } 
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const dispType = document.getElementById('disp_type');
+        const dispatchLbl = document.getElementById('dispatch_lbl');
+        const inDiv = document.getElementById('in_div');
+        const outDiv = document.getElementById('out_div');
+        dispType.addEventListener('change', () => {
+            const selectedValue = dispType.value;
+            dispatchLbl.innerText = selectedValue === 'Inward' ? 'Inward No:' : selectedValue === 'Outward' ? 'Outward No:' :'No:';
+            inDiv.style.display = selectedValue === 'Inward' ? 'block' : 'none';
+            outDiv.style.display = selectedValue === 'Outward' ? 'block' : 'none';
+        });
+    });
+     
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+     $("#docs_id").DataTable({
+        ordering: false,
+        pageLength: 6,
+        lengthMenu: [
+          [6, 10, 25, 50, 100, 200, 300, 400, 500, -1],
+          [6, 10, 25, 50, 100, 200, 300, 400, 500, "All"],
+        ],
+     });
+    });
+  </script>
+
+<!-- End of Main Content -->
+{% endblock %}

@@ -1,0 +1,478 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Compare{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Compare' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .header{
+        color:white !important;
+        font-size:20px !important
+    }
+</style>
+
+      <!-- Statistics Summary -->
+<!-- Statistics Summary -->
+<!-- Top Summary Card -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4 border-end">
+                <h6 class="text-muted text-uppercase">Total Fields</h6>
+                <h2 class="fw-bold" id="total-fields">{{ comparison_data|length }}</h2>
+            </div>
+            <div class="col-md-4 border-end">
+                <h6 class="text-muted text-uppercase">Changed Values</h6>
+                <h2 class="fw-bold text-warning" id="changed-fields">0</h2>
+            </div>
+            <div class="col-md-4">
+                <h6 class="text-muted text-uppercase">Unchanged</h6>
+                <h2 class="fw-bold text-success" id="unchanged-fields">0</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comparison Section -->
+<div class="row mb-4">
+    <!-- Previous Values Card -->
+    <div class="col-md-6">
+        <div class="card border-start border-4 border-primary shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 header">Previous Values</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for item in comparison_data %}
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ item.label }}</label>
+                            <div class="position-relative">
+                                <input type="text"
+                                    class="form-control {% if item.old_value != item.new_value %}border-warning bg-warning-subtle text-dark{% endif %}"
+                                    value="{{ item.old_value }}"
+                                    disabled
+                                    data-index="{{ forloop.counter0 }}"
+                                    data-type="old">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Values Card -->
+    <div class="col-md-6">
+        <div class="card border-start border-4 border-success shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0 header">New Values</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for item in comparison_data %}
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ item.label }}</label>
+                            <div class="position-relative">
+                                <input type="text"
+                                    class="form-control {% if item.old_value != item.new_value %}border-warning bg-warning-subtle text-dark{% endif %}"
+                                    value="{{ item.new_value }}"
+                                    disabled
+                                    data-index="{{ forloop.counter0 }}"
+                                    data-type="new">
+
+                                {% if item.old_value != item.new_value %}
+                                    <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-danger">!</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+   <div class="row">
+    {% for file_item in file_comparison_data %}
+        <!-- OLD FILES -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-start border-primary border-4 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 header">{{ file_item.label }} - Old Files</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for file in file_item.old_files %}
+                            <li class="list-group-item">
+                                <a href="javascript:void(0);" onclick="previewOldFile('{{ file.path }}')" class="text-decoration-none">{{ file.name }}</a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No files</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Old File Preview Box -->
+                    <div id="old-file-preview-container" class="mt-4" style="display: none;">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0 header">File Preview</h5>
+                            </div>
+                            <div class="card-body" style="height: 600px; overflow-y: auto;">
+                                <div id="old-file-preview-content"  style="height: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW FILES -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-start border-success border-4 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 header">{{ file_item.label }} - New Files</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for file in file_item.new_files %}
+                            <li class="list-group-item">
+                                <a href="javascript:void(0);" onclick="previewNewFile('{{ file.path }}')" class="text-decoration-none">{{ file.name }}</a>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No files</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- New File Preview Box -->
+                    <div id="new-file-preview-container" class="mt-4" style="display: none;">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0 header">File Preview</h5>
+                            </div>
+                            <div class="card-body" style="height: 600px; overflow-y: auto;">
+                                <div id="new-file-preview-content" style="height: 100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+ <div class="row">
+    <!-- Old Data Card (Left) -->
+    <div class="col-md-6 mb-4">
+        <div class="card border-start border-primary border-4 shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 header">{{ file_item.label }} Old Data (Previous Version)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                <table id="datatable" class="table table-striped table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:5%;">Step Name</th>
+                            <th style="width:10%;">Email (Role)</th>
+                            <th style="width:67%;">Comment/Action</th>
+                            <th style="width:20%;">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if old_data_grouped %}
+                            {% for item in old_data_grouped %}
+                                {% for comment in item.comments %}
+                                    <tr>
+                                        {% if forloop.first %}
+                                            <td rowspan="{{ item.rowspan }}">{{ item.step_name }}</td>
+                                            <td rowspan="{{ item.rowspan }}">{{ item.email }} ({{ item.role_name }})</td>
+                                        {% endif %}
+                                        <td>{{ comment.value }}</td>
+                                        <td>{{ comment.created_at }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No data found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Data Card (Right) -->
+    <div class="col-md-6 mb-4">
+        <div class="card border-start border-success border-4 shadow-sm h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0 header">{{ file_item.label }} New Data (Latest Version)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                <table id="datatable" class="table table-striped table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:5%;">Step Name</th>
+                            <th style="width:10%;">Email (Role)</th>
+                            <th style="width:67%;">Comment/Action</th>
+                            <th style="width:20%;">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if new_data_grouped %}
+                            {% for item in new_data_grouped %}
+                                {% for comment in item.comments %}
+                                    <tr>
+                                        {% if forloop.first %}
+                                            <td rowspan="{{ item.rowspan }}">{{ item.step_name }}</td>
+                                            <td rowspan="{{ item.rowspan }}">{{ item.email }} ({{ item.role_name }})</td>
+                                        {% endif %}
+                                        <td>{{ comment.value }}</td>
+                                        <td>{{ comment.created_at }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center">No data found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script>
+
+
+ function previewOldFile(encryptedPath) {
+    $.ajax({
+        url: "{% url 'preview_file' %}",
+        type: 'POST',
+        data: {
+            encrypted_path: encryptedPath,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            const container = document.getElementById('old-file-preview-container');
+            const content = document.getElementById('old-file-preview-content');
+            content.innerHTML = ''; // Clear previous preview
+
+            if (response.success) {
+                const ext = response.file_url.split('.').pop().toLowerCase();
+
+                if (['pdf'].includes(ext)) {
+                    content.innerHTML = `<embed  type="application/pdf" src="${response.file_url}" width="100%" height="500px" style="border: none;" ></embed>`;
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
+                    content.innerHTML = `<img src="${response.file_url}" alt="Image Preview" class="img-fluid">`;
+                } else if (['xls', 'xlsx'].includes(ext)) {
+                    fetch(response.file_url)
+                        .then(res => res.arrayBuffer())
+                        .then(data => {
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const sheetName = workbook.SheetNames[0];
+                            const sheet = workbook.Sheets[sheetName];
+                            const html = XLSX.utils.sheet_to_html(sheet);
+                            content.innerHTML = html;
+                        })
+                        .catch(err => {
+                            content.innerHTML = `<p class="text-danger">Unable to preview Excel file.</p>`;
+                            console.error("Excel Preview Error:", err);
+                        });
+                }else {
+                    content.innerHTML = `<p class="text-muted">Preview not available. <a href="${response.file_url}" target="_blank">Download file</a>.</p>`;
+                }
+            } else {
+                content.innerHTML = `<p class="text-danger">Error loading file.</p>`;
+            }
+
+            container.style.display = 'block'; // Always show the container
+        },
+        error: function() {
+            const content = document.getElementById('old-file-preview-content');
+            const container = document.getElementById('old-file-preview-container');
+            content.innerHTML = `<p class="text-danger">Server error while loading the file.</p>`;
+            container.style.display = 'block';
+        }
+    });
+}
+
+</script>
+
+<script>
+function previewNewFile(encryptedPath) {
+    $.ajax({
+        url: "{% url 'preview_file' %}",
+        type: 'POST',
+        data: {
+            encrypted_path: encryptedPath,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            const container = document.getElementById('new-file-preview-container');
+            const content = document.getElementById('new-file-preview-content');
+            content.innerHTML = ''; // Clear previous preview
+
+            if (response.success) {
+                debugger;
+                const ext = response.file_url.split('.').pop().toLowerCase();
+
+                if (['pdf'].includes(ext)) {
+                    content.innerHTML = `<embed src="${response.file_url}" style="width: 100%; height: 100%; border: none;"></embed>`;
+                } else if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) {
+                    content.innerHTML = `<img src="${response.file_url}" alt="Image Preview" class="img-fluid">`;
+                } else if (['xls', 'xlsx'].includes(ext)) {
+                    fetch(response.file_url)
+                        .then(res => res.arrayBuffer())
+                        .then(data => {
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const sheetName = workbook.SheetNames[0];
+                            const sheet = workbook.Sheets[sheetName];
+                            const html = XLSX.utils.sheet_to_html(sheet);
+                            content.innerHTML = html;
+                        })
+                        .catch(err => {
+                            content.innerHTML = `<p class="text-danger">Unable to preview Excel file.</p>`;
+                            console.error("Excel Preview Error:", err);
+                        });
+                } else {
+                    content.innerHTML = `<p class="text-muted">Preview not available. <a href="${response.file_url}" target="_blank">Download file</a>.</p>`;
+                }
+            } else {
+                content.innerHTML = `<p class="text-danger">Error loading file.</p>`;
+            }
+
+            container.style.display = 'block'; // Always show the container
+        },
+        error: function() {
+            const content = document.getElementById('new-file-preview-content');
+            const container = document.getElementById('new-file-preview-container');
+            content.innerHTML = `<p class="text-danger">Server error while loading the file.</p>`;
+            container.style.display = 'block';
+        }
+    });
+}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const totalFields = {{ comparison_data|length }};
+        let changedCount = 0;
+
+        for (let i = 0; i < totalFields; i++) {
+            const oldInput = document.querySelector(`input[data-type="old"][data-index="${i}"]`);
+            const newInput = document.querySelector(`input[data-type="new"][data-index="${i}"]`);
+
+            if (!oldInput || !newInput) continue;
+
+            const oldValue = oldInput.value.trim();
+            const newValue = newInput.value.trim();
+
+            if (oldValue !== newValue) {
+                changedCount++;
+            }
+
+            // Optional: hover effect to highlight matching pairs
+            [oldInput, newInput].forEach(input => {
+                input.addEventListener('mouseenter', () => {
+                    oldInput.classList.add('border-primary', 'border-2');
+                    newInput.classList.add('border-primary', 'border-2');
+                });
+
+                input.addEventListener('mouseleave', () => {
+                    oldInput.classList.remove('border-primary', 'border-2');
+                    newInput.classList.remove('border-primary', 'border-2');
+                });
+            });
+        }
+
+        // Update counters
+        document.getElementById('total-fields').textContent = totalFields;
+        document.getElementById('changed-fields').textContent = changedCount;
+        document.getElementById('unchanged-fields').textContent = totalFields - changedCount;
+    });
+</script>
+
+
+
+
+
+{% if messages %}
+{% for message in messages %}
+  <script>
+  Swal.fire({
+    title: "{{ message.tags }}",
+    text: "{{ message }}",
+    icon: "{{ message.tags }}",
+    confirmButtonText: "OK",
+  });
+</script>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+{% endblock %}

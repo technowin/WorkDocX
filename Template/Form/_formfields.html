@@ -1,0 +1,375 @@
+
+
+{% block content %}
+{% load static %}
+
+<link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css" >
+
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<style> 
+          
+        
+</style>
+
+<div class="row">
+    {% for section_name, fields in sectioned_fields.items %}
+    <div class="section-wrapper col-md-12 my-4 p-3 {% if not section_name %}no-section{% endif %}">
+        {% if section_name %}
+            <div class="section-header">{{ section_name }}</div>
+        {% endif %}
+
+        {% for field in fields %}
+            {% if forloop.counter0|divisibleby:4 %}
+                <div class="row">
+            {% endif %}
+
+            <div class="col-md-3 mb-3">
+                <!-- Hidden fields -->
+                <input type="hidden" name="form_name" value="{{ field.form_id__name }}">
+                <input type="hidden" id="form_data_id" name="form_data_id" value="{{ form_data_id }}">
+                <input type="hidden" id="form_id" name="form_id" value="{{ field.form_id }}">
+                <input type="hidden" id="action_id" name="action_id" value="{{ field.action_id }}">
+                <input type="hidden" id="field_id" name="field_id_{{ field.id }}" value="{{ field.id }}">
+                <label class="fw-bold">{{ field.label }}</label>
+                <input type="hidden" id="type" name="type" value="{{ type }}">
+
+                {% if field.field_type == "select" %}
+                    <select class="form-control select" name="field_{{ field.id }}" {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                        <option value="" selected disabled>Select</option>
+                        {% for option in field.values %}
+                            <option value="{{ option }}" {% if option == field.value %} selected {% endif %}>{{ option }}</option>
+                        {% endfor %}
+                    </select>
+
+                {% elif field.field_type == "master dropdown" %}
+                    <select class="form-control select" name="field_{{ field.id }}" {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                        <option value="" selected disabled>Select</option>
+                        {% for option in field.values %}
+                            <option value="{{ option.id }}">{{ option.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                {% elif field.field_type == "select multiple" %}
+                    <select class="form-control select_multiple" id="multiple" name="field_{{ field.id }}" multiple {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                        {% for option in field.values %}
+                            <option value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
+
+                {% elif field.field_type == "radio" %}
+                    <div class="d-flex flex-wrap">
+                        {% for option in field.values %}
+                            <div class="form-check me-2">
+                                <input class="form-check-input" type="radio" name="field_{{ field.id }}" value="{{ option }}" id="radio_{{ field.id }}_{{ forloop.counter }}"
+                                    {% if option == field.value %}checked{% endif %}
+                                    {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                                <label class="form-check-label" for="radio_{{ field.id }}_{{ forloop.counter }}">{{ option }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                {% elif field.field_type == "field_dropdown" %}
+                    <select class="form-control select" name="field_{{ field.id }}" {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                        <option value="" selected disabled>Select</option>
+                        {% for option in field.dropdown_data %}
+                            <option value="{{ option.value }}">{{ option.value }}</option>
+                        {% endfor %}
+                    </select>
+
+                {% elif field.field_type == "checkbox" %}
+                    <label class="switch">
+                        <input type="checkbox" name="field_{{ field.id }}"
+                            {% if field.value == "on" %}checked{% endif %}
+                            {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                        <span class="slider"></span>
+                    </label>
+                {% elif field.field_type == "field_dropdown" %}
+                    <select class="form-control select" name="field_{{ field.id }}"
+                        {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                        <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
+                        {% for option in field.dropdown_data %}
+                          <option value="{{ option.value }}" {% if option.value == field.saved_value %}selected{% endif %}
+                         >
+                            {{ option.value }}
+                          </option>
+                        {% endfor %}
+                    </select>
+
+                {% elif field.field_type == "file" or field.field_type == "file multiple" %}
+                    <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                        <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}"
+                            {% if field.field_type == 'file multiple' %}multiple{% endif %}
+                            class="form-control custom-file-input" style="padding-right: 100px;" id="file_input_{{ field.id }}"
+                            {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                        <i class="fa-solid fa-eye eye-icon" onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"></i>
+                    </div>
+
+                {% elif field.field_type == "file_name" %}
+                    <select class="form-control field_select" name="field_{{ field.id }}"
+                            {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                            {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+                        <option value="" disabled {% if not field.saved_value %}selected{% endif %}>Select</option>
+                        {% for option in field.file_name_options %}
+                            <option value="{{ option }}" {% if option == field.saved_value %}selected{% endif %}>
+                                {{ option }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                {% elif field.field_type == "textarea" %}
+                    <textarea class="form-control custom-textarea" name="field_{{ field.id }}" rows="1"
+                        {% for attr in field.attributes %}{{ attr }}{% endfor %}>{{ field.value }}</textarea>
+
+                {% elif field.field_type == "generative" %}
+                    <input type="text" class="form-control" disabled name="field_{{ field.id }}" value="{{ field.value }}"
+                        placeholder="This Field is System Generated"
+                        {% for attr in field.attributes %}{{ attr }}{% endfor %} />
+
+                {% elif field.field_type == "number" %}
+                    <input type="number" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
+                        placeholder="Enter Numeric Value"
+                        {% for attr in field.attributes %}{{ attr }}{% endfor %} />
+
+                {% elif field.field_type == "text" %}
+                    <input type="text" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
+                        {% if field.accept %}maxlength="{{ field.accept }}"{% endif %}
+                        placeholder="{% if field.accept %}Enter up to {{ field.accept }} characters{% else %}Enter text{% endif %}"
+                        {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+
+                {% elif field.field_type == "regex" %}
+                    <input type="text" class="form-control"
+                        name="field_{{ field.id }}"
+                        id="regex-{{ field.id }}"
+                        data-regex="{{ field.validations.0.value }}"
+                        data-regex-id="{{ field.regex_id }}"
+                        value="{{ field.value|default:'' }}"
+                        oninput="formatInputByPattern(this, '{{ field.regex_id }}'); validateRegexInput(this);"
+                        placeholder="{{ field.regex_description }}"
+                        {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+
+                {% else %}
+                    <input type="{{ field.field_type }}" class="form-control" name="field_{{ field.id }}" value="{{ field.value }}"
+                        {% for attr in field.attributes %}{{ attr }}{% endfor %}>
+                {% endif %}
+            </div>
+
+            {% if forloop.counter0|add:1|divisibleby:4 or forloop.last %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}
+
+
+
+</div>
+
+
+<script>
+    $(document).ready(function() {
+        $('.select_multiple').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            placeholder: "Select Options",
+            persist: false,
+            create: false,
+            selectOnTab: false, 
+            maxItems: null,
+            onInitialize: function() {
+                var control = this;
+                control.clear();
+            }
+        });
+    });
+
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.field_select').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            placeholder: "--Select--",
+            persist: false,
+            create: false,
+            selectOnTab: false, 
+            maxItems: null,
+            onInitialize: function() {
+                var control = this;
+                control.clear();
+            }
+        });
+    });
+
+</script>
+
+<script>
+
+    function showFile(input) {
+        debugger;
+        const files = input.files;
+    
+        if (!files || files.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'No Files Selected',
+                text: 'Please select files to view them.',
+                confirmButtonText: 'Okay'
+            });
+            return;
+        }
+    
+        let tableHTML = `
+            <table style="width:100%; text-align:left; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
+                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+    
+        Array.from(files).forEach((file, index) => {
+            tableHTML += `
+                <tr>
+                    <td style="padding: 8px;">${index + 1}</td>
+                    <td style="padding: 8px;">${file.name}</td>
+                </tr>
+            `;
+        });
+    
+        tableHTML += `</tbody></table>`;
+    
+        Swal.fire({
+            title: 'Selected Files',
+            html: tableHTML,
+            width: '600px',
+            confirmButtonText: 'Close'
+        });
+    }
+    
+    function removeNewFile(rowId, index) {
+        document.getElementById(rowId)?.remove();
+        if (newFiles) {
+            newFiles.splice(index, 1); // remove the file from array
+        }
+    
+        // Optional: if all files removed, show "No files available"
+        if (newFiles.length === 0 && (!data.files || data.files.length === 0)) {
+            const tableBody = document.getElementById("your-table-body-id");
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="padding: 8px; text-align: center; color: gray;">
+                        No files available
+                    </td>
+                </tr>
+            `;
+        }
+    }
+    
+  
+</script>
+<script>
+function validateRegexInput(inputElement) {
+        const pattern = inputElement.getAttribute("data-regex");
+        const value = inputElement.value;
+    
+        if (!pattern) return true; // No pattern to validate against
+    
+        const regex = new RegExp(pattern);
+        if (!regex.test(value)) {
+            inputElement.classList.add("is-invalid");
+            inputElement.setCustomValidity("Invalid input pattern.");
+            inputElement.reportValidity(); // Show browser validation message
+            return false;
+        } else {
+            inputElement.classList.remove("is-invalid");
+            inputElement.setCustomValidity(""); // Reset validity
+            return true;
+        }
+    }
+
+
+     function formatInputByPattern(inputElement, regexId) {
+        
+        let value = inputElement.value;
+    
+        const numericOnly = v => v.replace(/\D/g, "");
+        const alnumUpper = v => v.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    
+        switch (parseInt(regexId)) {
+            case 1: // Aadhar
+                value = numericOnly(value).substring(0, 12);
+                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                break;
+            case 2: // PAN
+                value = value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // Remove non-alphanumerics
+                value = value.substring(0, 10); // Enforce 10-char limit
+                break;
+            case 3: // IFSC
+                value = alnumUpper(value).substring(0, 11);
+                break;
+            case 5: // Mobile Number
+                value = numericOnly(value).substring(0, 10);
+                break;
+            case 6: // Pincode
+                value = numericOnly(value).substring(0, 6);
+                break;
+            case 7: // Passport
+                value = alnumUpper(value).substring(0, 8);
+                break;
+            case 8: // Voter ID
+                value = alnumUpper(value).substring(0, 10);
+                break;
+            case 9: // Driving License
+                value = alnumUpper(value).substring(0, 16);
+                break;
+            case 10: // UPI
+                value = value.replace(/[^\w@.]/g, "").substring(0, 50);
+                break;
+            case 16: // Credit Card
+                value = numericOnly(value).substring(0, 16);
+                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                break;
+            case 17: // Landline Number (XXX-XXXXXXX)
+                // Remove all non-digit characters
+                value = numericOnly(value).substring(0, 11);
+                // Format as XXX-XXXXXXX
+                value = value.replace(/^(\d{3})(\d{0,8})/, "$1-$2");
+                break;
+            case 20: // PNR
+                // Allow only numeric values, limit to 10 digits
+                value = numericOnly(value).substring(0, 10);
+                break;
+            default:
+                value = value.replace(/[^\w\s]/g, "");
+                break;
+        }
+    
+        inputElement.value = value;
+    }
+</script>
+
+
+
+{% if messages %}
+{% for message in messages %}
+  <script>
+  Swal.fire({
+    title: "{{ message.tags }}",
+    text: "{{ message }}",
+    icon: "{{ message.tags }}",
+    confirmButtonText: "OK",
+  });
+</script>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

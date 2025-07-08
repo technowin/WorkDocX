@@ -1,0 +1,61 @@
+from django.urls import path
+
+from .views import (
+    ui_accordions_view,
+    ui_alerts_view,
+    ui_avatars_view,
+    ui_badges_view,
+    ui_breadcrumb_view,
+    ui_buttons_view,
+    ui_cards_view,
+    ui_carousel_view,
+    ui_dropdowns_view,
+    ui_embed_video_view,
+    ui_grid_view,
+    ui_list_group_view,
+    ui_modals_view,
+    ui_notifications_view,  
+    ui_offcanvas_view,
+    ui_placeholders_view,
+    ui_pagination_view,
+    ui_popovers_view,
+    ui_progress_view,
+    ui_ribbons_view,
+    ui_spinners_view,
+    ui_tabs_view,
+    ui_tooltips_view,
+    ui_links_view,
+    ui_typography_view,
+    ui_utilities_view
+
+)
+
+app_name = "ui"
+urlpatterns = [
+    path("accordions", view=ui_accordions_view, name="accordions"),
+    path("alerts", view=ui_alerts_view, name="alerts"),
+    path("avatars", view=ui_avatars_view, name="avatars"),
+    path("badges", view=ui_badges_view, name="badges"),
+    path("breadcrumb", view=ui_breadcrumb_view, name="breadcrumb"),
+    path("buttons", view=ui_buttons_view, name="buttons"),
+    path("cards", view=ui_cards_view, name="cards"),
+    path("carousel", view=ui_carousel_view, name="carousel"),
+    path("dropdowns", view=ui_dropdowns_view, name="dropdowns"),
+    path("embed-video", view=ui_embed_video_view, name="embed-video"),
+    path("grid", view=ui_grid_view, name="grid"),
+    path("list-group", view=ui_list_group_view, name="list-group"),
+    path("modals", view=ui_modals_view, name="modals"),
+    path("notifications", view=ui_notifications_view, name="notifications"),
+    path("offcanvas", view=ui_offcanvas_view, name="offcanvas"),
+    path("placeholders", view=ui_placeholders_view, name="placeholders"),
+    path("pagination", view=ui_pagination_view, name="pagination"),
+    path("popovers", view=ui_popovers_view, name="popovers"),
+    path("progress", view=ui_progress_view, name="progress"),
+    path("ribbons", view=ui_ribbons_view, name="ribbons"),
+    path("spinners", view=ui_spinners_view, name="spinners"),
+    path("tabs", view=ui_tabs_view, name="tabs"),
+    path("tooltips", view=ui_tooltips_view, name="tooltips"),
+    path("links", view=ui_links_view, name="links"),
+    path("typography", view=ui_typography_view, name="typography"),
+    path("utilities", view=ui_utilities_view, name="utilities")
+]

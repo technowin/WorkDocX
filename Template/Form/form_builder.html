@@ -1,0 +1,1628 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Search{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Search' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+    /* Base: Mobile-first default (stacked full width on small screens) */
+[class^="col-md-custom-"],
+[class*=" col-md-custom-"] {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding: 0 10px;
+}
+
+/* Tablet and up (≥ 768px) */
+@media (min-width: 768px) {
+  .col-md-custom-0 { flex: 0 0 3.33%; max-width: 3.33%; }
+  .col-md-custom-1   { flex: 0 0 4%;    max-width: 4%; }
+  .col-md-custom-2   { flex: 0 0 15%;   max-width: 15%; }
+  .col-md-custom-3   { flex: 0 0 25%;   max-width: 25%; }
+  .col-md-custom-4   { flex: 0 0 28.33%; max-width: 28.33%; }
+  .col-md-custom-5   { flex: 0 0 41.66%; max-width: 41.66%; }
+  .col-md-custom-6   { flex: 0 0 50%;   max-width: 50%; }
+  .col-md-custom-7   { flex: 0 0 58.33%; max-width: 58.33%; }
+  .col-md-custom-8   { flex: 0 0 66.66%; max-width: 66.66%; }
+  .col-md-custom-9   { flex: 0 0 75%;   max-width: 75%; }
+  .col-md-custom-10  { flex: 0 0 83.33%; max-width: 83.33%; }
+  .col-md-custom-11  { flex: 0 0 91.66%; max-width: 91.66%; }
+  .col-md-custom-12  { flex: 0 0 100%;  max-width: 100%; }
+}
+
+
+
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="livePreviewModal" tabindex="-1" aria-labelledby="livePreviewModalLabel" aria-hidden="true" data-bs-theme="auto">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      
+      <!-- Modal Header -->
+      <div class="modal-header border-bottom-0">
+        <h2 class="modal-title fs-4" id="livePreviewModalLabel">Live Preview</h2>
+        <button type="button" class="btn-close " data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div class="card border-0 rounded-4 ">
+          <form id="dynamic-form" class="row g-3 p-4">
+            <!-- Dynamic form content will be injected here -->
+          </form>
+        </div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer border-top-0">
+        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow" style="border-radius: 15px;">
+            <div class="card-body">
+                <form method="POST" action="{% if form %}{% url 'update_form' form.id %}{% else %}{% url 'save_form' %}{% endif %}" id="main-form">
+                    {% csrf_token %}
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label for="form_name" class="form-label fw-semibold">Form Name:</label>
+                            <input type="text" class="form-control" id="form_name" name="form_name"
+                                   pattern="^[A-Za-z ]+$" placeholder="Enter Form Name"
+                                   value="{{ form.name }}" required onchange="DublicateformName()">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="form_description" class="form-label fw-semibold">Form Description:</label>
+                            <input type="text" class="form-control" id="form_description" name="form_description"
+                                   placeholder="Enter Form Description" value="{{ form.description }}">
+                        </div>
+
+                        <input type="hidden" name="form_data" id="form-data-input">
+
+                        <div class="col-md-2 d-grid align-self-end">
+                            <button type="submit" id="btnSubmit" class="btn btn-primary rounded-pill">
+                                {% if form %}Update{% else %}Save{% endif %} Form
+                            </button>
+                        </div>
+
+                        <div class="col-md-2 d-grid align-self-end">
+                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-toggle="modal" data-bs-target="#livePreviewModal">
+                                Live Preview
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <h4 class="fw-bold">
+                        {% if form %} Edit {% else %} Create {% endif %} Form
+                        <button class="btn btn-sm btn-success rounded-pill ms-3" onclick="addField()">Add Field</button>
+                    </h4>
+                </div>
+
+                <div id="form-fields-container">
+                    <div id="form-builder" class="row g-3 mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+{% comment %} <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script> {% endcomment %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<script>
+    let commonOptions = JSON.parse('{{ common_options|escapejs|safe }}');
+    let dropdownOptions = JSON.parse('{{ dropdown_options|escapejs|safe }}');
+    let subControls = JSON.parse('{{ sub_control|escapejs|safe }}');
+    let regex = JSON.parse('{{ regex|escapejs|safe }}');
+    let master = JSON.parse('{{ master_dropdown|escapejs|safe }}')
+    let formNames = JSON.parse('{{ form_names|escapejs|safe }}')
+    let section = JSON.parse('{{ section_names|escapejs|safe }}')
+    let version = JSON.parse('{{ version|escapejs|safe }}')
+  
+
+    {% if form %}
+    let formFields = JSON.parse('{{ form_fields_json|escapejs|safe }}');
+    let allFieldLabels = []; 
+
+    function addField() {
+        const previousDropdownStates = captureDropdownStates();  // Capture current dropdown values
+    
+        let newField = {
+            id: formFields.length + 1,
+            label: "Label Name " + (formFields.length + 1),
+            type: "text",
+            commonType: [],
+            options: [],
+            generatefield: "",
+            section:"",
+            masterValue: "",
+            multiMasterValue: "",
+            order: formFields.length + 1
+        };
+    
+        formFields.push(newField);
+    
+        updateAllFieldLabels();
+        renderFormBuilder();  // Re-render form (this will remove selected values)
+        renderFormPreview();
+    
+        restoreDropdownStates(previousDropdownStates);  // Restore the previous state
+    }
+    
+    
+    {% else %}
+    let formFields = [];
+    let allFieldLabels = []; 
+
+    function addField() {
+        const previousDropdownStates = captureDropdownStates();  // Capture current dropdown values
+    
+        let newField = {
+            id: formFields.length + 1,
+            label: "Label Name " + (formFields.length + 1),
+            type: "text",
+            commonType: [],
+            options: [],
+            generatefield: "",
+            section: "",
+            masterValue: "",
+            multiMasterValue: "",
+            order: formFields.length + 1
+        };
+    
+        formFields.push(newField);
+    
+        updateAllFieldLabels();
+        renderFormBuilder();  // Re-render form (this will remove selected values)
+        renderFormPreview();
+    
+        restoreDropdownStates(previousDropdownStates);  // Restore the previous state
+    }
+    
+    
+
+    {% endif %}
+
+    function updateAllFieldLabels() {
+        allFieldLabels = formFields.map(field => ({
+            id: field.id,
+            label: field.label
+        }));
+    }
+    
+
+   
+
+    function renderFormBuilder() {
+        let builder = document.getElementById("form-builder");
+    
+        // Step 1: Save existing values before re-rendering
+        formFields.forEach(field => {
+            
+            let existingElement = document.getElementById(`dynamic-element-${field.id}`);
+            if (existingElement) {
+                let inputElement = existingElement.querySelector("input, select");
+                if (inputElement) {
+                    field.subFieldValue = inputElement.value;  // Save current input/dropdown value
+                }
+            }
+        });
+    
+        builder.innerHTML = ""; // Clear and re-render
+    
+        formFields.forEach(field => {
+            let fieldId = field.id;
+            
+            // Main Field Type Dropdown
+            let dropdownHtml = `<select class="form-control select" onchange="updateField(${fieldId}, 'type', this.value)">`;
+            dropdownOptions.forEach(option => {
+                dropdownHtml += `<option value="${option.control_value}" ${field.type === option.control_value ? "selected" : ""}>${option.control_name}</option>`;
+            });
+            dropdownHtml += `</select>`;
+    
+            // Common Dropdown (Multiple Selection)
+            let selectedIds = field.attributes && field.attributes.trim() !== ""
+            ? field.attributes.split(",").map(id => id.trim())
+            : [];
+        
+             let commonDropdownHtml = `<select id="common-dropdown-${field.id}" class="form-control common-select" multiple>`;
+             commonOptions.forEach(option => {
+                 let isSelected = selectedIds.includes(option.control_value.toString()) ? "selected" : " ";
+                 commonDropdownHtml += `<option value="${option.control_value}" ${isSelected}>${option.control_name}</option>`;
+             });
+             commonDropdownHtml += `</select>`;
+
+            let sectiondropdownHtml = `<select id="section-dropdown-${field.id}" class="form-control section-select">`;
+
+            sectiondropdownHtml += `<option value="" disabled ${!field.section ? "selected" : ""}>Select Section</option>`;
+
+            section.forEach(option => {
+                const isSelected = String(option.id) === String(field.section) ? "selected" : "";
+                sectiondropdownHtml += `<option value="${option.id}" ${isSelected}>${option.name}</option>`;
+            });
+
+            sectiondropdownHtml += `</select>`;
+
+             
+             
+
+            // Sub-Control Handling (max_length / regex)
+            let subControlHtml = "";
+
+            if (field.type === "field_dropdown") {
+                const selectedFormId = field.options[0];  
+                const selectedFieldId = field.options[1]; 
+            
+                subControlHtml += `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select id="form-dropdown-${field.id}" onchange="loadFieldNames(${field.id}, this.value)" class="form-control select">
+                                <option value="">Select</option>`;
+                    formNames.forEach(option => {
+                        const valueString = `${option.id},${selectedFieldId}`;
+                        const isSelected = option.id.toString() === selectedFormId;
+                        subControlHtml += `<option value="${valueString}" ${isSelected ? 'selected' : ''}>${option.name}</option>`;
+                    });
+                    subControlHtml += `
+                            </select>
+                        </div>
+                        <div class="col-md-6" id="subControl-${fieldId}"></div>
+                    </div>`;
+
+            }
+            else if (field.type == "file_name") {
+                subControlHtml += `<select class="form-control select" name="column_select">`;
+                version.forEach(function(col) {
+                    subControlHtml += `<option value="${col}">${col}</option>`;
+                });
+                subControlHtml += `</select>`;
+            }
+            
+            let subControlData = subControls.filter(sub => sub.field_type === field.type);
+    
+            if (subControlData.length > 0) {
+                
+            
+                let selectedValidation = Array.isArray(field.validation) && field.validation.length > 0
+                    ? field.validation[0]
+                    : { validation_value: "", id: "" };
+            
+                if (field.type === "file") {
+                    
+                    subControlHtml = `
+                        <select class="form-control sub-control-dropdown"  id="dropdown"
+                            onchange="updatefileField(${fieldId}, 'validation', this.value, this.options[this.selectedIndex].dataset.id)">
+                            <option value="">Select File type</option>
+                            ${subControlData.map(sub => {
+                                const isSelected = selectedValidation.validation_value === sub.control_value ? "selected" : "";
+                                return `<option value="${sub.control_value}" data-id="${sub.id}" ${isSelected}>${sub.control_name}</option>`;
+                            }).join('')}
+                        </select>
+                    `;
+                } else if (field.type === "file multiple") {
+                    
+                    subControlHtml = `
+                    <select class="form-control sub-control-multiple-dropdown"  id="dropdown"
+                        onchange="updatefileField(${fieldId}, 'validation', this.value, this.options[this.selectedIndex].dataset.id)">
+                        <option value="">Select File type</option>
+                        ${subControlData.map(sub => {
+                            const isSelected = selectedValidation.validation_value === sub.control_value ? "selected" : "";
+                            return `<option value="${sub.control_value}" data-id="${sub.id}" ${isSelected}>${sub.control_name}</option>`;
+                        }).join('')}
+                    </select>
+                `;
+                }
+                 else if (field.type === "text") {
+                    let selectedSubControl = subControls.find(control => control.control_value === selectedValidation.validation_type);
+                
+                    subControlHtml += `
+                       <div class="row">
+                            <div class="col-md-6">
+                                <select class="form-control select" id="text-dropdown-${fieldId}"
+                                    onchange="updateSubFieldAndGenerateElement(${fieldId}, this.value, '${selectedValidation.validation_value || ""}', this.options[this.selectedIndex].dataset.id)">
+                                    <option value="">Select</option>
+                                    ${subControls.filter(control => control.field_type === "text")
+                                        .map(control => 
+                                            `<option value="${control.control_value}" data-id="${control.id}" ${control.id === selectedSubControl?.id ? "selected" : ""}>
+                                                ${control.control_name}
+                                            </option>`
+                                        ).join("")}
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="dynamic-element-${fieldId}"></div>
+                        </div>
+
+                    `;
+                
+                    // Trigger the function manually after the dropdown is set
+                    setTimeout(() => {
+                        let textDropdown = document.getElementById(`text-dropdown-${fieldId}`);
+                        if (textDropdown) {
+                            let selectedOption = textDropdown.options[textDropdown.selectedIndex];
+                            if (selectedOption) {
+                                let selectedValue = selectedOption.value;
+                                let subControlId = selectedOption.dataset.id;
+                                updateSubFieldAndGenerateElement(fieldId, selectedValue, selectedValidation.validation_value || "", subControlId);
+                            }
+                        }
+                    }, 100);
+                }
+            }
+    
+            // Option Dropdown for Select, Radio, Multi-Select Fields
+            let optionDropdownHtml = "";
+            if (["select", "radio", "select multiple"].includes(field.type)) {
+                optionDropdownHtml = `<select id="option-dropdown-${fieldId}" class="form-control option-select" multiple>`;
+                (field.options || []).forEach(option => {
+                    optionDropdownHtml += `<option value="${option}" selected>${option}</option>`;
+                });
+                optionDropdownHtml += `</select>`;
+            }
+            else if (field.type === "master dropdown") {
+                const selectedMasterId = field.options?.[0]?.toString() || "";
+                optionDropdownHtml = `
+                    <input type="hidden" name="masterDropdown-${fieldId}" value="${selectedMasterId}" id="hidden-master-${fieldId}">
+                    <select 
+                        class="form-control select mb-2" 
+                        id="option-dropdown-${fieldId}" 
+                        onchange="document.getElementById('hidden-master-${fieldId}').value = this.value; updateFields(${fieldId}, 'masterValue', this.value); fetchMasterOptions(this.value, '${fieldId}')">
+                        <option value="">Select</option>
+                        ${master.map(sub => 
+                            `<option value="${sub.id}" ${selectedMasterId === sub.id.toString() ? 'selected' : ''}>${sub.name}</option>`
+                        ).join('')}
+                    </select>
+                `;
+            }
+            else if (field.type === "multiple") {
+                const selectedMasterId = field.options?.[0]?.toString() || "";
+                optionDropdownHtml = `
+                    <input type="hidden" name="multimasterDropdown-${fieldId}" value="${selectedMasterId}" id="hidden-multi-master-${fieldId}">
+                    <select 
+                        class="form-control select mb-2" 
+                        id="multi-option-dropdown-${fieldId}" 
+                        onchange="document.getElementById('hidden-multi-master-${fieldId}').value = this.value; updateFields(${fieldId}, 'multiMasterValue', this.value); fetchMasterOptionsmultiple(this.value, '${fieldId}')">
+                        <option value="">Select</option>
+                        ${master.map(sub => 
+                            `<option value="${sub.id}" ${selectedMasterId === sub.id.toString() ? 'selected' : ''}>${sub.name}</option>`
+                        ).join('')}
+                    </select>
+                `;
+            }
+            else if (field.type === "generative") {
+                const generativeData = field.generative_list?.[field.id]?.[0] || {};
+                let rawSelected = generativeData.selected_field;
+                const selectedFieldIds = Array.isArray(rawSelected)
+                    ? rawSelected
+                    : typeof rawSelected === 'string'
+                        ? rawSelected.split(',').map(id => id.trim())
+                        : rawSelected ? [rawSelected] : [];
+
+                const prefixValue = generativeData.prefix || '';
+                const noOfZeroValue = generativeData.no_of_zero || '';
+                const incrementValue = generativeData.increment || '';
+            
+                // Show all field labels except current one
+                const dropdownOptions = allFieldLabels
+                .filter(f => f.id !== field.id)
+                .map(option =>
+                    `<option value="${option.id}" ${selectedFieldIds.includes(String(option.id)) ? 'selected' : ''}>${option.label}</option>`
+                ).join('');
+
+
+            
+                optionDropdownHtml = `
+                <div class="row col-md-12">
+                    <div class="col-md-3 p-1">
+                        <input type="text" class="form-control" placeholder="Prefix" title="Enter a prefix"
+                            name="prefix-${fieldId}" id="prefix-${fieldId}" value="${prefixValue}"
+                            oninput="updateGenerativePreview('${fieldId}')" />
+                    </div>
+            
+                    <div class="col-md-4 p-1">
+                        <select class="form-control field_dropdown" onchange="updateGenerativePreview('${fieldId}')"
+                            multiple name="fielddropdown-${fieldId}" id="fielddropdown-${fieldId}"
+                            title="Select a field from the dropdown">
+                            <option value="">Select Field</option>
+                            ${dropdownOptions}
+                        </select>
+                    </div>
+            
+                    <div class="col-md-2 p-1">
+                        <input type="text" class="form-control" oninput="updateGenerativePreview('${fieldId}')"
+                            placeholder="0-9" name="zeroincrement1-${fieldId}" id="zeroincrement1-${fieldId}"
+                            value="${noOfZeroValue}" minlength="1" maxlength="1"
+                            title="Enter number of Zero" />
+                    </div>
+            
+                    <div class="col-md-3 p-1">
+                        <input type="number" class="form-control" oninput="updateGenerativePreview('${fieldId}')"
+                            placeholder="Value" name="zeroincrement2-${fieldId}" id="zeroincrement2-${fieldId}"
+                            value="${incrementValue}" title="Enter Increment number" />
+                    </div>
+                </div>
+                `;
+            }
+    
+        
+            let colSize = 'col-md-custom-4';
+
+            let labelInputHtml = '';
+            if (field.type === "file_name") {
+                labelInputHtml = `
+                        <input class="form-control" type="text" 
+                            value="File Name" 
+                            disabled>
+                `;
+                field.label = "File Name"; // Update the field object as well, if needed
+            } else {
+                labelInputHtml = `
+                        <input class="form-control" type="text" 
+                            value="${field.label}" 
+                            onchange="validateAndUpdateLabel(this, ${fieldId})">
+                `;
+            }
+
+
+          builder.innerHTML += `
+           <div class="row col-md-12 draggable-field" data-id="${fieldId}">
+                <div class="col-md-custom-0 drag-handle" style="cursor: grab;">
+                     <span class="btn btn-primary rounded-pill" style=><i class="fa fa-sort me-1"></i> </span>
+                </div>
+
+                <div class="col-md-2 mb-3">
+                    ${labelInputHtml}
+                </div>
+                <div class="col-md-custom-2 mb-3">
+                    ${dropdownHtml}
+                </div>
+                <div class="col-md-2 mb-3">
+                    ${commonDropdownHtml}
+                </div>
+                <div class="col-md-2 mb-3">
+                    ${sectiondropdownHtml}
+                </div>
+                <div class="${colSize} mb-3">
+                    ${subControlHtml || optionDropdownHtml }
+                </div>
+                <div class="col-md-custom-0 mt-2">
+                    <span onclick="removeField(${fieldId})" style="cursor: pointer;">
+                        <i class="fa-solid fa-trash" style="color: #dc3545; font-size: 1.5rem;"></i>
+                    </span>
+                </div>
+            </div>
+            `;
+    
+            // Step 3: Restore selected sub-controls
+            if (field.selectedValue) {
+                updateSubFieldAndGenerateElement(fieldId, field.selectedValue, field.subFieldValue);
+            }
+            formFields.forEach(field => {
+                if (field.type === "master dropdown" && Array.isArray(field.options) && field.options.length > 0) {
+                    const selectedMasterId = field.options[0]; // Get selected master ID
+                    if (selectedMasterId) {
+                        fetchMasterOptions(selectedMasterId, field.id); 
+                    }
+                }
+            });
+        });
+    
+        $(".common-select").each(function () {
+            let fieldId = $(this).attr("id").split("-").pop();
+            let field = formFields.find(f => f.id == fieldId);
+            let selectedIds = field.attributes ? field.attributes.split(",").map(id => id.trim()) : [];
+    
+            let selectInstance = $(this).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Select attributes",
+                persist: false,
+                create: false,
+                items: selectedIds, 
+                onChange: function (value) {
+                    let fieldIndex = formFields.findIndex(f => f.id == fieldId);
+                    if (fieldIndex !== -1) {
+                        formFields[fieldIndex].attributes = value.join(",");
+                    }
+                }
+            });
+    
+            let selectizeControl = selectInstance[0].selectize;
+            selectizeControl.setValue(selectedIds);
+        });
+
+        document.querySelectorAll(".field_dropdown").forEach(select => {
+            $(select).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Enter options",
+                persist: false,
+                create: true,
+                onChange: function(value) {
+                    let fieldId = select.id.split("-").pop();
+                    updateFielddropdwon(parseInt(fieldId), 'options', value);
+                }
+            });
+        });
+        document.querySelectorAll(".section-select").forEach(select => {
+            let $select = $(select).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Select Section",
+                persist: false,
+                create: function (input, callback) {
+                    $.ajax({
+                        url: "{% url 'create_new_section' %}",
+                        method: "POST",
+                        data: {
+                            name: input,
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+                        //success: function (response) {
+                           // let selectize = $select[0].selectize;
+                           // selectize.addOption({ value: response.id, text: response.name });
+                           // selectize.addItem(response.id); // Select it
+                           success: function (response) {
+                            callback({ value: response.id, text: response.name }); // This is important!
+                        },
+                       // },
+                        error: function () {
+                            alert("Error adding section!");
+                            callback();
+                        }
+                    });
+                }
+            });
+        });
+        
+    
+        document.querySelectorAll(".option-select").forEach(select => {
+            $(select).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Enter options",
+                persist: false,
+                create: true,
+                onChange: function(value) {
+                    let fieldId = select.id.split("-").pop();
+                    updateField(parseInt(fieldId), 'options', value);
+                }
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        $('select[id^="form-dropdown-"]').each(function() {
+            if (this.value) {
+                const fieldId = this.id.split('-')[2];  // extract fieldId from id="form-dropdown-<fieldId>"
+                loadFieldNames(fieldId, this.value);    // call with full "form_id,field_id"
+            }
+        });
+    });
+    
+    
+
+    function captureDropdownStates() {
+        const stateMap = {};
+    
+        $('select[id^="form-dropdown-"]').each(function () {
+            const fieldId = this.id.split('-')[2];
+            const selectedFormValue = $(this).val();
+            const selectedSubFieldValue = $(`select[name="sub_field_${fieldId}"]`).val() || "";
+    
+            stateMap[fieldId] = {
+                formValue: selectedFormValue,
+                subFieldValue: selectedSubFieldValue
+            };
+        });
+    
+        // Capture master dropdowns
+        $('select[id^="option-dropdown-"]').each(function () {
+            const fieldId = this.id.split('-')[2];
+            const selectedMasterValue = $(this).val();
+    
+            if (!stateMap[fieldId]) stateMap[fieldId] = {};
+            stateMap[fieldId].masterValue = selectedMasterValue;
+        });
+    
+        return stateMap;
+    }
+
+    
+    function restoreDropdownStates(stateMap) {
+        for (const fieldId in stateMap) {
+            const { formValue, subFieldValue, masterValue } = stateMap[fieldId];
+    
+            // Restore form dropdown
+            if (formValue) {
+                $(`#form-dropdown-${fieldId}`).val(formValue);
+                loadFieldNames(fieldId, formValue, subFieldValue);
+            }
+    
+            // Restore master dropdown
+            if (masterValue !== undefined) {
+                $(`#option-dropdown-${fieldId}`).val(masterValue);
+                updateFields(fieldId, 'masterValue', masterValue);
+            }
+        }
+    }
+    
+
+     function loadFieldNames(fieldId, combinedValue, selectedSubFieldValue) {
+        if (!combinedValue) return;
+    
+        const [formId, selectedFieldId] = combinedValue.split(',');
+    
+        // Use the provided selectedSubFieldValue, if available, or fallback to selectedFieldId
+        const existingSelectedValue = selectedSubFieldValue || selectedFieldId;
+    
+        $.ajax({
+            url: "{% url 'get_field_names' %}",
+            method: 'POST',
+            data: {
+                form_id: formId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                const fields = response.fields;
+    
+                let subControlHtml1 = `<select name="sub_field_${fieldId}" class="form-control select" 
+                    onchange="updateFieldDropdownData(${fieldId}, ${formId}, this.value)">
+                    <option value="">Select</option>`;
+    
+                fields.forEach(field => {
+                    const isSelected = field.id.toString() === existingSelectedValue;
+                    subControlHtml1 += `<option value="${field.id}" ${isSelected ? 'selected' : ''}>${field.label}</option>`;
+                });
+    
+                subControlHtml1 += `</select>`;
+    
+                $(`#subControl-${fieldId}`).html(subControlHtml1);
+            },
+            error: function(xhr, status, error) {
+                console.error("Failed to load field names:", error);
+            }
+        });
+    }
+    
+    
+    function updateFieldDropdownData(fieldId, selectedFormId, selectedFieldId) {
+        // Find the field in the formFields array
+        const fieldIndex = formFields.findIndex(f => f.id === fieldId);
+        
+        if (fieldIndex !== -1) {
+            const currentFormId = formFields[fieldIndex]["field_dropdown"]?.form_id;
+            const currentFieldId = formFields[fieldIndex]["field_dropdown"]?.field_id;
+    
+            // If the value hasn't changed, retain the old values
+            if (selectedFormId === currentFormId && selectedFieldId === currentFieldId) {
+                // Don't update, just return the old values (no change)
+                formFields[fieldIndex]["field_dropdown"] = {
+                    form_id: currentFormId,
+                    field_id: currentFieldId
+                };
+            } else {
+                // Update to the new values
+                formFields[fieldIndex]["field_dropdown"] = {
+                    form_id: selectedFormId,
+                    field_id: selectedFieldId
+                };
+            }
+        }
+    }
+    
+    
+    
+    
+
+     function updateGenerativePreview(fieldId) {
+        const prefix = document.getElementById(`prefix-${fieldId}`)?.value || '';
+        const dropdown = document.getElementById(`fielddropdown-${fieldId}`);
+        const selectedLabels = Array.from(dropdown?.selectedOptions || [])
+            .map(opt => opt.text.trim());
+        const selectedValues = Array.from(dropdown?.selectedOptions || [])
+            .map(opt => opt.value);
+    
+        const zeroCountStr = document.getElementById(`zeroincrement1-${fieldId}`)?.value || '';
+        const zeroCount = parseInt(zeroCountStr, 10);
+        const zeroPadding = '0'.repeat(isNaN(zeroCount) ? 0 : zeroCount);
+    
+        const incNum = document.getElementById(`zeroincrement2-${fieldId}`)?.value || '';
+        const previewValue = `${prefix}-${selectedLabels.join('-')}-${zeroPadding}${incNum}`;
+
+        const previewInput = document.getElementById('generatedValue');
+        if (previewInput) previewInput.value = previewValue;
+    
+        // Save to formFields object
+        const field = formFields.find(f => f.id == fieldId);
+        if (field) {
+            field.prefix = prefix;
+            field.field_name = selectedLabels;    // Save label names
+            field.field_id = selectedValues; // If needed
+            field.no_of_zero = zeroCountStr;
+            field.increment = incNum;
+            field.generatefield = previewValue;    // Full preview string
+        }
+    }
+
+    
+    
+    function updateSubFieldAndGenerateElement(fieldId, selectedValue, savedValue = "", subControlId) {
+        let dynamicElement = document.getElementById(`dynamic-element-${fieldId}`);
+        /// dynamicElement.innerHTML = "";
+
+        if (!dynamicElement) {
+            console.warn(`Element dynamic-element-${fieldId} not found.`);
+            return;  
+        }
+        let field = formFields.find(f => f.id === fieldId);
+        if (field) {
+            field.selectedValue = selectedValue;
+            field.subFieldValue = savedValue;
+        }
+    
+        if (selectedValue === "max_length") {
+            dynamicElement.innerHTML = `
+                <input type="number" class="form-control" id="max-length-${fieldId}" placeholder="Max Characters" title="Max Characters"
+                       value="${savedValue}" oninput="updateSubField(${fieldId}, 'max_length', this.value, ${subControlId})">
+                       `;
+        }
+        else if (selectedValue === "regex") {
+            let regexOptions = `<option value="">Select Pattern</option>` +
+                regex.map(option => 
+                    `<option value="${option.regex_pattern}" 
+                             data-regex-id="${option.id}" 
+                              data-description="${option.description || ''}" 
+                             ${option.regex_pattern === savedValue ? "selected" : ""}>
+                        ${option.input_type}
+                     </option>`
+                ).join("");
+        
+            dynamicElement.innerHTML = `
+                <select class="form-control select" id="regex-${fieldId}" 
+                        onchange="updateSubField(${fieldId}, 'regex', this.value, ${subControlId}); 
+                                 setRegexAttributes(${fieldId});">
+                    ${regexOptions}
+                </select>
+            `;
+        }
+        
+        
+       
+    }
+
+    function setRegexAttributes(fieldId) {
+        const select = document.getElementById(`regex-${fieldId}`);
+        const selectedOption = select.options[select.selectedIndex];
+        const regexId = selectedOption.getAttribute('data-regex-id');
+        const pattern = select.value;
+        const description = selectedOption.getAttribute('data-description') || "";
+    
+        const inputs = document.querySelectorAll(`.regex-preview-${fieldId}`);
+        inputs.forEach(input => {
+            input.setAttribute('data-regex', pattern);
+            input.setAttribute('data-regex-id', regexId);
+            input.setAttribute('placeholder', description);
+        });
+    }
+    
+
+
+    
+    
+
+
+    function fetchRegexDetails(regexId, fieldId) {
+        if (!regexId || !fieldId) return;
+
+            $.ajax({
+                url: "{% url 'get_regex_pattern' %}",
+                type: 'POST',
+                data: {
+                    regex_id: regexId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    let inputElement = document.getElementById(`regex-${fieldId}`);
+                    if (inputElement) {
+                        inputElement.setAttribute("data-regex", response.pattern);
+                        inputElement.setAttribute("data-regex-id", response.regex_id);
+                        inputElement.setAttribute("placeholder", response.description);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", error);
+                }
+            });
+        }
+
+    
+    function updateSubField(fieldId, type, value, subControlId) {
+        
+        let fieldIndex = formFields.findIndex(f => f.id === fieldId);
+        if (fieldIndex !== -1) {
+            if (!formFields[fieldIndex].validation) {
+                formFields[fieldIndex].validation = [];
+            }
+    
+            let existingValidationIndex = formFields[fieldIndex].validation.findIndex(v => v.validation_type === type);
+
+        if (existingValidationIndex !== -1) {
+            formFields[fieldIndex].validation[existingValidationIndex] = { id: subControlId, validation_type: type, validation_value: value };
+        } else {
+            formFields[fieldIndex].validation.push({ id: subControlId, validation_type: type, validation_value: value });
+        }
+
+    
+            renderFormPreview();
+        }
+    }
+    
+    function updateFielddropdwon(fieldId, key, value) {
+        const fieldIndex = formFields.findIndex(field => field.id === fieldId);
+        if (fieldIndex !== -1) {
+            formFields[fieldIndex][key] = value; 
+        }
+    }
+    
+
+    function renderFormPreview() {
+        let preview = document.getElementById("dynamic-form");
+        preview.innerHTML = "";
+    
+        formFields.forEach(field => {
+            let fieldName = `field_${field.id}`;
+            let inputHtml = "";
+    
+            if (field.type === "select") {
+                inputHtml = `<select class="form-control select w-100" name="${fieldName}">`;
+                (field.options || []).forEach(option => {
+                    inputHtml += `<option value="${option}" ${field.value === option ? "selected" : ""}>${option}</option>`;
+                });
+                inputHtml += `</select>`;
+            } 
+            else if (field.type === "radio") {
+                inputHtml = `<div class="d-flex flex-wrap">`;
+                (field.options || []).forEach(option => {
+                    let isChecked = field.value === option ? "checked" : "";
+                    inputHtml += `
+                        <div style="font-size:18px;" class="form-check me-2">
+                            <input class="form-check-input" type="radio" name="${fieldName}" value="${option}" ${isChecked} id="radio_${option}" style="transform: scale(1.5);">
+                            <label class="form-check-label" for="radio_${option}" style="cursor: pointer; font-size: 18px;">
+                                ${option}&nbsp;&nbsp;
+                            </label>
+                        </div>
+                    `;
+                });
+                inputHtml += `</div>`;
+            } 
+            else if (field.type === "select multiple") {
+                inputHtml = `<select class="form-control select-multiple w-100" name="${fieldName}" multiple>`;
+                (field.options || []).forEach(option => {
+                    let isSelected = (field.value || []).includes(option) ? "selected" : "";
+                    inputHtml += `<option value="${option}" ${isSelected}>${option}</option>`;
+                });
+                inputHtml += `</select>`;
+            }
+            else if (field.type === "master dropdown") {
+                    inputHtml = `
+                        <select name="${fieldName}" id="field_${field.id}" class="form-control select">
+                            <option value="">Select</option>
+                        </select>
+                    `;
+                }
+            else if (field.type === "multiple") {
+                    inputHtml = `
+                        <select name="${fieldName}" id="field_${field.id}" class="form-control master_multiple" multiple>
+                        </select>
+                    `;
+                }
+            
+            
+            else if (field.type === "textarea") {
+                inputHtml = `<textarea class="form-control custom-textarea" data-toggle="maxlength"  maxlength="150" rows="3" name="${fieldName}" style="height: 20px; "></textarea>`;
+            }
+
+            else if (field.type === "generative"){
+                
+                inputHtml= `<input type="text" class="form-control mt-2" id="generatedValue" readonly placeholder="Generated Value" />`;
+            }
+            
+            else if (field.type === "checkbox") {
+                let isChecked = field.value == "1" ? "checked" : "";
+                inputHtml = `
+                    <label class="switch">
+                        <input type="checkbox" value="1" id="${fieldName}" name="${fieldName}" ${isChecked}>
+                        <span class="slider"></span>
+                    </label>
+                `;
+            } 
+           
+           else if (field.type === "file") {
+            
+
+            // Extract the correct validation value
+            let acceptedFormats = (Array.isArray(field.validation) && field.validation.length > 0) 
+                ? field.validation[0].validation_value 
+                : (Array.isArray(field.options) ? field.options.join(",") : field.options);
+
+            // Set placeholder text dynamically
+            let placeholderText = acceptedFormats 
+                ? `Only ${acceptedFormats} files are allowed.` 
+                : "Select a valid file type.";
+
+            // Generate file input HTML
+            inputHtml = `<input type="file" accept="${acceptedFormats || '*'}" 
+                        class="form-control custom-file-input w-100 file-input" 
+                        name="${fieldName}" 
+                        placeholder="${placeholderText}">`;
+            }
+            else if (field.type === "file multiple") {
+            
+
+                // Extract the correct validation value
+                let acceptedFormats = (Array.isArray(field.validation) && field.validation.length > 0) 
+                    ? field.validation[0].validation_value 
+                    : (Array.isArray(field.options) ? field.options.join(",") : field.options);
+    
+                // Set placeholder text dynamically
+                let placeholderText = acceptedFormats 
+                    ? `Only ${acceptedFormats} files are allowed.` 
+                    : "Select a valid file type.";
+    
+                // Generate file input HTML
+                inputHtml = `<input type="file" accept="${acceptedFormats || '*'}" 
+                            class="form-control custom-file-input w-100 file-input" 
+                            name="${fieldName}" 
+                            placeholder="${placeholderText}" multiple>`;
+                }
+
+            
+            else if (field.type === "text") {
+                let maxAttr = "";
+                let patternAttr = "";
+                let maxLengthValue = "";
+                let pattern ="";
+            
+                field.validation?.forEach(rule => {
+                    if (rule.validation_type === "max_length") {
+                        maxAttr = `maxlength="${rule.validation_value}"`;
+                        maxLengthValue = rule.validation_value;
+                    } else if (rule.validation_type === "regex") {
+                        
+                        patternAttr = `pattern="${rule.validation_value}"`;
+                        pattern = rule.validation_value;
+                    }
+                });
+            
+                if (field.type === "text") {
+                    if (field.selectedValue === "max_length") {
+                        inputHtml = `<input type="text" class="form-control w-100" name="${field.label}" 
+                                     ${maxAttr} value="${field.value || ""}" 
+                                     placeholder="Enter up to ${maxLengthValue} characters only">`;
+                    }
+                    else if (field.selectedValue === "regex") {
+                        
+                        inputHtml = `<input type="text" class="form-control w-100 regex-preview-${field.id}"
+                                            name="${field.label}" 
+                                            data-regex="${field.pattern || ''}" 
+                                            data-regex-id="${field.regex_id || ''}" 
+                                            placeholder="${field.description || ''}" 
+                                            oninput="formatInputByPattern(this, this.getAttribute('data-regex-id')); 
+                                                        validateRegexInput(this);" 
+                                            value="${field.value || ''}">
+                                        `;
+                    }
+                    else {
+                        inputHtml = `<input type="text" class="form-control w-100" name="${field.label}" value="${field.value || ""}">`;
+                    }
+                }
+            } 
+            
+            else {
+                
+                inputHtml = `<input type="${field.type}" class="form-control w-100" name="${fieldName}" >`;
+            }
+            
+            let fieldContainer = document.createElement("div");
+            const colClass =  "col-md-3";
+            fieldContainer.classList.add(colClass, "mb-2", "d-flex", "flex-column");
+            
+            fieldContainer.innerHTML = `
+                <label class="fw-bold form-label">${field.label}</label>
+                ${inputHtml}
+                <input type="hidden" name="${fieldName}_type" value="${field.type}">
+            `;
+            preview.appendChild(fieldContainer);
+            
+        });
+        document.querySelectorAll(".select-multiple").forEach(select => {
+            $(select).selectize({
+                plugins: ["remove_button"],
+                delimiter: ",",
+                placeholder: "Enter options",
+                persist: false,
+                create: true
+            });
+        });
+    }
+
+    function validateRegexInput(inputElement) {
+            const pattern = inputElement.getAttribute("data-regex");
+            const value = inputElement.value;
+        
+            if (!pattern) return true; // No pattern to validate against
+        
+            const regex = new RegExp(pattern);
+            if (!regex.test(value)) {
+                inputElement.classList.add("is-invalid");
+                inputElement.setCustomValidity("Invalid input pattern.");
+                inputElement.reportValidity(); // Show browser validation message
+                return false;
+            } else {
+                inputElement.classList.remove("is-invalid");
+                inputElement.setCustomValidity(""); // Reset validity
+                return true;
+            }
+        }
+
+
+     function formatInputByPattern(inputElement, regexId) {
+        
+        let value = inputElement.value;
+    
+        const numericOnly = v => v.replace(/\D/g, "");
+        const alnumUpper = v => v.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    
+        switch (parseInt(regexId)) {
+            case 1: // Aadhar
+                value = numericOnly(value).substring(0, 12);
+                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                break;
+            case 2: // PAN
+                value = value.toUpperCase().replace(/[^A-Z0-9]/g, ""); // Remove non-alphanumerics
+                value = value.substring(0, 10); // Enforce 10-char limit
+                break;
+            case 3: // IFSC
+                value = alnumUpper(value).substring(0, 11);
+                break;
+            case 5: // Mobile Number
+                value = numericOnly(value).substring(0, 10);
+                break;
+            case 6: // Pincode
+                value = numericOnly(value).substring(0, 6);
+                break;
+            case 7: // Passport
+                value = alnumUpper(value).substring(0, 8);
+                break;
+            case 8: // Voter ID
+                value = alnumUpper(value).substring(0, 10);
+                break;
+            case 9: // Driving License
+                value = alnumUpper(value).substring(0, 16);
+                break;
+            case 10: // UPI
+                value = value.replace(/[^\w@.]/g, "").substring(0, 50);
+                break;
+            case 16: // Credit Card
+                value = numericOnly(value).substring(0, 16);
+                value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+                break;
+            case 17: // Landline Number (XXX-XXXXXXX)
+                // Remove all non-digit characters
+                value = numericOnly(value).substring(0, 11);
+                // Format as XXX-XXXXXXX
+                value = value.replace(/^(\d{3})(\d{0,8})/, "$1-$2");
+                break;
+            case 20: // PNR
+                // Allow only numeric values, limit to 10 digits
+                value = numericOnly(value).substring(0, 10);
+                break;
+            default:
+                value = value.replace(/[^\w\s]/g, "");
+                break;
+        }
+    
+        inputElement.value = value;
+    }
+
+    function syncFormValidationsBeforeSubmit() {
+        formFields.forEach(field => {
+            // For file and file multiple
+            if (field.type === "file" || field.type === "file multiple") {
+                const dropdown = document.querySelector(`#dropdown`);
+                if (dropdown) {
+                    const selectedOption = dropdown.options[dropdown.selectedIndex];
+                    const value = selectedOption.value;
+                    const id = selectedOption.dataset.id;
+    
+                    if (value) {
+                        field.validation = [{ id: id, validation_value: value }];
+                    }
+                }
+            }
+    
+            // For text fields
+            if (field.type === "text") {
+                const dropdown = document.querySelector(`#text-dropdown-${field.id}`);
+                if (dropdown) {
+                    const selectedOption = dropdown.options[dropdown.selectedIndex];
+                    const value = selectedOption.value;
+                    const id = selectedOption.dataset.id;
+    
+                    if (value) {
+                        let dynamicInput = document.querySelector(`#max-length-${field.id}`) || document.querySelector(`#regex-${field.id}`);
+                        const inputValue = dynamicInput?.value || "";
+    
+                        field.validation = [{
+                            id: id,
+                            validation_type: value,
+                            validation_value: inputValue
+                        }];
+                    }
+                }
+            }
+
+            if (field.type === "master dropdown") {
+            const dropdown = document.getElementById(`option-dropdown-${field.id}`);
+                    let selectedValue = "";
+
+                    if (dropdown) {
+                        selectedValue = dropdown.value || "";
+                    } else if (field.options && field.options.length > 0) {
+                        selectedValue = field.options[0];
+                    }
+
+                    field.options = [selectedValue];               // for UI reloads
+                    field.masterValue = selectedValue;             // 🔥 for Django backend
+                }
+
+                // 🔹 Multiple Dropdown
+                if (field.type === "multiple") {
+                    const dropdown = document.getElementById(`multi-option-dropdown-${field.id}`);
+                    let selectedValue = "";
+
+                    if (dropdown) {
+                        selectedValue = dropdown.value || "";
+                    } else if (field.options && field.options.length > 0) {
+                        selectedValue = field.options[0];
+                    }
+
+                    field.options = [selectedValue];               // for UI reloads
+                    field.multiMasterValue = selectedValue;        // 🔥 for Django backend
+                }
+        });
+    }
+
+
+    function syncGenerativeDataBeforeSubmit() {
+        formFields.forEach(field => {
+            if (field.type === "field_dropdown") {
+                const fieldId = field.id;
+    
+                const prefix = document.getElementById(`prefix-${fieldId}`)?.value || '';
+                const dropdown = document.getElementById(`fielddropdown-${fieldId}`);
+                const selectedLabels = Array.from(dropdown?.selectedOptions || [])
+                    .map(opt => opt.text.trim());
+                const selectedValues = Array.from(dropdown?.selectedOptions || [])
+                    .map(opt => opt.value);
+    
+                const zeroCountStr = document.getElementById(`zeroincrement1-${fieldId}`)?.value || '';
+                const zeroCount = parseInt(zeroCountStr, 10);
+                const zeroPadding = '0'.repeat(isNaN(zeroCount) ? 0 : zeroCount);
+    
+                const incNum = document.getElementById(`zeroincrement2-${fieldId}`)?.value || '';
+                const previewValue = `${prefix}-${selectedLabels.join('-')}-${zeroPadding}${incNum}`;
+    
+                // Save updated values to field object
+                field.prefix = prefix;
+                field.field_name = selectedLabels;
+                field.field_id = selectedValues;
+                field.no_of_zero = zeroCountStr;
+                field.increment = incNum;
+                field.generatefield = previewValue;
+            }
+        });
+    }
+    
+
+
+    
+   
+
+    function updatefileField(fieldId, key, value, id) {
+        let fieldIndex = formFields.findIndex(f => f.id === fieldId);
+        
+        if (fieldIndex !== -1) {
+            // Store selected ID and value properly
+            formFields[fieldIndex][key] = [{ id: id, validation_value: value }];
+            const previousDropdownStates = captureDropdownStates();
+            updateAllFieldLabels();
+            renderFormBuilder();
+            renderFormPreview();
+            restoreDropdownStates(previousDropdownStates);
+        }
+    }
+
+
+    
+    
+    function updateField(id, key, value) {
+        formFields = formFields.map(f => f.id === id ? { ...f, [key]: value } : f);
+        const previousDropdownStates = captureDropdownStates();
+        updateAllFieldLabels();
+        renderFormBuilder();
+        renderFormPreview();
+        restoreDropdownStates(previousDropdownStates);
+    }
+
+
+    function updateFields(fieldId, key, value) {
+        const fieldIndex = formFields.findIndex(f => f.id === fieldId);
+        if (fieldIndex !== -1) {
+            formFields[fieldIndex][key] = value;
+        }
+    }
+    
+
+    
+    
+    document.querySelectorAll(".common-select").forEach(select => {
+        let selectedOptions = $(select).val() || [];
+        $(select).data("existing-values", selectedOptions); // Store initial values
+    });
+
+    
+
+    
+
+    {% if form %}
+        function removeField(id) {
+    
+            $.ajax({
+                url: "{% url 'check_field_before_delete' %}",
+                type: "POST",
+                data: {
+                    'field_id': id,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.exists) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Can't Delete",
+                            text: "This field has existing data and cannot be deleted."
+                        });
+                    } else if (response.success) {
+                        formFields = formFields.filter(f => f.id !== id);
+                        const previousDropdownStates = captureDropdownStates();
+                        updateAllFieldLabels();
+                        renderFormBuilder();
+                        renderFormPreview();
+                        restoreDropdownStates(previousDropdownStates);
+
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Unexpected response. Please try again."
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Something went wrong on the server."
+                    });
+                }
+            });
+        }
+        {% else %}
+
+        function removeField(id) {
+            const previousDropdownStates = captureDropdownStates();
+            formFields = formFields.filter(f => f.id !== id);
+            updateAllFieldLabels();
+            renderFormBuilder();
+            renderFormPreview();
+
+            restoreDropdownStates(previousDropdownStates);
+        }
+        {% endif %}
+
+    document.addEventListener("DOMContentLoaded", function() {
+        updateAllFieldLabels();
+        renderFormBuilder();
+        renderFormPreview();
+    });
+</script>
+
+<script>
+
+ 
+
+    function fetchMasterOptions(query, fieldId) {
+        
+        $.ajax({
+            url: "{% url 'get_query_data' %}",
+            type: "POST",
+            data: {
+                'query': query,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function (response) {
+                
+                let optionsHtml = `<option value="">Select</option>`;
+                const fieldIndex = formFields.findIndex(f => f.id === fieldId);
+    
+                if (Array.isArray(response)) {
+                    response.forEach((opt) => {
+                        optionsHtml += `<option value="${opt[0]}">${opt[1]}</option>`;
+                    });
+                }
+    
+                const previewDropdown = document.getElementById(`field_${fieldId}`);
+                if (previewDropdown) {
+                    
+                    previewDropdown.innerHTML = optionsHtml;
+    
+                    // Restore previously selected value if it exists
+                    const previousValue = formFields[fieldIndex]?.selectedValue || "";
+                    if (previousValue) {
+                        previewDropdown.value = previousValue;
+                    }
+    
+                    // ✅ Listen for changes
+                    previewDropdown.onchange = function () {
+                        const selectedVal = this.value;
+                        if (fieldIndex !== -1) {
+                            formFields[fieldIndex].selectedValue = selectedVal; // ✅ SAVE value
+                        }
+                    };
+                }
+    
+                // ✅ Save selected master query
+                if (fieldIndex !== -1) {
+                    formFields[fieldIndex].query = query;
+                }
+            },
+            error: function (xhr) {
+                console.error("AJAX error:", xhr.responseText);
+            }
+        });
+    }
+    
+    
+    
+    
+</script>
+
+
+<script>
+
+    function DublicateformName() {
+        var form_name = $('#form_name').val();
+        $.ajax({
+            url: "{% url 'get_dublicate_name' %}",
+            type: 'POST',
+            data: {
+                form_name: form_name,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.exists) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Duplicate Form Name',
+                        text: 'This form name already exists. Please choose a different name.'
+                    });
+    
+                    // Disable submit button
+                    $('#btnSubmit').prop('disabled', true);
+                } else {
+                    // Enable submit button
+                    $('#btnSubmit').prop('disabled', false);
+                }
+            }
+        });
+    }
+
+function validateAndUpdateLabel(inputElement, fieldId) {
+    
+
+    // Remove special characters
+    let cleanedValue = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '');
+
+    // Prevent starting with a number
+    if (/^[0-9]/.test(cleanedValue)) {
+        cleanedValue = cleanedValue.replace(/^[0-9]+/, '');
+    }
+
+    let newLabel = cleanedValue.trim();
+    inputElement.value = newLabel;
+
+    let isDuplicate = formFields.some(field =>
+        field.id !== fieldId &&
+        field.label.toLowerCase() === newLabel.toLowerCase()
+    );
+
+    if (isDuplicate) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Duplicate Label',
+            text: `A field with the label "${newLabel}" already exists.`,
+        });
+        inputElement.value = "";
+        return;
+    }
+
+    updateField(fieldId, 'label', newLabel);
+}
+
+
+
+    document.getElementById("main-form").addEventListener("submit", function () {
+        
+        syncFormValidationsBeforeSubmit();
+       // syncGenerativeDataBeforeSubmit()
+        const fieldsInDom = document.querySelectorAll('#form-builder .draggable-field');
+        const orderedFormFields = [];
+    
+        fieldsInDom.forEach((fieldEl, index) => {
+            const fieldId = fieldEl.dataset.id;
+            const originalField = formFields.find(f => String(f.id) === String(fieldId));
+            if (!originalField) return;
+        
+            // Set the order
+            originalField.order = index + 1;
+        
+            // Master dropdown logic
+            if (originalField.type === "master dropdown") {
+                const selectedDropdown = document.getElementById(`field_${fieldId}`);
+                if (selectedDropdown) {
+                    originalField.selectedValue = selectedDropdown.value; 
+                }
+            }
+        
+            // 🔥🔥 Get selected section value
+            const sectionSelect = document.getElementById(`section-dropdown-${fieldId}`);
+            if (sectionSelect && sectionSelect.selectize) {
+                const selectedSection = sectionSelect.selectize.getValue();
+                originalField.section = selectedSection; // <-- Save selected section ID here
+            }
+        
+            orderedFormFields.push(originalField);
+        });
+        
+    
+        // Save reordered + updated fields
+        document.getElementById("form-data-input").value = JSON.stringify(orderedFormFields);
+    });
+
+    $(document).on("change", ".section-select", function () {
+        const fieldId = $(this).attr("id").split("-")[2];
+        const selectedValue = $(this).val();
+
+        const field = formFields.find(f => String(f.id) === String(fieldId));
+        if (field) {
+            field.section = selectedValue;  // ✅ Save selected value in formFields
+        }
+    });
+    
+
+    
+</script>
+
+
+
+  <script>
+
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        const formBuilder = document.getElementById('form-builder');
+
+        Sortable.create(formBuilder, {
+            handle: '.drag-handle', // Only allow dragging using ☰
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+        });
+    });
+    
+</script>
+
+<script>
+    document.getElementById("form_name").addEventListener("input", function () {
+        // Allow only alphanumeric and spaces
+        this.value = this.value.replace(/[^A-Za-z0-9 ]/g, '');
+
+        // Prevent first character from being a number
+        if (/^[0-9]/.test(this.value)) {
+            this.value = this.value.replace(/^[0-9]+/, '');
+        }
+    });
+</script>
+
+
+
+{% if messages %}
+{% for message in messages %}
+  <script>
+  Swal.fire({
+    title: "{{ message.tags }}",
+    text: "{{ message }}",
+    icon: "{{ message.tags }}",
+    confirmButtonText: "OK",
+  });
+</script>
+{% endfor %}
+{% endif %}
+
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+{% endblock %}

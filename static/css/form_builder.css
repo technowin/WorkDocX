@@ -1,0 +1,203 @@
+
+/* Base Selectize Input Styles with Border */
+.selectize-input {
+    border: 1px solid grey !important;
+    border-radius: 10px !important;
+    font-size: 1rem;
+    min-height: 38px;
+    padding: 0.375rem 0.75rem !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: var(--ct-input-bg) !important;
+    color: var(--ct-body-color) !important;
+    border-color:grey !important;
+    outline: 0 !important;
+}
+
+/* Focus state with border highlight */
+.selectize-input.focus {
+    border-radius: 10px; 
+    border-color: grey;
+}
+.selectize-input input::placeholder {
+  color: var(--ct-input-color) !important; 
+  opacity: 1;   
+}
+.selectize-dropdown .create {
+  background-color: var(--ct-secondary-bg) !important;
+  color: var(--ct-body-color) !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-style: italic;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.selectize-dropdown .create:hover {
+  background-color: var(--ct-tertiary-bg) !important;
+  color: var(--ct-body-color) !important;
+  cursor: pointer;
+}
+
+
+/* Dropdown container with border */
+.selectize-dropdown {
+    border-color: grey;
+    background-color: var(--ct-dropdown-bg) !important;
+    border-radius: 10px !important;
+    margin-top: 2px !important; /* Prevents border overlap */
+}
+
+/* Dropdown options with borders */
+.selectize-dropdown .option {
+    border-bottom: 1px solid var(--ct-border-color) !important;
+    color: var(--ct-dropdown-link-color) !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Remove bottom border from last option */
+.selectize-dropdown .option:last-child {
+    border-bottom: none !important;
+}
+
+/* Group headers with border */
+/* .selectize-dropdown .optgroup-header {
+    border-bottom: 1px solid var(--ct-border-color) !important;
+    color: var(--ct-dropdown-link-color) !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: bold;
+} */
+
+/* Hover and active states */
+/* .selectize-dropdown .option:hover, 
+.selectize-dropdown .option.active {
+    background-color: var(--ct-dropdown-link-hover-bg) !important;
+    color: var(--ct-dropdown-link-hover-color) !important;
+} */
+
+/* Change selected items color in the input */
+.selectize-input > div {
+    background-color: var(--ct-primary) !important;
+    color: white !important;
+    border-color: grey !important;
+}
+
+/* Selected item remove button */
+.selectize-input > div .remove {
+    color: white !important;
+    border-left-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Input field inside the control */
+.selectize-input input {
+    color: var(--ct-body-color) !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+/* Placeholder text */
+/* .selectize-input::placeholder {
+    color: var(--ct-secondary-color) !important;
+    opacity: 1 !important;
+} */
+
+/* Disabled state */
+.selectize-control.disabled .selectize-input {
+    background-color: var(--ct-secondary-bg) !important;
+    opacity: 0.65 !important;
+    border-style: dashed !important;
+}
+
+/* Add these styles to fix the transparency issue */
+
+/* Dropdown content container - fixes transparency */
+.selectize-dropdown-content {
+    background-color: var(--ct-dropdown-bg) !important;
+    border-radius: 10px !important;
+}
+
+/* Dropdown options - ensure solid background */
+.selectize-dropdown .option {
+    background-color: inherit !important; /* Inherit from dropdown content */
+}
+
+/* Active/hover states - maintain solid background */
+/* .selectize-dropdown .option:hover, 
+.selectize-dropdown .option.active {
+    background-color: var(--ct-dropdown-link-hover-bg) !important;
+} */
+
+/* Dropdown header - solid background */
+.selectize-dropdown .optgroup-header {
+    background-color: inherit !important;
+}
+
+.selectize-dropdown, 
+.selectize-dropdown-content {
+    background-color: var(--ct-secondary-bg) !important; /* Fallback solid color */
+}
+.selectize-dropdown {
+    z-index: 1000 !important;
+}
+.selectize-dropdown {
+    opacity: 1 !important;
+}
+
+    /* Base container row */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+
+/* Section Wrapper */
+.section-wrapper {
+  border: 2px solid var(--ct-border-color);
+  border-radius: 0.5rem;
+  padding-top: 2.5rem;
+  position: relative;
+  /* background-color: var(--ct-body-bg); */
+  transition: all 0.3s ease;
+}
+
+/* Remove border and padding if no section title */
+.section-wrapper.no-section {
+  border: none;
+  padding-top: 0;
+}
+
+/* Section Header */
+.section-header {
+  position: absolute;
+  top: -1rem;
+  left: 1rem;
+  padding: 0 0.75rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+  background-color: var(--ct-secondary-bg);
+  color: var(--ct-primary);
+  border-left: 4px solid var(--ct-primary);
+  border-radius: 0.25rem;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+
+/* Light theme (default Bootstrap light mode) */
+body.bg-light .selectize-dropdown, 
+body[data-bs-theme="light"] .selectize-dropdown {
+    color: #000 !important; 
+}
+
+/* Dark theme (Bootstrap 5 dark mode via data-bs-theme or bg-dark) */
+body.bg-dark .selectize-dropdown, 
+body[data-bs-theme="dark"] .selectize-dropdown {
+    color: #f8f9fa !important; 
+}
+
+
+

@@ -1,0 +1,86 @@
+sudo apt update
+pip install pytesseract pdf2image Pillow nltk PyMuPDF
+sudo apt install poppler-utils tesseract-ocr
+
+sudo apt update
+sudo apt install poppler-utils
+
+sudo apt update
+sudo apt install tesseract-ocr
+
+python manage.py shell
+
+import nltk
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+exit()
+
+
+For Windows:
+
+Install Poppler
+
+Download Poppler for Windows:
+
+Go to: https://github.com/oschwartz10612/poppler-windows/releases/
+
+Download the latest .zip file for poppler.
+
+Extract it to a folder, e.g., C:\poppler.
+
+Add bin directory to PATH:
+
+Open Environment Variables.
+
+Add this to the Path system variable:
+
+C:\poppler\poppler-23.11.0\Library\bin
+(Adjust based on the version you downloaded.)
+
+Restart your terminal / IDE (so it picks up the new PATH).
+
+Manually Specify the Path in Python
+
+from pdf2image import convert_from_path
+
+images = convert_from_path(pdf_path, poppler_path=r'C:\poppler\poppler-23.11.0\Library\bin')
+
+Install Tesseract OCR
+
+Download the Tesseract installer:
+
+Official build: https://github.com/UB-Mannheim/tesseract/wiki
+
+Choose the latest .exe installer for Windows (recommended: from the UB Mannheim builds).
+
+Install it, e.g., to:
+
+C:\Program Files\Tesseract-OCR
+Add to PATH:
+
+Open Environment Variables.
+
+Add this to the Path variable:
+
+C:\Program Files\Tesseract-OCR
+Verify it's working:
+
+Open Command Prompt and run:
+
+tesseract --version
+
+Manually Specify the Path in Python
+
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+
+python manage.py shell
+
+import nltk
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+exit()

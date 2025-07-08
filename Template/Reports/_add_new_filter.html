@@ -1,0 +1,26 @@
+
+{% if fcount|divisibleby:2 %}
+    <div class="row align-items-center g-2 f_row mt-1" id="new_f_row_{{fcount}}">
+        <div class="col-md-2 new_f_row_even{{fcount}}">
+            <select name="FilterId" id="{{fId}}" class="form-select filter" required onchange="change(this.id)">
+                {% for item1 in filter_name %}
+                    <option value="{{ item1.0 }}"> {{ item1.1 }} </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4 new_f_row_even{{fcount}}">
+            <select name="SubFilterId" id="{{sfId}}" class="form-control subfilter" required multiple > </select>
+        </div>
+    </div>
+{% else %}
+    <div class="col-md-2 new_f_row_odd{{fcount}}">
+        <select name="FilterId" id="{{fId}}" class="form-select filter" required onchange="change(this.id)">
+            {% for item1 in filter_name %}
+                <option value="{{ item1.0 }}"> {{ item1.1 }} </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4 new_f_row_odd{{fcount}}">
+        <select name="SubFilterId" id="{{sfId}}" class="form-control subfilter" required multiple > </select>
+    </div>
+{% endif %} 

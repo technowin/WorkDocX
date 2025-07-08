@@ -1,0 +1,535 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Project Dashboard" %}{% endblock title %}
+
+{% block extra_css %}
+
+    <!-- third party css -->
+    <link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css"/>
+    <!-- third party css end -->
+
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Projects' sub_title='Dashboard' %}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card widget-inline">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card rounded-0 shadow-none m-0">
+                                <div class="card-body text-center">
+                                    <i class="ri-briefcase-line text-muted font-24"></i>
+                                    <h3><span>{{ statisticsProjects.total_projects }}</span></h3>
+                                    <p class="text-muted font-15 mb-0">Total Projects</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card rounded-0 shadow-none m-0 border-start border-light">
+                                <div class="card-body text-center">
+                                    <i class="ri-list-check-2 text-muted font-24"></i>
+                                    <h3><span>{{ statisticsProjects.total_tasks }}</span></h3>
+                                    <p class="text-muted font-15 mb-0">Total Tasks</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card rounded-0 shadow-none m-0 border-start border-light">
+                                <div class="card-body text-center">
+                                    <i class="ri-group-line text-muted font-24"></i>
+                                    <h3><span>{{ statisticsProjects.members }}</span></h3>
+                                    <p class="text-muted font-15 mb-0">Members</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-lg-3">
+                            <div class="card rounded-0 shadow-none m-0 border-start border-light">
+                                <div class="card-body text-center">
+                                    <i class="ri-line-chart-line text-muted font-24"></i>
+                                    <h3><span>{{ statisticsProjects.productivity.data }}</span> <i
+                                            class="mdi mdi-arrow-up text-success"></i></h3>
+                                    <p class="text-muted font-15 mb-0">Productivity</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div> <!-- end row -->
+                </div>
+            </div> <!-- end card-box-->
+        </div> <!-- end col-->
+    </div>
+    <!-- end row-->
+
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Project Status</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Weekly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Monthly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pt-0">
+                    <div class="mt-3 mb-4 chartjs-chart" style="height: 204px;">
+                        <canvas id="project-status-chart" data-colors="#0acf97,#727cf5,#fa5c7c"></canvas>
+                    </div>
+
+                    <div class="row text-center mt-2 py-2">
+                        <div class="col-sm-4">
+                            <div class="my-2 my-sm-0">
+                                <i class="mdi mdi-trending-{{ projectStatusStat.completed.type }} text-{{ projectStatusStat.completed.color }} mt-3 h3"></i>
+                                <h3 class="fw-normal">
+                                    <span>{{ projectStatusStat.completed.data }}</span>
+                                </h3>
+                                <p class="text-muted mb-0">Completed</p>
+                            </div>
+
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="my-2 my-sm-0">
+                                <i class="mdi mdi-trending-{{ projectStatusStat.in_progress.type }} text-{{ projectStatusStat.in_progress.color }} mt-3 h3"></i>
+                                <h3 class="fw-normal">
+                                    <span>{{ projectStatusStat.in_progress.data }}</span>
+                                </h3>
+                                <p class="text-muted mb-0"> In-progress</p>
+                            </div>
+
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="my-2 my-sm-0">
+                                <i class="mdi mdi-trending-{{ projectStatusStat.behind.type }} text-{{ projectStatusStat.behind.color }} mt-3 h3"></i>
+                                <h3 class="fw-normal">
+                                    <span>{{ projectStatusStat.behind.data }}</span>
+                                </h3>
+                                <p class="text-muted mb-0"> Behind</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end row-->
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Tasks</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Weekly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Monthly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-header bg-light-lighten border-top border-bottom border-light py-1 text-center">
+                    <p class="m-0"><b>{{ completedTasks }}</b> Tasks completed out of {{ totalTasks }}</p>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0">
+                            <tbody>
+                            {% for data in tasksList %}
+                                <tr>
+                                    <td>
+                                        <h5 class="font-14 my-1"><a href="javascript:void(0);"
+                                                                    class="text-body">{{ data.name }}</a></h5>
+                                        <span class="text-muted font-13">{{ data.due_date }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted font-13">Status</span> <br/>
+                                        <span class="badge badge-{{ data.status.color }}-lighten">{{ data.status.name }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted font-13">Assigned to</span>
+                                        <h5 class="font-14 mt-1 fw-normal">{{ data.assigned_to }}</h5>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted font-13">Total time spend</span>
+                                        <h5 class="font-14 mt-1 fw-normal">{{ data.time_spend }}</h5>
+                                    </td>
+                                    <td class="table-action" style="width: 90px;">
+                                        <a href="javascript: void(0);" class="action-icon"> <i
+                                                class="mdi mdi-pencil"></i></a>
+                                        <a href="javascript: void(0);" class="action-icon"> <i
+                                                class="mdi mdi-delete"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- end table-responsive-->
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+    </div>
+    <!-- end row-->
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Tasks Overview</h4>
+                    <div>
+                        <button type="button" class="btn btn-soft-secondary btn-sm">
+                            ALL
+                        </button>
+                        <button type="button" class="btn btn-soft-primary btn-sm">
+                            1M
+                        </button>
+                        <button type="button" class="btn btn-soft-secondary btn-sm">
+                            6M
+                        </button>
+                        <button type="button" class="btn btn-soft-secondary btn-sm">
+                            1Y
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div dir="ltr">
+                        <div class="chartjs-chart" style="height: 320px;">
+                            <canvas id="task-area-chart" data-bgColor="#727cf5" data-borderColor="#727cf5"></canvas>
+                        </div>
+                    </div>
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+    </div>
+    <!-- end row-->
+
+
+    <div class="row">
+        <div class="col-xl-5">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Recent Activities</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Weekly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Monthly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap table-hover mb-0">
+                            <tbody>
+                            {% for data in recentActivities %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-start">
+                                            <img class="me-2 rounded-circle" src="{{ data.avatar }}"
+                                                 width="40" alt="Generic placeholder image">
+                                            <div>
+                                                <h5 class="mt-0 mb-1">{{ data.name }}<small
+                                                        class="fw-normal ms-3">{{ data.time }}</small></h5>
+                                                <span class="font-13">{{ data.description }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted font-13">Project</span> <br/>
+                                        <p class="mb-0">{{ data.project }}</p>
+                                    </td>
+                                    <td class="table-action" style="width: 50px;">
+                                        <div class="dropdown">
+                                            <a href="#" class="dropdown-toggle arrow-none card-drop"
+                                               data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi mdi-dots-horizontal"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Settings</a>
+                                                <!-- item-->
+                                                <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- end table-responsive-->
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+
+        <div class="col-xl-7">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Your Calendar</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Weekly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Monthly Report</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Action</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Settings</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pt-0">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div data-provide="datepicker-inline" data-date-today-highlight="true"
+                                 class="calendar-widget"></div>
+                        </div> <!-- end col-->
+                        <div class="col-md-5">
+                            <ul class="list-unstyled mt-1">
+                                {% for data in yourCalendarTasks %}
+                                    <li class="mb-4">
+                                        <p class="text-muted mb-1 font-13">
+                                            <i class="mdi mdi-calendar"></i> {{ data.time }}
+                                        </p>
+                                        <h5>{{ data.name }}</h5>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div> <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+
+    </div>
+    <!-- end row-->
+{% endblock %}
+
+{% block extra_javascript %}
+
+    <!-- Bootstrap Datepicker js -->
+    <script src="{% static 'js/vendor/bootstrap-datepicker.min.js' %}"></script>
+
+    <!-- Chart js -->
+    <script src="{% static 'js/vendor/chart.min.js' %}"></script>
+
+    <script typpe="text/javascript">
+
+        var projectStatusChartData = JSON.parse('{{projectStatus|safe}}')
+        var projectStatusLabels = Object.keys(projectStatusChartData);
+        var projectStatusVals = Object.values(projectStatusChartData);
+
+        var tasksOverviewChartData = JSON.parse("{{tasksOverview|escapejs}}")[0]
+        var tasksOverviewLabels = Object.keys(tasksOverviewChartData);
+        var tasksOverviewVals = Object.values(tasksOverviewChartData);
+
+        !function ($) {
+            "use strict";
+
+            var ChartJs = function () {
+                this.$body = $("body"),
+                    this.charts = []
+            };
+
+            ChartJs.prototype.respChart = function (selector, type, data, options) {
+
+                //default config
+                Chart.defaults.font.color = "#8391a2";
+                Chart.defaults.scale.grid.color = "#8391a2";
+
+                // get selector by context
+                var ctx = selector.get(0).getContext("2d");
+                // pointing parent container to make chart js inherit its width
+                var container = $(selector).parent();
+
+                // this function produce the responsive Chart JS
+                function generateChart() {
+                    // make chart width fit with its container
+                    var ww = selector.attr('width', $(container).width());
+                    var chart;
+                    switch (type) {
+                        case 'Line':
+                            chart = new Chart(ctx, {type: 'line', data: data, options: options});
+                            break;
+                        case 'Bar':
+                            chart = new Chart(ctx, {type: 'bar', data: data, options: options});
+                            break;
+                        case 'Doughnut':
+                            chart = new Chart(ctx, {type: 'doughnut', data: data, options: options});
+                            break;
+                    }
+                    return chart;
+                };
+                // run function - render chart at first load
+                return generateChart();
+            },
+                // init various charts and returns
+                ChartJs.prototype.initCharts = function () {
+                    var charts = [];
+
+                    if ($('#task-area-chart').length > 0) {
+                        var dataBgColor = $("#task-area-chart").data('bgcolor');
+                        var dataBorderColor = $("#task-area-chart").data('bordercolor');
+                        var bgColor = dataBgColor ? dataBgColor : '#727cf5';
+                        var borderColor = dataBorderColor ? dataBorderColor : '#727cf5';
+
+                        var lineChart = {
+                            labels: tasksOverviewLabels,
+                            datasets: [
+                                {
+                                    label: "This year",
+                                    backgroundColor: bgColor,
+                                    borderColor: borderColor,
+                                    data: tasksOverviewVals
+                                }
+                            ]
+                        };
+
+                        var lineOpts = {
+                            maintainAspectRatio: false, barPercentage: 0.7, categoryPercentage: 0.5, // barSpacing: 10,
+                            plugins: {
+                                filler: {
+                                    propagate: false
+                                }, legend: {
+                                    display: false
+                                }, tooltips: {
+                                    intersect: false
+                                }, hover: {
+                                    intersect: true
+                                },
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: "rgba(0,0,0,0.05)"
+                                    }
+                                }, y: {
+                                    ticks: {
+                                        stepSize: 10, display: false
+                                    }, min: 10, max: 100, display: true, borderDash: [5, 5], grid: {
+                                        color: "rgba(0,0,0,0)", fontColor: '#fff',
+                                    }
+                                }
+                            }
+                        };
+                        charts.push(this.respChart($("#task-area-chart"), 'Bar', lineChart, lineOpts));
+                    }
+
+                    if ($('#project-status-chart').length > 0) {
+                        var dataColors = $("#project-status-chart").data('colors');
+                        var colors = dataColors ? dataColors.split(",") : ["#0acf97", "#727cf5", "#fa5c7c"];
+                        //donut chart
+                        var donutChart = {
+                            labels: projectStatusLabels,
+                            datasets: [
+                                {
+                                    data: projectStatusVals,
+                                    backgroundColor: colors,
+                                    borderColor: "transparent",
+                                    borderWidth: "3",
+                                }]
+                        };
+                        var donutOpts = {
+                            maintainAspectRatio: false, cutout: 80, plugins: {
+                                cutoutPercentage: 40, legend: {
+                                    display: false
+                                }
+                            }
+
+                        };
+                        charts.push(this.respChart($("#project-status-chart"), 'Doughnut', donutChart, donutOpts));
+                    }
+                    return charts;
+                },
+                //initializing various components and plugins
+                ChartJs.prototype.init = function () {
+                    var $this = this;
+                    // font
+                    Chart.defaults.font.family = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif';
+
+                    // init charts
+                    $this.charts = this.initCharts();
+
+                    // enable resizing matter
+                    $(window).on('resizeEnd', function (e) {
+                        $.each($this.charts, function (index, chart) {
+                            try {
+                                chart.destroy();
+                            } catch (err) {
+                            }
+                        });
+                        $this.charts = $this.initCharts();
+                    });
+                    $(window).resize(function () {
+                        if (this.resizeTO) clearTimeout(this.resizeTO);
+                        this.resizeTO = setTimeout(function () {
+                            $(this).trigger('resizeEnd');
+                        }, 500);
+                    });
+                },
+
+                //init flotchart
+                $.ChartJs = new ChartJs, $.ChartJs.Constructor = ChartJs
+        }(window.jQuery),
+
+            //initializing ChartJs
+            function ($) {
+                "use strict";
+                $.ChartJs.init()
+            }(window.jQuery);
+    </script>
+    <!-- Init js end -->
+
+    {% comment %}  <script src="{% static 'js/pages/demo.dashboard-projects.js' %}"></script> {% endcomment %}
+
+{% endblock %}

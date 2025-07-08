@@ -1,0 +1,47 @@
+{% extends "bootstrap/base.html" %}
+{% load static i18n %}
+
+{% block html %}
+    data-bs-theme="{% if dark %}dark{% else %}light{% endif %}"
+    data-layout-mode="{% if boxed %}boxed{% else %}fluid{% endif %}"
+    data-menu-color="{% if menu == "light" %}light{% else %}dark{% endif %}"
+    data-sidenav-size="{% if full %}full{% elif fullscreen %}fullscreen{% elif hover %}sm-hover{% elif compact %}compact{% elif icon %}condensed{% else %}default{% endif %}"
+{% endblock %}
+
+{% block extra_css %}
+    <link href="{% static 'css/scrollbar.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_content %}
+
+    {% block preloader %}
+    {% endblock %}
+
+    <div class="wrapper">
+
+        {% include 'bootstrap/partials/topbar.html' %}
+        {% include 'bootstrap/partials/left-sidebar.html' %}
+
+        <div class="content-page">
+            <div class="content">
+
+                <div class="container-fluid">
+
+                    {% block page_title %}
+                    {% endblock %}
+
+                    {% block content %}
+                    {% endblock %}
+                </div>
+
+            </div>
+
+            {% include 'bootstrap/partials/footer.html' %}
+        </div>
+    </div>
+    {% block modal %}{% endblock %}
+    {% include 'bootstrap/partials/right-sidebar.html' %}
+
+{% endblock %}
+
+{% block extra_javascript %}{% endblock %}

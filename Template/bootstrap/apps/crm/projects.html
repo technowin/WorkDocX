@@ -1,0 +1,834 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}CRM Projects{% endblock title %}
+
+{% block extra_css %}
+    <link href="{% static '/css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Projects' sub_title='CRM' %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-xxl-9">
+            <div class="row">
+                <div class="col-sm-6 col-xl-3 mb-3">
+                    <div class="card mb-0 h-100">
+                        <div class="card-body">
+                            <div class="dropdown float-end">
+                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="mdi mdi-dots-horizontal"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-plus-circle me-1"></i> Add Card</a>
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-content-copy me-1"></i> Copy List</a>
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-square-edit-outline me-1"></i> Edit</a>
+                                    <!-- item-->
+                                    <hr class="dropdown-divider">
+                                    <a href="javascript:void(0);" class="dropdown-item text-danger"><i
+                                            class="mdi mdi-trash-can-outline me-1"></i> Detele</a>
+                                </div>
+                            </div>
+                            <h4 class="header-title">Project Dashboard</h4>
+                            <h5 class="text-muted fw-normal mt-0 text-truncate" title="Campaign Sent">New Task Assign
+                            </h5>
+
+                            <div class="d-flex align-items-center mt-4">
+                                <div class="flex-shrink-0">
+                                    <h5 class="font-13 text-muted my-0"><i class="mdi mdi-clock-outline"></i> 4 Hrs ago
+                                    </h5>
+                                </div>
+                                <div class="flex-grow-1 ms-2"></div>
+                                <div class="text-end multi-user">
+                                    <a href="javascript:void(0);" class="d-inline-block">
+                                        <img src="{% static 'images/users/avatar-1.jpg' %}"
+                                             class="rounded-circle avatar-xs"
+                                             alt="friend">
+                                    </a>
+                                    <a href="javascript:void(0);" class="d-inline-block">
+                                        <img src="{% static 'images/users/avatar-2.jpg' %}"
+                                             class="rounded-circle avatar-xs"
+                                             alt="friend">
+                                    </a>
+                                </div>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <div class="col-sm-6 col-xl-3 mb-3">
+                    <div class="card mb-0 h-100">
+                        <div class="card-body">
+                            <div class="dropdown float-end">
+                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="mdi mdi-dots-horizontal"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-plus-circle me-1"></i> Add Card</a>
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-content-copy me-1"></i> Copy List</a>
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-square-edit-outline me-1"></i> Edit</a>
+                                    <!-- item-->
+                                    <hr class="dropdown-divider">
+                                    <a href="javascript:void(0);" class="dropdown-item text-danger"><i
+                                            class="mdi mdi-trash-can-outline me-1"></i> Detele</a>
+                                </div>
+                            </div>
+                            <h4 class="header-title">Admin Template</h4>
+                            <h5 class="text-muted fw-normal mt-0 text-truncate" title="Campaign Sent">New Task Assign
+                            </h5>
+
+                            <div class="d-flex align-items-center mt-4">
+                                <div class="flex-shrink-0">
+                                    <h5 class="font-13 text-muted my-0"><i class="mdi mdi-clock-outline"></i> 7 Hrs ago
+                                    </h5>
+                                </div>
+                                <div class="flex-grow-1 ms-2"></div>
+                                <div class="text-end multi-user">
+                                    <a href="javascript:void(0);" class="d-inline-block">
+                                        <img src="{% static 'images/users/avatar-4.jpg' %}"
+                                             class="rounded-circle avatar-xs"
+                                             alt="friend">
+                                    </a>
+                                    <a href="javascript:void(0);" class="d-inline-block">
+                                        <img src="{% static 'images/users/avatar-5.jpg' %}"
+                                             class="rounded-circle avatar-xs"
+                                             alt="friend">
+                                    </a>
+                                </div>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <div class="col-sm-6 col-xl-3 mb-3">
+                    <div class="card mb-0 h-100">
+                        <div class="card-body">
+                            <div class="dropdown float-end">
+                                <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                    <i class="mdi mdi-dots-horizontal"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-plus-circle me-1"></i> Add Card</a>
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-content-copy me-1"></i> Copy List</a>
+                                    <!-- item-->
+                                    <a href="javascript:void(0);" class="dropdown-item"><i
+                                            class="mdi mdi-square-edit-outline me-1"></i> Edit</a>
+                                    <!-- item-->
+                                    <hr class="dropdown-divider">
+                                    <a href="javascript:void(0);" class="dropdown-item text-danger"><i
+                                            class="mdi mdi-trash-can-outline me-1"></i> Detele</a>
+                                </div>
+                            </div>
+                            <h4 class="header-title">Client Project</h4>
+                            <h5 class="text-muted fw-normal mt-0 text-truncate" title="Campaign Sent">New Task Assign
+                            </h5>
+
+                            <div class="d-flex align-items-center mt-4">
+                                <div class="flex-shrink-0">
+                                    <h5 class="font-13 text-muted my-0"><i class="mdi mdi-clock-outline"></i> 1 Day ago
+                                    </h5>
+                                </div>
+                                <div class="flex-grow-1 ms-2"></div>
+                                <div class="text-end multi-user">
+                                    <a href="javascript:void(0);" class="d-inline-block">
+                                        <img src="{% static 'images/users/avatar-6.jpg' %}"
+                                             class="rounded-circle avatar-xs"
+                                             alt="friend">
+                                    </a>
+                                    <a href="javascript:void(0);" class="d-inline-block">
+                                        <img src="{% static 'images/users/avatar-7.jpg' %}"
+                                             class="rounded-circle avatar-xs"
+                                             alt="friend">
+                                    </a>
+                                </div>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <div class="col-sm-6 col-xl-3 mb-3">
+                    <div class="card mb-0 h-100">
+                        <div class="card-body">
+                            <div
+                                    class="border-dashed border-2 border h-100 w-100 rounded d-flex align-items-center justify-content-center">
+                                <a href="javascript:void(0);" class="text-center text-muted p-2" data-bs-toggle="modal"
+                                   data-bs-target="#exampleModal">
+                                    <i class="mdi mdi-plus h3 my-0"></i>
+                                    <h4 class="font-16 mt-1 mb-0 d-block">Add New Project</h4>
+                                </a>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <div class="row">
+                <div class="col-xl-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Monthly Target</h4>
+
+                            <div id="monthly-target" class="apex-charts mb-4 mt-4" data-colors="#0acf97,#727cf5"></div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h5 class="">Target</h5>
+                                        <p class="fw-semibold text-muted mb-0">
+                                            <i class="mdi mdi-circle text-primary"></i> Projects
+
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h5 class="">Done</h5>
+                                        <p class="fw-semibold text-muted mb-0">
+                                            <i class="mdi mdi-circle text-success"></i> Projects
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="header-title">Project Statistics</h4>
+                            <div>
+                                <button type="button" class="btn btn-soft-primary btn-sm">
+                                    All
+                                </button>
+                                <button type="button" class="btn btn-soft-secondary btn-sm">
+                                    6M
+                                </button>
+                                <button type="button" class="btn btn-soft-secondary btn-sm">
+                                    1Y
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-body pt-0">
+                            <div dir="ltr" class="mt-2">
+                                <div id="crm-project-statistics" class="apex-charts" data-colors="#ced1ff,#727cf5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Project Summary</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop p-0" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a href="javascript:void(0);" class="dropdown-item">Refresh Report</a>
+                            <a href="javascript:void(0);" class="dropdown-item">Export Report</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning border-0 rounded-0" role="alert">
+                    <i class="uil-folder-heart me-1 h4 align-middle"></i> <b>38</b> Total Admin & Client Projects
+                </div>
+                <div class="card-body pt-1">
+                    {% for data in project_summary %}
+                        <div
+                                class="d-flex align-items-center border border-light rounded p-2 {% if not forloop.last %}mb-2{% endif %}">
+                            <div class="flex-shrink-0 me-2">
+                                <i
+                                        class="mdi mdi-{{ data.icon }} widget-icon rounded-circle bg-{{ data.color }}-lighten text-{{ data.color }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="fw-semibold my-0">{{ data.name }}</h5>
+                                <p class="mb-0">{{ data.des }}</p>
+                            </div>
+                            <a href="javasript:void(0);" class="text-muted" data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="Info"><i class="mdi mdi-information-outline h4  my-0"></i></a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="fw-semibold mt-0 mb-3">On Time Completed Rate <span
+                            class="badge bg-success-lighten text-success fw ms-sm-1"><i
+                            class="mdi mdi-trending-up me-1"></i>59%</span></h4>
+                    <h5 class="float-end mt-0">65%</h5>
+                    <h5 class="fw-normal mt-0 mb-2">Completed Projects</h5>
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar" role="progressbar" style="width: 65%" aria-valuenow="65"
+                             aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="avatar-sm">
+                            <span class="avatar-title bg-primary-lighten text-primary rounded">
+                                <i class="mdi mdi-file-document-edit font-24"></i>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mt-0 mb-1">Active Projects</h5>
+                            <p class="mb-0">85</p>
+                        </div>
+                        <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Today</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Yesterday</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Week</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Month</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="avatar-sm">
+                            <span class="avatar-title bg-success-lighten text-success rounded">
+                                <i class="mdi mdi-account-group font-24"></i>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mt-0 mb-1">Total Employees</h5>
+                            <p class="mb-0">32</p>
+                        </div>
+                        <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Today</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Yesterday</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Week</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Month</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="avatar-sm">
+                            <span class="avatar-title bg-info-lighten text-info rounded">
+                                <i class="mdi mdi-account-star font-24"></i>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mt-0 mb-1">Project Reviews</h5>
+                            <p class="mb-0">40</p>
+                        </div>
+                        <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Today</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Yesterday</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Week</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Month</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3">
+                            <div class="avatar-sm">
+                            <span class="avatar-title bg-warning-lighten text-warning rounded">
+                                <i class="mdi mdi-folder-plus font-24"></i>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="mt-0 mb-1">New Projects</h5>
+                            <p class="mb-0">25</p>
+                        </div>
+                        <div class="dropdown float-end">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="mdi mdi-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Today</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Yesterday</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Week</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Last Month</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xxl-6">
+            <div class="card card-h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Project Overview</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-vertical"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Today</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Yesterday</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Last Week</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Last Month</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body pt-0">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 order-2 order-md-1">
+                            {% for data in project_overview %}
+                                <div class="d-flex align-items-center {% if not forloop.last %}mb-3{% endif %}">
+                                    <div class="flex-shrink-0">
+                                        <i
+                                                class="mdi mdi-checkbox-blank-circle widget-icon rounded-circle bg-{{ data.color }}-lighten text-{{ data.color }}"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="fw-semibold mt-0 mb-1">{{ data.name }}</h5>
+                                        <ul class="list-inline mb-0 text-muted">
+                                            <li class="list-inline-item"><b>{{ data.projects }}</b> Total Projects</li>
+                                            <li class="list-inline-item"><i class="mdi mdi-circle-small"></i></li>
+                                            <li class="list-inline-item"><b>{{ data.employee }}</b> Employees</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+                        <div class="col-md-6 order-1 order-md-2">
+                            <div class="mb-3 mb-md-0">
+                                <div id="project-overview-chart" class="apex-charts"
+                                     data-colors="#727cf5,#ff679b,#0acf97,#ffbc00"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xxl-3">
+            <div class="card card-h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title mb-0">Daily Task</h4>
+                    <div>
+                        <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                            <option selected>Today</option>
+                            <option value="1">Yesterday</option>
+                            <option value="2">Tomorrow</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="card-body py-0 mb-3" data-simplebar style="max-height: 292px;">
+                    {% for data in daily_task %}
+                        <div class="border rounded p-2 mb-2">
+                            <ul class="list-inline mb-2">
+                                <li class="list-inline-item font-16 fw-semibold"><a href="javascript:void(0);"
+                                                                                    class="text-secondary">{{ data.name }}</a>
+                                </li>
+                                <li class="list-inline-item text-muted"><i class="mdi mdi-circle-small"></i></li>
+                                <li class="list-inline-item font-13 fw-semibold text-muted">{{ data.hour }} Hrs ago</li>
+                            </ul>
+                            <p class="text-muted mb-0">{{ data.des }}</p>
+                            <p class="text-muted mb-0"><i class="mdi mdi-account-group me-1"></i>
+                                <b>{{ data.people }}</b>
+                                People</p>
+                        </div>
+                    {% endfor %}
+                    <div class="text-center">
+                        <i class="mdi mdi-dots-circle mdi-spin font-20 text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xxl-3">
+            <div class="card card-h-100">
+
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="header-title mb-0">Team Members</h4>
+                    <div>
+                        <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                            <option selected>Active</option>
+                            <option value="1">Offline</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="card-body py-0 mb-3" data-simplebar style="max-height: 292px;">
+                    {% for data in team_members %}
+                        <div class="d-flex align-items-start {% if not forloop.first %}mt-3{% endif %}">
+                            <img class="me-3 rounded-circle" src="{{ data.avatar }}" width="40"
+                                 alt="Generic placeholder image">
+                            <div class="w-100 overflow-hidden">
+                                <h5 class="mt-0 mb-1 fw-semibold">{{ data.name }}</h5>
+                                <ul class="list-inline mb-0 font-13">
+                                    <li class="list-inline-item">{{ data.designation }}</li>
+                                    <li class="list-inline-item text-muted"><i class="mdi mdi-circle-small"></i></li>
+                                    <li class="list-inline-item text-muted">{{ data.experience }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+        </div>
+    </div> <!-- end row -->
+
+{% endblock %}
+
+{% block modal %}
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="CreateProjectLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="CreateProjectLabel">Add New Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div class="mb-3">
+                        <label for="projectName" class="form-label">Project Name</label>
+                        <input type="text" class="form-control" id="projectName" placeholder="Add project name...">
+                    </div>
+                    <div class="mb-3">
+                        <label for="formGroupExampleInput" class="form-label">Add Task</label>
+                        <select class="form-select select2" data-toggle="select2" aria-label="Default select example">
+                            <option selected>Add a task...</option>
+                            <option value="1">Landing Page</option>
+                            <option value="2">Admin Dashboards</option>
+                            <option value="3">Admin Pages</option>
+                            <option value="4">UX/UI Design</option>
+                            <option value="5">Client Work</option>
+                            <option value="6">Other Work</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="AssignTask" class="form-label">Assign Task</label>
+                        <select class="select2 form-control select2-multiple" data-toggle="select2" multiple="multiple"
+                                data-placeholder="Choose ...">
+                            <optgroup label="UX Designer">
+                                <option value="AD">Andrea</option>
+                                <option value="DL">Danielle</option>
+                                <option value="JH">John</option>
+                            </optgroup>
+                            <optgroup label="Developer">
+                                <option value="ST">Steven</option>
+                                <option value="MC">Michael</option>
+                            </optgroup>
+                            <optgroup label="UI Designer">
+                                <option value="SR">Sharon</option>
+                                <option value="TM">Timothy</option>
+                                <option value="FD">Frederick</option>
+                                <option value="HN">Henry</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Create Project</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+
+    <!-- third party:js -->
+    <script src="{% static 'js/vendor/select2.min.js' %}"></script>
+    <script src="{% static 'js/vendor/apexcharts.min.js' %}"></script>
+    <!-- third party end -->
+
+    <!-- demo app -->
+    <script type="text/javascript">
+        var monthlyTarget = JSON.parse('{{ monthly_target | safe}}')
+        var projectStatistics = JSON.parse('{{ project_statistics | safe}}')
+        var projectStatisticsVal = Object.values(projectStatistics);
+        var projectStatisticsKey = Object.keys(projectStatistics);
+        var currentWeekData = projectStatisticsVal.map(function (el) {
+            return el.current_week;
+        });
+        var previousWeekData = projectStatisticsVal.map(function (el) {
+            return el.previous_week;
+        });
+        var projectOverviewChart = JSON.parse('{{ project_overview_chart | safe}}')
+
+        !function ($) {
+            "use strict";
+
+            var CrmProject = function () {
+                this.$body = $("body"),
+                    this.charts = []
+            };
+
+            CrmProject.prototype.init = function () {
+                this.initCharts();
+            }
+
+            CrmProject.prototype.initCharts = function () {
+                // Project Statistics
+                var colors = ["#727cf5", "#0acf97"];
+                var dataColors = $("#crm-project-statistics").data('colors');
+
+                if (dataColors) {
+                    colors = dataColors.split(",");
+                }
+                var options = {
+                    chart: {
+                        height: 326,
+                        type: 'bar',
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            endingShape: 'rounded',
+                            columnWidth: '25%',
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 0,
+                        colors: ['transparent']
+                    },
+                    colors: colors,
+                    series: [{
+                        name: 'Projects',
+                        data: [56, 38, 85, 72, 28, 69, 55, 52, 69]
+                    }, {
+                        name: 'Working Hours',
+                        data: [176, 185, 256, 240, 187, 205, 191, 114, 194]
+                    }],
+                    xaxis: {
+                        categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    },
+                    legend: {
+                        offsetY: 7,
+                    },
+                    fill: {
+                        opacity: 1
+
+                    },
+                    // legend: {
+                    //     floating: true
+                    // },
+                    grid: {
+                        row: {
+                            colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
+                            opacity: 0.2
+                        },
+                        borderColor: '#f1f3fa',
+                        padding: {
+                            bottom: 5
+                        }
+                    }
+                }
+
+                var chart = new ApexCharts(
+                    document.querySelector("#crm-project-statistics"),
+                    options
+                );
+
+                chart.render();
+
+
+                // Monthly Target
+
+                var colors = ["#727cf5", "#0acf97"];
+                var dataColors = $("#monthly-target").data('colors');
+                if (dataColors) {
+                    colors = dataColors.split(",");
+                }
+                var options = {
+                    chart: {
+                        height: 256,
+                        type: 'donut',
+                    },
+                    legend: {
+                        show: false
+                    },
+                    stroke: {
+                        width: 0,
+                        colors: ['transparent']
+                    },
+                    series: [82, 37],
+                    labels: ["Done Projects", "Pending Projects"],
+                    colors: colors,
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 200
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }]
+                }
+
+                var chart = new ApexCharts(
+                    document.querySelector("#monthly-target"),
+                    options
+                );
+
+                chart.render();
+            },
+                //init flotchart
+                $.CrmProject = new CrmProject, $.CrmProject.Constructor = CrmProject
+        }(window.jQuery),
+
+            //initializing CrmProject
+            function ($) {
+                "use strict";
+                $(document).ready(function (e) {
+                    $.CrmProject.init();
+                });
+            }(window.jQuery);
+
+
+        //
+        // project-overview CHART
+        //
+        var colors = ["#727cf5", "#0acf97", "#fa5c7c", "#ffbc00"];
+        var dataColors = $("#project-overview-chart").data('colors');
+        if (dataColors) {
+            colors = dataColors.split(",");
+        }
+        var options = {
+            chart: {
+                height: 326,
+                type: 'radialBar'
+            },
+            colors: colors,
+            series: [85, 70, 80, 65],
+            labels: ['Product Design', 'Web Development', 'Illustration Design', 'UI/UX Design'],
+            plotOptions: {
+                radialBar: {
+                    track: {
+                        margin: 5,
+                    }
+                }
+            }
+        }
+
+        var chart = new ApexCharts(
+            document.querySelector("#project-overview-chart"),
+            options
+        );
+
+        chart.render();
+
+    </script>
+    <!-- end demo js-->
+
+{% endblock %}

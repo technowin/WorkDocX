@@ -1,0 +1,275 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+{% block title %}Search{% endblock title %}
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/select.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedColumns.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Search' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row mt-3" style="font-size:16px;">
+    <div class="col-12">
+        <div class="card " style="border-radius: 15px;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="header-title">Document Search</h4> 
+            </div>
+            <div class="text-center">
+                     <!-- Search Tabs -->
+                    <ul class="nav nav-tabs nav-bordered mb-3" id="searchTabs">
+                        <li class="nav-item">
+                            <a href="#simple-search-tab" data-bs-toggle="tab" aria-expanded="{% if search_type != 'advanced' %}true{% else %}false{% endif %}" 
+                               class="nav-link {% if search_type != 'advanced' %}active{% endif %}">
+                                <i class="mdi mdi-magnify d-md-none d-block"></i>
+                                <span class="d-none d-md-block">Simple Search</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#advanced-search-tab" data-bs-toggle="tab" aria-expanded="{% if search_type == 'advanced' %}true{% else %}false{% endif %}" 
+                               class="nav-link {% if search_type == 'advanced' %}active{% endif %}">
+                                <i class="mdi mdi-tune d-md-none d-block"></i>
+                                <span class="d-none d-md-block">Advanced Search</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+            <div class="card-body">
+                <!-- Tab Contents -->
+                <div class="tab-content">
+                <!-- Simple Search -->
+                <div class="tab-pane {% if search_type != 'advanced' %}show active{% endif %}" id="simple-search-tab">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="simple_query" class="form-control"
+                                placeholder="Search by title or keyword..." 
+                                value="{% if search_type == 'simple' %}{{ query }}{% endif %}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary rounded-pill">
+                                <i class="bi bi-search rounded-pill"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Advanced Search -->
+                <div class="tab-pane {% if search_type == 'advanced' %}show active{% endif %}" id="advanced-search-tab">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Document Title</label>
+                            <input type="text" name="title" class="form-control"
+                                placeholder="Filter by title..."
+                                value="{% if search_type == 'advanced' %}{{ search_params.title }}{% endif %}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Keywords</label>
+                            <div class="row g-2">
+                                <div class="col-md-2">
+                                    <input type="text" name="keyword1" class="form-control" 
+                                           placeholder="Keyword 1"
+                                           value="{% if search_type == 'advanced' %}{{ search_params.keyword1 }}{% endif %}">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="text" name="keyword2" class="form-control" 
+                                           placeholder="Keyword 2"
+                                           value="{% if search_type == 'advanced' %}{{ search_params.keyword2 }}{% endif %}">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="text" name="keyword3" class="form-control" 
+                                           placeholder="Keyword 3"
+                                           value="{% if search_type == 'advanced' %}{{ search_params.keyword3 }}{% endif %}">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="text" name="keyword4" class="form-control" 
+                                           placeholder="Keyword 4"
+                                           value="{% if search_type == 'advanced' %}{{ search_params.keyword4 }}{% endif %}">
+                                </div>
+                                 <div class="col-md-2">
+                                    <input type="text" name="keyword5" class="form-control" 
+                                           placeholder="Keyword 5"
+                                           value="{% if search_type == 'advanced' %}{{ search_params.keyword5 }}{% endif %}">
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="text" name="keyword6" class="form-control" 
+                                           placeholder="Keyword 6"
+                                           value="{% if search_type == 'advanced' %}{{ search_params.keyword6 }}{% endif %}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" name="match_all" id="matchAll" 
+                                    {% if search_type == 'advanced' and search_params.match_all %}checked{% endif %}>
+                                <label class="form-check-label" for="matchAll">
+                                    Match all keywords (AND search)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 d-flex gap-2 mt-2">
+                            <button type="submit" class="btn btn-primary rounded-pill">
+                                <i class="bi bi-search"></i> Advanced Search
+                            </button>
+                            <a href="?" class="btn btn-secondary rounded-pill">Reset</a>
+                        </div>
+                    </form>
+                </div>
+                </div>
+
+                <!-- Search Results -->
+                {% if show_results %}
+                {% if search_type %}
+                    <div class="mt-5">
+                        {% if documents %}
+                            <div class="">
+                                <table class="table table-striped table-bordered dt-responsive nowrap w-100" id="dataTable">
+                                    <thead class="align-middle">
+                                        <tr>
+                                            <th scope="col" >Title</th>
+                                            <th scope="col" >Keywords</th>
+                                            <th scope="col" >Uploaded</th>
+                                            <th scope="col" >Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for document in documents %}
+                                            <tr>
+                                                <td>{{ document.title }}</td>
+                                                <td style="font-size:16px;">
+                                                    {% for keyword in document.keywords_list|slice:":5" %}
+                                                        <span class="badge bg-info ">{{ keyword }}</span>
+                                                    {% endfor %}
+                                                    {% if document.keywords_list|length > 5 %}
+                                                        <span class="badge bg-secondary">+{{ document.keywords_list|length|add:"-5" }} more</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ document.uploaded_at|date:"M d, Y" }}</td>
+                                                <td class="d-flex flex-wrap gap-2">
+                                                    <a href="{% url 'document_detail' document.id %}" class="btn btn-success btn-sm rounded-pill">Open</a>
+                                                    <a href="{% url 'ks' document.id %}" class="btn btn-info btn-sm rounded-pill">Search</a>
+                                                    {% if document.file_exists %}
+                                                        <a href="{% url 'download_doc' document.pdf_file %}" class="btn btn-primary btn-sm rounded-pill" download>
+                                                            <i class="bi bi-download"></i> Download
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-danger small">File not found !</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning mt-3">
+                                No documents found matching your search criteria.
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+{% comment %} <script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script> {% endcomment %}
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+{% comment %} <script src="{% static 'js/pages/demo.typehead.js' %}"></script> {% endcomment %}
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'js/vendor/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.fixedHeader.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.html5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
+<script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+
+{% endblock %}
+
+<script>
+$(document).ready(function() {
+    // Activate tab based on URL hash
+    var hash = window.location.hash;
+    if (hash) {
+        $('.nav-tabs a[href="' + hash + '"]').tab('show');
+    }
+    
+    // Change URL hash when tab changes
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+        window.location.hash = e.target.hash;
+    });
+});
+</script>
+
+<script>
+    $('#dataTable').DataTable({
+        "pagingType": "full_numbers",
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+</script>
+
+{% endblock %}

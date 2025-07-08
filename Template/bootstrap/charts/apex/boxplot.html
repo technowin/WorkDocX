@@ -1,0 +1,73 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Apex Boxplot Chart{% endblock title %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block page_title %}
+{% include "bootstrap/partials/page-title.html" with page_title='Boxplot Charts' sub_title='Apex' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-4">Basic Boxplot</h4>
+                <div dir="ltr">
+                    <div id="basic-boxplot" class="apex-charts" data-colors="#727cf5,#0acf97"></div>
+                </div>
+            </div>
+            <!-- end card body-->
+        </div>
+        <!-- end card -->
+    </div>
+    <!-- end col-->
+
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-4">Scatter Boxplot </h4>
+                <div dir="ltr">
+                    <div id="scatter-boxplot" class="apex-charts" data-colors="#fa5c7c,#6c757d"></div>
+                </div>
+            </div>
+            <!-- end card body-->
+        </div>
+        <!-- end card -->
+    </div>
+    <!-- end col-->
+</div>
+<!-- end row-->
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-4">Horizontal BoxPlot</h4>
+                <div dir="ltr">
+                    <div id="horizontal-boxplot" class="apex-charts" data-colors="#727cf5,#0acf97,#e3eaef"></div>
+                </div>
+            </div>
+            <!-- end card body-->
+        </div>
+        <!-- end card -->
+    </div>
+    <!-- end col-->
+</div>
+<!-- end row-->
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+ <!-- Apex Chart js -->
+ <script src="{% static 'js/vendor/apexcharts.min.js' %}"></script>
+
+ <!-- Apex Chart Boxplot Demo js -->
+ <script src="{% static 'js/pages/demo.apex-boxplot.js' %}"></script>
+{% endblock %}

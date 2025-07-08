@@ -1,0 +1,32 @@
+
+/* Base Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 10px;
+}
+
+/* Scrollbar using Bootstrap variables */
+[data-bs-theme] ::-webkit-scrollbar-thumb {
+  background-color: var(--ct-primary);
+  border-color: var(--ct-body-bg);
+}
+
+[data-bs-theme] ::-webkit-scrollbar-track {
+  background-color: var(--ct-secondary-bg);
+}
+
+/* Firefox Support with Bootstrap variables */
+[data-bs-theme] {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ct-primary) var(--ct-secondary-bg);
+}

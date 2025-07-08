@@ -1,0 +1,179 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Form{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+
+{% endblock %}
+
+{% block page_title %}
+{% include "bootstrap/partials/page-title.html" with page_title='Form' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="card shadow d-flex justify-content-center" style="border: 2px solid #b3b3b3; border-radius: 15px; padding: 20px;">
+        
+        <!-- Header and Dropdown in One Row -->
+        <div class="row d-flex align-items-center">
+            <div class="col-md-4">
+                <h3 class="mb-0"><strong style="color: #4e73df;"><u id="form-title">Create Form</u></strong></h3>
+            </div>
+            <div class="col-md-3">
+                <form method="POST" id="main-form">
+                    {% csrf_token %}
+                    <div class="text-center">
+                        <label class="fw-bold d-block">Form Name</label>
+                        <select name="form" id="dropdown" class="form-control">
+                            <option value="" selected>Select</option>
+                            {% for item in form %}
+                                <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dynamic Form Inside the Same Card -->
+        <form method="POST" action="{% url 'common_form_post' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div id="dynamic_form" class="col-md-12 mt-3"></div>
+
+            <div class="d-flex justify-content-center mt-3">
+                <button id="btnSubmit" type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+
+    </div>
+
+<script>
+    $(document).ready(function () {
+        $('#dropdown').on('change', function () {
+            debugger;
+            let formId = $(this).val();
+            let Submit = $('#btnSubmit');
+            let $dynamicForm = $('#dynamic_form');
+            let $formTitle = $('#form-title');
+            
+            Submit.hide();
+    
+            if (formId) {
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'form_master' %}",
+                    data: {
+                        'form': formId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function (data) {
+                        debugger;
+                        $dynamicForm.html(data.html);
+
+                        let selectedText = $('#dropdown option:selected').text();
+                        $formTitle.text(`Create Form - ${selectedText}`);
+                        Submit.show();
+                        
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("AJAX Error:", error);
+                        Submit.hide();
+                        $dynamicForm.html(""); // Optional: clear form area on error
+                        $formTitle.text("Create Form");
+                    }
+                });
+            } else {
+                $dynamicForm.html("");
+                $formTitle.text("Create Form");
+                $btnSubmit.hide();
+            }
+        });
+    });
+    
+    
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.select_multiple').selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            persist: false,
+            create: false,
+            selectOnTab: false, 
+            maxItems: null,
+            onInitialize: function() {
+                var control = this;
+                control.clear();
+            }
+        });
+    });
+
+</script>
+
+
+
+
+{% if messages %}
+{% for message in messages %}
+  <script>
+  Swal.fire({
+    title: "{{ message.tags }}",
+    text: "{{ message }}",
+    icon: "{{ message.tags }}",
+    confirmButtonText: "OK",
+  });=
+</script>
+{% endfor %}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+{% endblock %}

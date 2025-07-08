@@ -1,0 +1,174 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+{% load master_custom_filters %}
+
+{% block title %}Access Control{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/masters.css' %}" rel="stylesheet">
+<link href="{% static 'css/table.css' %}" rel="stylesheet">
+<link href="{% static 'css/activebtn.css' %}" rel="stylesheet">
+<link href="{% static 'css/tooltips.css' %}" rel="stylesheet">
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/vendor/responsive.bootstrap5.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/vendor/buttons.bootstrap5.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/vendor/select.bootstrap5.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/vendor/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/vendor/fixedColumns.bootstrap5.min.css' %}" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .form-container {
+    padding: 20px;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #198754;
+  }
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+  .table {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+  }
+</style>
+{% endblock %}
+
+{% block page_title %}
+{% include "bootstrap/partials/page-title.html" with page_title='Access Control' sub_title='Access Management' %}
+{% endblock %}
+
+{% block content %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<div class="container mt-4">
+  <div class="form-container">
+    <h4 class="text-primary text-center mb-4"><u><b>Access Control</b></u></h4>
+    <form>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle text-center">
+          <thead class="table-dark">
+            <tr>
+              <th>Roles</th>
+              <th>Workflow</th>
+              <th>Form</th>
+              <th>Report</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for role in roles %}
+            {% with role_obj=roles_data|get_item:role.0 %}
+            <tr>
+              <td>{{ role.1 }}</td>
+              <td>
+                <label class="switch">
+                  <input type="checkbox" name="workflow_{{ role.0|slugify }}" {% if role_obj and role_obj.workflow_view %}checked{% endif %}>
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td>
+                <label class="switch">
+                  <input type="checkbox" name="form_{{ role.0|slugify }}" {% if role_obj and role_obj.form_view %}checked{% endif %}>
+                  <span class="slider"></span>
+                </label>
+              </td>
+              <td>
+                <label class="switch">
+                  <input type="checkbox" name="report_{{ role.0|slugify }}" {% if role_obj and role_obj.report_view %}checked{% endif %}>
+                  <span class="slider"></span>
+                </label>
+              </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'js/vendor/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.fixedHeader.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.html5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
+<script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  document.querySelectorAll("input[type='checkbox']").forEach(chk => {
+    chk.addEventListener("change", () => {
+      const name = chk.name;
+      const checked = chk.checked ? 1 : 0;
+      fetch("/view_access/", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('[name=csrf-token]').content
+        },
+        body: JSON.stringify({ name: name, value: checked })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      })
+      
+    });
+  });
+</script>
+<script>
+  $(document).ready(function () {
+    $('table').DataTable({
+      "pagingType": "full_numbers",
+      "drawCallback": function () {
+        $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+      }
+    });
+  });
+</script>
+{% endblock %}

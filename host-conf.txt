@@ -1,0 +1,225 @@
+
+How to host Django Application using gunicorn & nginx in Production:-
+
+git clone https://github.com/technowin/TDMS.git
+
+cd TDMS
+
+git config credential.helper store
+
+git push https://github.com/technowin/TDMS.git
+
+sudo apt update
+
+sudo apt install python3-pip python3-dev nginx
+
+sudo pip3 install virtualenv
+
+sudo apt install python3-virtualenv
+
+virtualenv env
+
+source env/bin/activate
+
+pip install -r requirements.txt
+
+sudo apt update
+sudo apt install pkg-config libmysqlclient-dev
+
+
+pip install django gunicorn
+
+sudo ufw allow 8000
+
+python3 manage.py runserver  172.26.5.61:8000     
+
+gunicorn --bind 172.26.5.61:8000 TDMS.wsgi   
+
+deactivate
+
+sudo vim /etc/systemd/system/gunicorn.socket
+
+Enter i and then paste below part then for save Enter Esc :wq
+
+[Unit]
+Description=gunicorn socket
+
+[Socket]
+ListenStream=/run/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target
+
+sudo vim /etc/systemd/system/gunicorn.service
+
+Enter i and then paste below part then for save Enter Esc :wq
+
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/TDMS
+ExecStart=/home/ubuntu/TDMS/env/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/run/gunicorn.sock \
+          TDMS.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl start gunicorn.socket
+sudo systemctl enable gunicorn.socket
+
+sudo vim /etc/nginx/sites-available/TDMS
+
+Enter i and then paste below part then for save Enter Esc :wq
+
+server {
+    listen 80;
+    server_name 172.26.5.61;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        root /home/ubuntu/TDMS;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/TDMS /etc/nginx/sites-enabled/
+
+cd /etc/nginx/sites-available/
+
+sudo rm default
+
+cd /etc/nginx/sites-enabled/
+
+sudo rm default
+
+sudo gpasswd -a www-data ubuntu
+
+sudo systemctl restart nginx
+
+sudo service nginx restart
+
+sudo service gunicorn restart
+
+sudo tail -f /var/log/nginx/error.log
+
+sudo nginx -t
+
+
+pip3 freeze > requirements.txt  (To add new packages to "requirements.txt")
+
+** for daily changes in code **
+
+git pull origin master 
+
+sudo service gunicorn restart
+
+
+** gemini api **
+
+pip install openai
+pip install google-generativeai
+
+
+In Python Django, you can migrate the database using the following steps:
+
+1. Make migrations: First, generate the migration files that describe the changes to your models.
+
+python manage.py makemigrations
+
+2. Apply the migrations: Next, apply the generated migrations to update your database schema.
+
+python manage.py migrate
+
+
+# file size restriction
+sudo vim /etc/nginx/nginx.conf
+client_max_body_size 100M;
+
+python manage.py makemigrations Account
+python manage.py makemigrations Masters
+python manage.py makemigrations MenuManager
+python manage.py makemigrations Reports
+python manage.py makemigrations Workflow
+
+python manage.py migrate Account
+python manage.py migrate Masters
+python manage.py migrate MenuManager
+python manage.py migrate Reports
+python manage.py migrate Workflow
+
+python manage.py startapp Workflow
+curl -s http://15.207.169.98/ocr_files
+
+git config --global user.name "technowin"
+git config --global user.email "technowinitinfra@gmail.com"
+git remote add origin https://github.com/technowin/TDMS.git
+
+
+#######  FOR GUNICORN TIMEOUT  ######
+
+we add --timeout 120 \ 
+
+go to this file  :- sudo vim /etc/systemd/system/gunicorn.service
+sudo vim /etc/systemd/system/bulkmail.service
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/TDMS
+ExecStart=/home/ubuntu/TDMS/env/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --timeout 21600 \ #add this you can increase as needed
+          --bind unix:/run/gunicorn.sock \
+          TDMS.wsgi:application
+
+Restart this : 
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+sudo systemctl status gunicorn
+sudo systemctl cat gunicorn
+
+#######  FOR NGNIX TIMEOUT  ######
+path :
+cd /etc/nginx
+sudo vim /etc/nginx/nginx.conf
+client_max_body_size 20M;
+
+proxy_connect_timeout 21600s;
+proxy_read_timeout 21600s;
+proxy_send_timeout 21600s;
+
+sudo systemctl start bulkmail.service
+journalctl -u bulkmail.service -n 100
+
+restart this after going to project folder : cd /home/ubuntu/TDMS
+sudo systemctl restart nginx
+sudo service nginx restart
+sudo service gunicorn restart
+sudo curl -s https://lknconsultants.net/bulk_mail
+curl -s http://15.207.169.98/ocr_files
+
+
+How to remove .pyc files
+
+open env variables in pc
+
+click on New under User variables
+
+in variable name put PYTHONDONTWRITEBYTECODE
+
+and in variable value put 1
+
+click on ok and restart Vscode

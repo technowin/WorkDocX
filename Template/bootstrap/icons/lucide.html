@@ -1,0 +1,41 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Remix Icons{% endblock title %}
+
+{% block extra_css %}
+
+{% endblock %}
+
+{% block page_title %}
+{% include "bootstrap/partials/page-title.html" with page_title='Remix Icons' sub_title='Icons' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mb-2">
+                    Lucide Icons
+                    <a href="https://lucide.dev/" target="_blank" class="ms-2 d-inline-flex align-items-center">
+                        <span class="badge bg-primary align-middle">Docs <i class="mdi mdi-link font-12"></i></span>
+                    </a>
+                </h4>
+
+                <p class="card-title-desc mb-2">Use <code>&lt;i data-lucide="accessibility"&gt;&lt;/i&gt;</code></p>
+
+                <div class="row row-cols-lg-5 row-cols-md-3 row-cols-1 g-2 font-15 icons-list-demo" id="icons"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_javascript %}
+
+<script src="{% static 'js/pages/demo.lucideicons.js' %}"></script>
+
+{% endblock %}

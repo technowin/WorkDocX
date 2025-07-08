@@ -1,0 +1,431 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+{% block title %}Search{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Search' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+ .pdf-viewer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+.search-panel {
+    background-color: var(--ct-body-bg);
+    padding: 1rem;
+    border-bottom: 1px solid var(--ct-border-color);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.keyword-section,
+.search-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.keyword-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+}
+
+.keyword-btn {
+    padding: 0.375rem 0.625rem;
+    background-color: var(--ct-secondary-bg);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: var(--ct-body-color);
+    border-radius: 10px!important ; 
+    border: 1px solid grey!important ;
+}
+
+.keyword-btn:hover {
+    background-color: var(--ct-tertiary-bg);
+}
+
+.keyword-btn .match-count {
+    margin-left: 0.3125rem;
+    color: var(--ct-secondary-color);
+    font-size: 0.8em;
+}
+
+.search-box {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+}
+
+.search-box input[type="text"] {
+    flex: 1;
+    padding: 0.5rem;
+    {% comment %} border: 1px solid grey!important ; {% endcomment %}
+    {% comment %} border-radius: 0.375rem; {% endcomment %}
+    background-color: var(--ct-body-bg);
+    color: var(--ct-body-color);
+}
+
+{% comment %} .search-box button {
+    padding: 0.5rem 0.9375rem;
+    background-color: var(--ct-success);
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+} {% endcomment %}
+
+{% comment %} .search-box button:hover {
+    background-color: var(--ct-success-dark);
+} {% endcomment %}
+
+.search-options {
+    margin-top: 0.625rem;
+    display: flex;
+    gap: 0.9375rem;
+}
+
+.search-nav {
+    margin-top: 0.625rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.search-nav button {
+    padding: 0.375rem 0.625rem;
+    background-color: var(--ct-primary);
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+}
+
+.search-nav button:hover {
+    background-color: var(--ct-primary-dark, #0b5ed7);
+}
+
+.search-nav button:disabled {
+    background-color: var(--ct-secondary);
+    cursor: not-allowed;
+}
+
+.pdf-container {
+    flex: 1;
+    height: calc(100% - 150px);
+    width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-panel {
+        flex-direction: column;
+    }
+
+    .keyword-section,
+    .search-section {
+        min-width: 100%;
+    }
+}
+
+</style>
+
+<div class="pdf-viewer-container card shadow" style="border-radius: 15px;">
+    <!-- Search Panel -->
+    <div class="search-panel">
+        <div class="keyword-section">
+            <h3>Keywords</h3>
+            <div class="keyword-buttons">
+                {% for keyword in keywords %}
+                <button class="keyword-btn btn-primary" data-keyword="{{ keyword }}">
+                    {{ keyword }} <span class="match-count"></span>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="search-section">
+            <h3>Search PDF</h3>
+            <div class="search-box d-flex gap-2">
+                <input type="text" id="search-input" class="form-control" placeholder="Search...">
+                <button id="search-btn" class="btn btn-primary rounded-pill">Search</button>
+            </div>
+            <div class="search-nav">
+                
+                <span id="match-info">0 matches</span>&nbsp;&nbsp;
+                <button id="prev-match" class="btn btn-secondary" style="display:none;" disabled>Previous</button>
+                <button id="next-match" class="btn btn-secondary" style="display:none;" disabled>Next</button>
+                &nbsp;&nbsp;
+                 <div class="search-options">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="case-sensitive">
+                        <label class="form-check-label p-1" for="case-sensitive">Case sensitive</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="whole-word">
+                        <label class="form-check-label p-1" for="whole-word">Whole word</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PDF Viewer -->
+    <div class="pdf-container">
+        <iframe id="pdf-iframe" src="{{ pdfjs_url }}?file={{ full_path|urlencode }}" frameborder="0" width="100%" height="100%"></iframe>
+    </div>
+</div>
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+{% block extra_javascript %}
+
+    {% include "bootstrap/partials/syntax-highlight.html" %}
+    <!-- Third party js -->
+    <script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+    <script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+        <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+    <!-- Third party js ends -->
+    <script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+    <!-- Init js -->
+    <script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+    <script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+    <!-- Init js end -->
+    <!-- Selectize.js JS -->
+    <script src="{% static 'js/selectize.min.js' %}"></script>
+
+{% endblock %}
+
+<!-- PDF.js libraries -->
+<script type="module" src="{% static 'pdfjs/build/pdf.mjs' %}"></script>
+<script type="module" src="{% static 'pdfjs/web/viewer.mjs' %}"></script>
+
+
+<script type="module">
+  document.addEventListener('DOMContentLoaded', function() {
+    const pdfIframe = document.getElementById('pdf-iframe');
+    const searchInput = document.getElementById('search-input');
+    const searchBtn = document.getElementById('search-btn');
+    const prevMatchBtn = document.getElementById('prev-match');
+    const nextMatchBtn = document.getElementById('next-match');
+    const matchInfo = document.getElementById('match-info');
+    const caseSensitive = document.getElementById('case-sensitive');
+    const wholeWord = document.getElementById('whole-word');
+    const keywordButtons = document.querySelectorAll('.keyword-btn');
+    
+    let pdfApp = null;
+    let findController = null;
+    let currentSearchQuery = '';
+    let currentMatchIndex = 0;
+    let totalMatches = 0;
+
+    // Initialize PDF.js viewer
+    pdfIframe.addEventListener('load', function() {
+        pdfApp = pdfIframe.contentWindow.PDFViewerApplication;
+        
+        pdfApp.initializedPromise.then(function() {
+            console.log('PDF viewer fully initialized');
+            findController = pdfApp.findController;
+            
+            // Set up event listeners for search results
+            pdfApp.eventBus.on('updatefindmatchescount', function(evt) {
+                totalMatches = evt.matchesCount.total;
+                updateMatchInfo();
+            });
+            
+            pdfApp.eventBus.on('updatefindcontrolstate', function(evt) {
+                if (evt.state === '') return;
+                if (evt.result && evt.result.matches) {
+                    currentMatchIndex = evt.result.matches.current;
+                    totalMatches = evt.result.matches.total;
+                    updateMatchInfo();
+                }
+            });
+            
+            // Initialize search functions
+            setupSearchHandlers();
+        }).catch(function(error) {
+            console.error('PDF initialization failed:', error);
+        });
+    });
+
+    function performSearch(query, options = {}) {
+    if (!query || !findController) {
+        resetSearch();
+        return;
+    }
+
+    currentSearchQuery = query;
+    currentMatchIndex = 1;
+    totalMatches = 0;
+
+    // Set search parameters
+    findController.caseSensitive = options.caseSensitive || false;
+    findController.entireWord = options.wholeWord || false;
+    findController.highlightAll = true;
+
+    // Reset UI while searching
+    matchInfo.textContent = 'Searching...';
+    prevMatchBtn.disabled = true;
+    nextMatchBtn.disabled = true;
+
+    try {
+        pdfApp.eventBus.dispatch('find', {
+            source: window,
+            type: 'find',
+            query: query,
+            phraseSearch: true,
+            caseSensitive: findController.caseSensitive,
+            entireWord: findController.entireWord,
+            highlightAll: findController.highlightAll
+        });
+
+        // Wait briefly and then scroll to the first match
+        setTimeout(() => {
+            const selected = findController._selected;
+            if (selected && typeof selected.pageIdx !== 'undefined') {
+                pdfApp.pdfViewer.scrollPageIntoView({
+                    pageNumber: selected.pageIdx + 1,
+                });
+            }
+        }, 500); // increase if match loading is slow
+    } catch (error) {
+        console.error('Search failed:', error);
+        matchInfo.textContent = 'Search error';
+    }
+}
+
+
+    function navigateMatch(direction) {
+        if (!findController || !currentSearchQuery) return;
+        
+        try {
+            pdfApp.eventBus.dispatch('findagain', {
+                type: 'findagain',
+                query: currentSearchQuery,
+                phraseSearch: true,
+                findPrevious: direction === 'prev',
+                caseSensitive: findController.caseSensitive,
+                entireWord: findController.entireWord
+            });
+            
+            // Manually update the match index
+            if (direction === 'prev' && currentMatchIndex > 1) {
+                currentMatchIndex--;
+            } else if (direction === 'next' && currentMatchIndex < totalMatches) {
+                currentMatchIndex++;
+            }
+            
+            updateMatchInfo();
+        } catch (error) {
+            console.error('Navigation failed:', error);
+        }
+    }
+
+    function resetSearch() {
+        currentSearchQuery = '';
+        currentMatchIndex = 0;
+        totalMatches = 0;
+        if (findController) {
+            try {
+                pdfApp.eventBus.dispatch('find', {
+                    type: 'find',
+                    query: '',
+                    highlightAll: false
+                });
+            } catch (error) {
+                console.error('Reset search failed:', error);
+            }
+        }
+        updateMatchInfo();
+    }
+
+    function updateMatchInfo() {
+        if (totalMatches > 0) {
+            matchInfo.textContent = `${currentMatchIndex} of ${totalMatches} matches`;
+            prevMatchBtn.disabled = currentMatchIndex <= 1;
+            nextMatchBtn.disabled = currentMatchIndex >= totalMatches;
+        } else if (currentSearchQuery) {
+            matchInfo.textContent = 'No matches found';
+            prevMatchBtn.disabled = true;
+            nextMatchBtn.disabled = true;
+        } else {
+            matchInfo.textContent = 'Ready to search';
+            prevMatchBtn.disabled = true;
+            nextMatchBtn.disabled = true;
+        }
+    }
+
+    function setupSearchHandlers() {
+        // Event listeners
+        searchBtn.addEventListener('click', function() {
+            const query = searchInput.value.trim();
+            performSearch(query, {
+                caseSensitive: caseSensitive.checked,
+                wholeWord: wholeWord.checked
+            });
+        });
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+
+        prevMatchBtn.addEventListener('click', function() {
+            navigateMatch('prev');
+        });
+
+        nextMatchBtn.addEventListener('click', function() {
+            navigateMatch('next');
+        });
+
+        // Keyword buttons
+        keywordButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const keyword = this.dataset.keyword;
+                searchInput.value = keyword;
+                performSearch(keyword, {
+                    caseSensitive: caseSensitive.checked,
+                    wholeWord: wholeWord.checked
+                });
+            });
+        });
+
+        // Initial UI state
+        updateMatchInfo();
+    }
+});
+</script>
+
+{% endblock %}

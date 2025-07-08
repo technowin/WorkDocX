@@ -1,0 +1,489 @@
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}Workflow Edit{% endblock title %}
+
+{% block extra_css %}
+<!-- Select2 css -->
+<link href="{% static 'css/vendor/select2.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Daterangepicker css -->
+<link href="{% static 'css/vendor/daterangepicker.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Touchspin css -->
+<link href="{% static 'css/vendor/jquery.bootstrap-touchspin.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Flatpickr Timepicker css -->
+<link href="{% static 'css/vendor/flatpickr.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Datepicker css -->
+<link href="{% static 'css/vendor/bootstrap-datepicker.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- Bootstrap Timepicker css -->
+<link href="{% static 'css/vendor/bootstrap-timepicker.min.css' %}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<link href="{% static 'css/inputs.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+{% endblock %}
+
+{% block page_title %}
+    {% include "bootstrap/partials/page-title.html" with page_title='Workflow Edit' sub_title='' %}
+{% endblock %}
+
+{% block content %}
+
+{% load static %}
+{% csrf_token %}
+
+<!-- Custom styles for this html-->
+<link href="{% static 'css/masters.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/table.css' %}" rel="stylesheet" type="text/css">
+<link href="{% static 'css/activebtn.css' %}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="{% static 'css/tooltips.css' %}" />
+
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<!-- Include DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+<!-- Include DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<!-- Selectize.js CSS -->
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css">
+<!-- Selectize.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+
+<style>
+    /* Styling for form elements */
+    .form-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        {% comment %} background-color: #fff; /* White background inside the card */ {% endcomment %}
+        {% comment %} border-radius: 12px; /* Rounded corners for the card */ {% endcomment %}
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3); /* Darker shadow for a stronger 3D effect */
+        {% comment %} background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%); {% endcomment %}
+        margin: 0;
+    }
+
+    .form-container h4 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 26px; /* Increased font size */
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        width: 23%; /* Adjusted width to fit more items on one row */
+        padding: 10px;
+        box-sizing: border-box;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        font-size: 20px; /* Increased font size */
+        color: #000;
+        margin-bottom: 5px;
+    }
+
+    .form-group select,
+    .form-group input {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px; /* Increased font size */
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        {% comment %} background-color: #fff; {% endcomment %}
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.23);
+    }
+
+    .form-group select:focus,
+    .form-group input:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Darker focus effect */
+    }
+
+    /* Button styling */
+    .btn-custom {
+        padding: 12px 25px; /* Button padding adjusted to match text length */
+        font-size: 16px; /* Increased font size */
+        background-color: #1a21cb;
+        color: white;
+        border: none;
+        border-radius: 8px; /* Rounded corners for the button */
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15); /* Shadow for button */
+        margin-top: 20px;
+    }
+
+    .btn-custom:hover {
+        background-color:rgb(10, 32, 131);
+        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
+    }
+
+    /* Responsive layout: Stacks fields on smaller screens */
+    @media (max-width: 768px) {
+        .form-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+    }
+
+    /* Additional full-screen layout */
+    @media (min-width: 1200px) {
+        .form-container {
+            width: 100%;
+            padding: 15px;
+        }
+
+        .form-group {
+            width: 32%; /* Fit more fields in the row */
+        }
+    }
+    .submit-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2px;
+    }
+
+
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        {% comment %} background-color: #fff; {% endcomment %}
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Limit dropdown height */
+    .selectize-dropdown {
+        max-height: 200px !important;  /* Prevents long dropdowns */
+        overflow-y: auto !important;   /* Enables scrolling */
+        border: 1px solid #ccc;
+    }
+    
+    /* Focus effect */
+    .form-group select:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+    }
+    
+</style>
+
+<style>
+    /* Ensure all form elements are the same height and padding */
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="color"],
+    .form-group select[multiple] {
+        height: 44px !important; /* Force consistent height */
+        padding: 10px 12px !important;
+        font-size: 16px;
+        line-height: 1.5;
+        border-radius: 6px;
+    }
+
+    /* Fix for color input specifically */
+    input[type="color"] {
+        padding: 0px !important;
+        width: 100%;
+    }
+
+    /* Optional: override select2 tag heights if needed */
+    .select2-container--default .select2-selection--multiple {
+        height: auto !important;
+        min-height: 44px !important;
+        padding: 6px 8px !important;
+    }
+</style>
+
+<!-- Main form content -->
+ <input type="hidden" value={{workflow_id}} id="workflow_idEncrypt" name="workflow_id">
+<div class="form-container">
+    <h4 style="color: #4e73df;"><u><b>Edit Workflow Matrix</b></u></h4>
+
+    <form id="workflowForm">
+        <div class="form-group">
+            
+                    <label for="workflowDropdown" class="form-label">Workflow Name:</label>
+                    <select id="workflowDropdown" name="workflowDropdown" style="border-color: black; border-radius: 10px;">
+                        <option value="" disabled>Select</option>
+                        {% for item in workflow_dropdown %}
+                            <option value="{{ item.1 }}">{{ item.1 }}</option>
+                        {% endfor %}
+                    </select> 
+                
+        </div>
+    
+
+        <div class="form-group">
+            <label for="stepName">Step Name</label>
+            <input type="text" class="form-control" id="stepName" value="{{ workflow_details.step_name }}" required placeholder="Enter Step Name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="formDropdown">Form Name</label>
+            <select class="form-select" id="formDropdown" required>
+                
+                {% for item in form_dropdown %}
+                    <option value="{{ item.0 }}" {% if item.0 == workflow_details.form_id %}selected{% endif %}>
+                        {{ item.1 }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="buttonTypeDropdown">Action</label>
+            <select class="form-select" id="buttonTypeDropdown" required>
+                
+                {% for button in ButType_dropdown %}
+                <option value="{{ button.0 }}" {% if button.0 == workflow_details.button_type_id %}selected{% endif %}>
+                    {{ button.1 }}
+                </option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="actionDropdown">Action Type</label>
+            <select class="form-select" id="actionDropdown" required>
+                
+
+            {% for button in wfEditCreate_dropdown %}
+                <option value="{{ button.0 }}" {% if button.0 == workflow_details.button_act_details %}selected{% endif %}>
+                    {{ button.1 }}
+                </option>
+            {% endfor %}
+                
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="customRoleDropdown">Role: </label>
+            <select class="form-control" id="customRoleDropdown" name="new_roles" multiple>
+                {% for item in role_dropdown %}
+                    <option value="{{ item.0 }}" {% if item.0|stringformat:"s" in workflow_details.role_list %}selected{% endif %}>
+                        {{ item.1 }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            
+        </div>
+        {% comment %} <div class="form-group">
+            <label for="stepName">Status</label>
+            <input type="text" class="form-control" id="statusName" value="{{ workflow_details.statusV }}" placeholder="Enter Status" required>
+        </div> {% endcomment %}
+        <div class="form-row" style="display: flex; gap: 20px;">
+            <!-- Status -->
+            <div class="form-group">
+                <label for="stepName">Status</label>
+                <input type="text" class="form-control" id="statusName" value="{{ workflow_details.statusV }}" placeholder="Enter Status" required>
+            </div>
+        
+            <!-- Color Picker -->
+            <div class="form-group">
+                <label for="favcolor">Choose a color for Status:</label>
+                <input type="color" id="favcolor" name="favcolor" class="form-control" value="{{ workflow_details.status_color }}" style="height: 38px; padding: 5px;">
+            </div>
+        </div>
+        
+
+        <!-- Submit Button -->
+        <div class="submit-container">
+            <button type="submit" class="btn-custom">Submit</button>
+        </div>
+    </form>
+   
+</div>
+
+<link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+<script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
+{% comment %} <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> {% endcomment %}
+
+<script>
+    document.querySelectorAll("#customRoleDropdown").forEach(select => {
+        $(select).selectize({
+            plugins: ["remove_button"],
+            delimiter: ",",
+            placeholder: "Select Role",
+            persist: false
+            
+        });
+    });
+    </script>
+<script>
+    $(document).ready(function () {
+        const selectElement = $('#workflowDropdown');
+
+        const selectedValue = "{{ workflow_details.workflow_name|escapejs }}";
+
+        const selectizeControl = selectElement.selectize({
+            plugins: ['remove_button'],
+            delimiter: ',',
+            persist: false,
+            create: true,
+            selectOnTab: false, 
+            maxItems: 1 
+        })[0].selectize;
+
+        // ✅ Set value after init
+        if (selectedValue) {
+            selectizeControl.setValue(selectedValue);
+        }
+    });
+</script>
+
+
+<!-- Form submission handling -->
+{% comment %} <script>
+    document.getElementById("buttonTypeDropdown").addEventListener("change", function () {
+        let buttonTypeId = this.value;
+        let actionDropdown = document.getElementById("actionDropdown");
+
+        if (buttonTypeId) {
+            fetch(`/get_actions_by_button_type/?button_type_id=${buttonTypeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    actionDropdown.innerHTML = `<option value="">Select</option>`; // Reset options
+
+                    data.forEach(action => {
+                        let option = document.createElement("option");
+                        option.value = action.id;
+                        option.textContent = action.action_details;
+                        actionDropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error fetching actions:", error));
+        } else {
+            actionDropdown.innerHTML = `<option value="">Select</option>`;
+        }
+    });
+
+    
+</script> {% endcomment %}
+
+<script> 
+    $(document).ready(function () {
+        debugger;
+        $("#workflowForm").on("submit", function (e) {
+            e.preventDefault(); // Prevent normal form submission
+            debugger;
+
+            let workflowDropdown = $("#workflowDropdown").val();
+        let stepName = $("#stepName").val();
+        let formDropdown = $("#formDropdown").val();
+        let buttonTypeDropdown = $("#buttonTypeDropdown").val();
+        let actionDropdown = $("#actionDropdown").val();
+        let workflow_idEncrypt = $("#workflow_idEncrypt").val();
+        let selectedRoles = $("#customRoleDropdown").val();
+        let statusName = $("#statusName").val();
+        let favcolor = $("#favcolor").val();
+
+        // Validation: Ensure dropdowns are not empty or "Select"
+        if (!workflowDropdown || workflowDropdown === "Select" ||
+            !stepName.trim() || !statusName.trim() ||
+            !formDropdown || formDropdown === "Select" ||
+            !buttonTypeDropdown || buttonTypeDropdown === "Select" ||
+            !actionDropdown || actionDropdown === "Select" ||
+            !selectedRoles || selectedRoles.length === 0) {
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error!',
+                text: 'Please select valid values for all dropdowns and fill in all required fields.',
+            });
+            return false;
+        }
+
+            let formData = {
+                
+                workflowDropdown: $("#workflowDropdown").val(),
+                stepName: $("#stepName").val(),
+                formDropdown: $("#formDropdown").val(),
+                buttonTypeDropdown: $("#buttonTypeDropdown").val(),
+                actionDropdown: $("#actionDropdown").val(),
+                workflow_idEncrypt: $("#workflow_idEncrypt").val(),
+                statusName: $("#statusName").val(),favcolor:favcolor,
+                roles: selectedRoles.join(","),
+                csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val() // CSRF token
+            };
+
+            $.ajax({
+                
+                type: "POST",
+                url: "{% url 'workflow_Editmap' %}", // Update with your Django view URL
+                data: formData,
+                success: function (response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = response.redirect_url; // Redirect after success
+                    });
+
+                    
+                },
+                error: function (xhr, status, error) { // Add error handler properly
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Something went wrong. Please try again.',
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+
+
+
+{% endblock %}
+
+
+{% block extra_javascript %}
+
+{% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/handlebars.min.js' %}"></script>
+<script src="{% static 'js/vendor/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-timepicker.min.js' %}"></script>
+<!-- Third party js ends -->
+
+<script src="{% static 'js/vendor/flatpickr.min.js' %}"></script>
+
+<!-- Init js -->
+<script src="{% static 'js/pages/demo.typehead.js' %}"></script>
+<script src="{% static 'js/pages/demo.timepicker.js' %}"></script>
+<!-- Init js end -->
+
+<!-- Selectize.js JS -->
+<script src="{% static 'js/selectize.min.js' %}"></script>
+
+{% endblock %}
