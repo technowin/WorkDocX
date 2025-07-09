@@ -1321,47 +1321,70 @@
     
 
     {% if form %}
-        function removeField(id) {
-    
-            $.ajax({
-                url: "{% url 'check_field_before_delete' %}",
-                type: "POST",
-                data: {
-                    'field_id': id,
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    if (response.exists) {
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Can't Delete",
-                            text: "This field has existing data and cannot be deleted."
-                        });
-                    } else if (response.success) {
-                        formFields = formFields.filter(f => f.id !== id);
-                        const previousDropdownStates = captureDropdownStates();
-                        updateAllFieldLabels();
-                        renderFormBuilder();
-                        renderFormPreview();
-                        restoreDropdownStates(previousDropdownStates);
 
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Error",
-                            text: "Unexpected response. Please try again."
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Server Error",
-                        text: "Something went wrong on the server."
-                    });
+function removeField(id) {
+    $.ajax({
+        url: "{% url 'check_field_before_delete' %}",
+        type: "POST",
+        data: {
+            'field_id': id,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        },
+        success: function(response) {
+            const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+            const swalOptions = {
+                background: theme === 'dark' ? '#343a40' : '#ffffff',
+                color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                    popup: 'rounded-4 shadow',
+                    confirmButton: 'btn btn-primary px-4 py-2'
+                }
+            };
+
+            if (response.exists) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Can't Delete",
+                    text: "This field has existing data and cannot be deleted.",
+                    ...swalOptions
+                });
+            } else if (response.success) {
+                formFields = formFields.filter(f => f.id !== id);
+                const previousDropdownStates = captureDropdownStates();
+                updateAllFieldLabels();
+                renderFormBuilder();
+                renderFormPreview();
+                restoreDropdownStates(previousDropdownStates);
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Unexpected response. Please try again.",
+                    ...swalOptions
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text: "Something went wrong on the server.",
+                background: theme === 'dark' ? '#343a40' : '#ffffff',
+                color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                    popup: 'rounded-4 shadow',
+                    confirmButton: 'btn btn-primary px-4 py-2'
                 }
             });
         }
+    });
+}
+
         {% else %}
 
         function removeField(id) {
@@ -1445,36 +1468,48 @@
 
 <script>
 
-    function DublicateformName() {
-        var form_name = $('#form_name').val();
-        $.ajax({
-            url: "{% url 'get_dublicate_name' %}",
-            type: 'POST',
-            data: {
-                form_name: form_name,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-                if (response.exists) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Duplicate Form Name',
-                        text: 'This form name already exists. Please choose a different name.'
-                    });
-    
-                    // Disable submit button
-                    $('#btnSubmit').prop('disabled', true);
-                } else {
-                    // Enable submit button
-                    $('#btnSubmit').prop('disabled', false);
+function DublicateformName() {
+    var form_name = $('#form_name').val();
+
+    $.ajax({
+        url: "{% url 'get_dublicate_name' %}",
+        type: 'POST',
+        data: {
+            form_name: form_name,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+            const swalOptions = {
+                background: theme === 'dark' ? '#343a40' : '#ffffff',
+                color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                    popup: 'rounded-4 shadow',
+                    confirmButton: 'btn btn-primary px-4 py-2'
                 }
+            };
+
+            if (response.exists) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Duplicate Form Name',
+                    text: 'This form name already exists. Please choose a different name.',
+                    ...swalOptions
+                });
+
+                // Disable submit button
+                $('#btnSubmit').prop('disabled', true);
+            } else {
+                // Enable submit button
+                $('#btnSubmit').prop('disabled', false);
             }
-        });
-    }
+        }
+    });
+}
 
 function validateAndUpdateLabel(inputElement, fieldId) {
-    
-
     // Remove special characters
     let cleanedValue = inputElement.value.replace(/[^a-zA-Z0-9 ]/g, '');
 
@@ -1491,11 +1526,24 @@ function validateAndUpdateLabel(inputElement, fieldId) {
         field.label.toLowerCase() === newLabel.toLowerCase()
     );
 
+    const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+    const swalOptions = {
+        background: theme === 'dark' ? '#343a40' : '#ffffff',
+        color: theme === 'dark' ? '#f8f9fa' : '#212529',
+        confirmButtonColor: '#0d6efd',
+        customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+        }
+    };
+
     if (isDuplicate) {
         Swal.fire({
             icon: 'warning',
             title: 'Duplicate Label',
             text: `A field with the label "${newLabel}" already exists.`,
+            ...swalOptions
         });
         inputElement.value = "";
         return;
@@ -1503,6 +1551,7 @@ function validateAndUpdateLabel(inputElement, fieldId) {
 
     updateField(fieldId, 'label', newLabel);
 }
+
 
 
 

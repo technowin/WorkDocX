@@ -212,67 +212,82 @@
 <script>
 
     function showFile(input) {
-        debugger;
-        const files = input.files;
-    
-        if (!files || files.length === 0) {
-            Swal.fire({
-                icon: 'info',
-                title: 'No Files Selected',
-                text: 'Please select files to view them.',
-                confirmButtonText: 'Okay'
-            });
-            return;
+    debugger;
+    const files = input.files;
+
+    const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+    const swalOptions = {
+        background: theme === 'dark' ? '#343a40' : '#ffffff',
+        color: theme === 'dark' ? '#f8f9fa' : '#212529',
+        confirmButtonColor: '#0d6efd',
+        customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
         }
-    
-        let tableHTML = `
-            <table style="width:100%; text-align:left; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
-                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-    
-        Array.from(files).forEach((file, index) => {
-            tableHTML += `
-                <tr>
-                    <td style="padding: 8px;">${index + 1}</td>
-                    <td style="padding: 8px;">${file.name}</td>
-                </tr>
-            `;
-        });
-    
-        tableHTML += `</tbody></table>`;
-    
+    };
+
+    if (!files || files.length === 0) {
         Swal.fire({
-            title: 'Selected Files',
-            html: tableHTML,
-            width: '600px',
-            confirmButtonText: 'Close'
+            icon: 'info',
+            title: 'No Files Selected',
+            text: 'Please select files to view them.',
+            confirmButtonText: 'Okay',
+            ...swalOptions
         });
+        return;
     }
-    
-    function removeNewFile(rowId, index) {
-        document.getElementById(rowId)?.remove();
-        if (newFiles) {
-            newFiles.splice(index, 1); // remove the file from array
-        }
-    
-        // Optional: if all files removed, show "No files available"
-        if (newFiles.length === 0 && (!data.files || data.files.length === 0)) {
-            const tableBody = document.getElementById("your-table-body-id");
-            tableBody.innerHTML = `
+
+    let tableHTML = `
+        <table style="width:100%; text-align:left; border-collapse: collapse;">
+            <thead>
                 <tr>
-                    <td colspan="4" style="padding: 8px; text-align: center; color: gray;">
-                        No files available
-                    </td>
+                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
+                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
                 </tr>
-            `;
-        }
+            </thead>
+            <tbody>
+    `;
+
+    Array.from(files).forEach((file, index) => {
+        tableHTML += `
+            <tr>
+                <td style="padding: 8px;">${index + 1}</td>
+                <td style="padding: 8px;">${file.name}</td>
+            </tr>
+        `;
+    });
+
+    tableHTML += `</tbody></table>`;
+
+    Swal.fire({
+        title: 'Selected Files',
+        html: tableHTML,
+        width: '600px',
+        confirmButtonText: 'Close',
+        ...swalOptions
+    });
+}
+
+
+   function removeNewFile(rowId, index) {
+    document.getElementById(rowId)?.remove();
+    if (newFiles) {
+        newFiles.splice(index, 1); // remove the file from array
     }
+
+    if (newFiles.length === 0 && (!data.files || data.files.length === 0)) {
+        const tableBody = document.getElementById("your-table-body-id");
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" style="padding: 8px; text-align: center; color: gray;">
+                    No files available
+                </td>
+            </tr>
+        `;
+    }
+}
+
     
   
 </script>

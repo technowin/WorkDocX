@@ -628,6 +628,18 @@
             if (selectedNewFiles.length === 0 && newFiles.length > 0) {
                 selectedNewFiles = Array.from(newFiles);
             }
+
+            const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+            const swalOptions = {
+                background: theme === 'dark' ? '#343a40' : '#ffffff',
+                color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                confirmButtonColor: '#0d6efd',
+                customClass: {
+                    popup: 'rounded-4 shadow',
+                    confirmButton: 'btn btn-primary px-4 py-2'
+                }
+            };
         
             $.ajax({
                 url: "{% url 'get_uploaded_files' %}",
@@ -716,12 +728,18 @@
                         title: 'Uploaded Files',
                         html: tableHTML,
                         width: '800px',
-                        confirmButtonText: 'Close'
+                        confirmButtonText: 'Close',
+                        ...swalOptions
                     });
                 },
                 error: function (xhr, status, error) {
                     console.error('AJAX Error:', error);
-                    Swal.fire('Error', 'Something went wrong while fetching documents.', 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong while fetching documents.',
+                        ...swalOptions
+                    });
                 }
             });
         }
@@ -811,12 +829,25 @@
         debugger;
         const files = input.files;
 
+        const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+        const swalOptions = {
+            background: theme === 'dark' ? '#343a40' : '#ffffff',
+            color: theme === 'dark' ? '#f8f9fa' : '#212529',
+            confirmButtonColor: '#0d6efd',
+            customClass: {
+                popup: 'rounded-4 shadow',
+                confirmButton: 'btn btn-primary px-4 py-2'
+            }
+        };
+
         if (!files || files.length === 0) {
             Swal.fire({
                 icon: 'info',
                 title: 'No Files Selected',
                 text: 'Please select files to view them.',
-                confirmButtonText: 'Okay'
+                confirmButtonText: 'Okay',
+                ...swalOptions
             });
             return;
         }
@@ -847,7 +878,8 @@
             title: 'Selected Files',
             html: tableHTML,
             width: '600px',
-            confirmButtonText: 'Close'
+            confirmButtonText: 'Close',
+            ...swalOptions
         });
     }
 
@@ -899,6 +931,19 @@
                 const categorydropdownDprt = document.getElementById('category_dropdownOpr');
                 const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
                 const catcancelPopupBtn = document.getElementById('catcancelPopupBtn');
+
+                const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+                const swalOptions = {
+                    background: theme === 'dark' ? '#343a40' : '#ffffff',
+                    color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                    confirmButtonColor: '#0d6efd',
+                    customClass: {
+                        popup: 'rounded-4 shadow',
+                        confirmButton: 'btn btn-primary px-4 py-2'
+                    }
+                };
+
 
 
 
@@ -1055,7 +1100,8 @@
                                     </table>
                                 </div>`,
                             width: '80%',
-                            confirmButtonText: 'Close'
+                            confirmButtonText: 'Close',
+                            ...swalOptions
                         });
                     }).catch(err => {
                         Swal.fire('Not Found', 'Version not found!', 'warning');
@@ -1187,36 +1233,7 @@ $(document).ready(function () {
 </script> 
 
 <script>
-   {% comment %} $('#compareButton').click(function () {
-    // Assume you get these values from somewhere (input fields, data attributes, etc.)
-    let matched_form_data_id = $('#matched_form_data_id').val();  // or use a JS variable
-    let new_data_id = $('#new_data_id').val();
-
-    // Decide which one to send based on matched_form_data_id
-    let data_id_to_send = (matched_form_data_id === null || matched_form_data_id === '') 
-                          ? new_data_id 
-                          : matched_form_data_id;
-
-    $.ajax({
-        url: "{% url 'get_compare_data' %}",
-        type: 'POST',
-        data: {
-            data_id: data_id_to_send,
-            csrfmiddlewaretoken: '{{ csrf_token }}'  // if using Django
-        },
-        success: function (response) {
-            debugger;
-            console.log('Success:', response);
-            
-            // 🔁 Redirect to another page (example: /comparison-result/)
-           window.location.href = 'Form/compare_data.html' ;
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-            alert('Error occurred while comparing.');
-        }
-    });
-}); {% endcomment %}
+ 
 
 document.getElementById('compareButton').addEventListener('click', function () {
     let matchedId = document.getElementById('matched_form_data_id').value;
