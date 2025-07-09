@@ -39,6 +39,9 @@
       
 </style>
 
+<!-- Bootstrap 5 Modal -->
+
+
 <div class="modal fade" id="livePreviewModal" tabindex="-1" aria-labelledby="livePreviewModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
@@ -109,9 +112,10 @@
             </div>
             <div class="card-body">
     <form id="dynamicForm" method="POST" action="" enctype="multipart/form-data">
-        
+
         <br>
     {% csrf_token %}
+
 <div class="row">
 
     {% for section_name, fields in sectioned_fields.items %}
@@ -489,7 +493,7 @@
 
 {% comment %} added for operator dropdown {% endcomment %}
 
-<div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+{% comment %} <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -507,6 +511,30 @@
         <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
     </div>
 
+</div> {% endcomment %}
+
+      <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="workflowModalLabel">Select Operator</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="custom_dropdownOpr">Select Operator:</label>
+        <select name="custom_dropdownOpr" id="custom_dropdownOpr" class="form-control" required>
+            <option value="">--Select--</option>
+            {% for item in WFoperator_dropdown %}
+                <option value="{{ item.0 }}">{{ item.1 }}</option>
+            {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% comment %} <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
@@ -521,17 +549,11 @@
 
 {% comment %} added for category dropdown {% endcomment %}
 
-<div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+{% comment %} <div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
     <label for="category_dropdownOpr">Select Category:</label>
-    {% comment %} <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
-        <option value="">--Select--</option>
-        {% for item in category_dropD %}
-            <option value="{{ item.value }}">{{ item.text }}</option>
-        {% endfor %}
-    </select> {% endcomment %}
     <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
         <option value="">--Select--</option>
         {% for item in category_dropD %}
@@ -548,8 +570,33 @@
 </div>
 
 <div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
-    {% comment %} added for category dropdown {% endcomment %}
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
+
+    <!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="categoryModalLabel">Select Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label for="category_dropdownOpr">Select Category:</label>
+        <select name="category" id="category_dropdownOpr" class="form-control" required>
+          <option value="">--Select--</option>
+          {% for item in category_dropD %}
+            <option value="{{ item.value }}" {% if item.value == file_cat_val %}selected{% endif %}>{{ item.text }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button id="catconfirmSubmitBtn" type="button" class="btn btn-primary">Confirm</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 </form>
 
@@ -945,79 +992,122 @@
                 };
 
 
-
-
                 if (buttonType === 'Action') {
                     document.getElementById('clicked_action_id').value = actionId;
                 }
                 const type = $('#type').val();
                 const reference_type = $('#reference_type').val();
 
-                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    
+                //if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                //    
+//
+                //    e.preventDefault();
+//
+                //    const popup = document.getElementById('workflowPopup');
+                //    const overlay = document.getElementById('popupOverlay');
+//
+                //    // ✅ Show popup and overlay
+                //    popup.style.display = 'block';
+                //    overlay.style.display = 'block';
+                //    operatorDropdown.setAttribute('required', true);
+//
+                //    confirmSubmitBtn.onclick = function () {
+                //        debugger;
+                //        
+                //            form.action = "{% url 'common_form_post' %}";
+                //            form.submit(); // Manual submit
+                //        
+                //    };
+//
+                //    // Cancel button inside popu
+                //    cancelPopupBtn.onclick = function () {
+                //        workflowPopup.style.display = 'none';
+                //        popupOverlay.style.display = 'none';
+                //    };
+//
+                //}
 
+                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
                     e.preventDefault();
 
-                    const popup = document.getElementById('workflowPopup');
-                    const overlay = document.getElementById('popupOverlay');
+                    // Show Bootstrap modal
+                    const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
+                    modal.show();
 
-                    // ✅ Show popup and overlay
-                    popup.style.display = 'block';
-                    overlay.style.display = 'block';
+                    // Add 'required' to dropdown
+                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
                     operatorDropdown.setAttribute('required', true);
 
-                    confirmSubmitBtn.onclick = function () {
-                        debugger;
-                        
-                            form.action = "{% url 'common_form_post' %}";
-                            form.submit(); // Manual submit
-                        
+                    // Handle confirm button
+                    document.getElementById('confirmSubmitBtn').onclick = function () {
+                        const form = document.getElementById('dynamicForm');
+                        form.action = "{% url 'common_form_post' %}";
+                        form.submit();
                     };
-
-
-                    
-
-                    // Cancel button inside popup
-                    cancelPopupBtn.onclick = function () {
-                        workflowPopup.style.display = 'none';
-                        popupOverlay.style.display = 'none';
-                    };
-
                 }
-                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    debugger;
 
+                //else if (buttonType === 'Action' && viewStepWFSeq === '3') {
+                //    debugger;
+//
+                //    e.preventDefault();
+//
+                //    const popupD = document.getElementById('categoryPopup');
+                //    const overlayD = document.getElementById('categoryOverlay');
+//
+                //    // ✅ Show popup and overlay
+                //    popupD.style.display = 'block';
+                //    overlayD.style.display = 'block';
+                //    categorydropdownDprt.setAttribute('required', true);
+//
+                //    catconfirmSubmitBtn.onclick = function () {
+                //        // operatorDropdown.removeAttribute('required');
+                //        form.action = "{% url 'common_form_action' %}";
+//
+                //    };
+                //    if (catcancelPopupBtn) {
+                //        debugger;
+                //        e.preventDefault();
+                //        catcancelPopupBtn.onclick = function () {
+                //            popupD.style.display = 'none';
+                //            overlayD.style.display = 'none';
+                //            
+                //        };
+                //    } else {
+                //        console.error("catcancelPopupBtn not found in the DOM.");
+                //    }
+//
+                //}
+
+                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
                     e.preventDefault();
 
-                    const popupD = document.getElementById('categoryPopup');
-                    const overlayD = document.getElementById('categoryOverlay');
+                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                    categoryModal.show();
 
-                    // ✅ Show popup and overlay
-                    popupD.style.display = 'block';
-                    overlayD.style.display = 'block';
-                    categorydropdownDprt.setAttribute('required', true);
+                    const categoryDropdown = document.getElementById('category_dropdownOpr');
 
-                    catconfirmSubmitBtn.onclick = function () {
-                        // operatorDropdown.removeAttribute('required');
+                    // Confirm button inside modal
+                    document.getElementById('catconfirmSubmitBtn').onclick = function () {
+                        const categoryValue = categoryDropdown.value;
+
+
+                        // Optional: Append hidden input if needed
+                        let hiddenInput = document.getElementById('hiddenCategoryInput');
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'category';  // Must match your Django field name
+                            hiddenInput.id = 'hiddenCategoryInput';
+                            form.appendChild(hiddenInput);
+                        }
+
+                        hiddenInput.value = categoryValue;
+
                         form.action = "{% url 'common_form_action' %}";
-
+                        form.submit();
                     };
-
-                    // Cancel button inside popup
-                    
-                    if (catcancelPopupBtn) {
-                        debugger;
-                        e.preventDefault();
-                        catcancelPopupBtn.onclick = function () {
-                            popupD.style.display = 'none';
-                            overlayD.style.display = 'none';
-                            
-                        };
-                    } else {
-                        console.error("catcancelPopupBtn not found in the DOM.");
-                    }
-
                 }
+
                 else if (buttonType === 'Submit' && type === 'create') {
                     operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_post' %}";
