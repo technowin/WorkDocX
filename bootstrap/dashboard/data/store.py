@@ -141,8 +141,8 @@ viewsPerMinuteStatDict = {"count": 560, "arrow": "down",
                           "color": "danger", "per": "1.08%", "time": "Since previous week"}
 
 viewsPerMinuteDict = [
-    {"page": "/hyper/dashboard-analytics", "views": "25", "bounce_rate": "87.5%"},
-    {"page": "/hyper/dashboard-crm", "views": "15", "bounce_rate": "21.48%"},
+    {"page": "/WorkDocX/dashboard-analytics", "views": "25", "bounce_rate": "87.5%"},
+    {"page": "/WorkDocX/dashboard-crm", "views": "15", "bounce_rate": "21.48%"},
     {"page": "/ubold/dashboard", "views": "10", "bounce_rate": "63.58%"},
     {"page": "/minton/home", "views": "7", "bounce_rate": "56.12%"},
 ]

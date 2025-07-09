@@ -1,13 +1,13 @@
 
 How to host Django Application using gunicorn & nginx in Production:-
 
-git clone https://github.com/technowin/TDMS.git
+git clone https://github.com/technowin/WorkDocX.git
 
-cd TDMS
+cd WorkDocX
 
 git config credential.helper store
 
-git push https://github.com/technowin/TDMS.git
+git push https://github.com/technowin/WorkDocX.git
 
 sudo apt update
 
@@ -33,7 +33,7 @@ sudo ufw allow 8000
 
 python3 manage.py runserver  172.26.5.61:8000     
 
-gunicorn --bind 172.26.5.61:8000 TDMS.wsgi   
+gunicorn --bind 172.26.5.61:8000 WorkDocX.wsgi   
 
 deactivate
 
@@ -62,12 +62,12 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/TDMS
-ExecStart=/home/ubuntu/TDMS/env/bin/gunicorn \
+WorkingDirectory=/home/ubuntu/WorkDocX
+ExecStart=/home/ubuntu/WorkDocX/env/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --bind unix:/run/gunicorn.sock \
-          TDMS.wsgi:application
+          WorkDocX.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
@@ -75,7 +75,7 @@ WantedBy=multi-user.target
 sudo systemctl start gunicorn.socket
 sudo systemctl enable gunicorn.socket
 
-sudo vim /etc/nginx/sites-available/TDMS
+sudo vim /etc/nginx/sites-available/WorkDocX
 
 Enter i and then paste below part then for save Enter Esc :wq
 
@@ -85,16 +85,22 @@ server {
 
     location = /favicon.ico { access_log off; log_not_found off; }
     location /static/ {
-        root /home/ubuntu/TDMS;
+        root /home/ubuntu/WorkDocX;
     }
 
     location / {
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn.sock;
     }
+
+    location /media/ {
+        alias /home/ubuntu/Documents/;
+        autoindex on;  # optional, shows files in browser
+    }
 }
 
-sudo ln -s /etc/nginx/sites-available/TDMS /etc/nginx/sites-enabled/
+
+sudo ln -s /etc/nginx/sites-available/WorkDocX /etc/nginx/sites-enabled/
 
 cd /etc/nginx/sites-available/
 
@@ -102,7 +108,7 @@ sudo rm default
 
 cd /etc/nginx/sites-enabled/
 
-sudo rm default
+sudo rm TDMS
 
 sudo gpasswd -a www-data ubuntu
 
@@ -111,6 +117,8 @@ sudo systemctl restart nginx
 sudo service nginx restart
 
 sudo service gunicorn restart
+
+sudo systemctl daemon-reload
 
 sudo tail -f /var/log/nginx/error.log
 
@@ -164,7 +172,7 @@ curl -s http://15.207.169.98/ocr_files
 
 git config --global user.name "technowin"
 git config --global user.email "technowinitinfra@gmail.com"
-git remote add origin https://github.com/technowin/TDMS.git
+git remote add origin https://github.com/technowin/WorkDocX.git
 
 
 #######  FOR GUNICORN TIMEOUT  ######
@@ -177,13 +185,13 @@ sudo vim /etc/systemd/system/bulkmail.service
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/TDMS
-ExecStart=/home/ubuntu/TDMS/env/bin/gunicorn \
+WorkingDirectory=/home/ubuntu/WorkDocX
+ExecStart=/home/ubuntu/WorkDocX/env/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
           --timeout 21600 \ #add this you can increase as needed
           --bind unix:/run/gunicorn.sock \
-          TDMS.wsgi:application
+          WorkDocX.wsgi:application
 
 Restart this : 
 sudo systemctl daemon-reload
@@ -204,7 +212,7 @@ proxy_send_timeout 21600s;
 sudo systemctl start bulkmail.service
 journalctl -u bulkmail.service -n 100
 
-restart this after going to project folder : cd /home/ubuntu/TDMS
+restart this after going to project folder : cd /home/ubuntu/WorkDocX
 sudo systemctl restart nginx
 sudo service nginx restart
 sudo service gunicorn restart
