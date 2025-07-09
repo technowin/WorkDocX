@@ -18,7 +18,7 @@ class MenuMaster(models.Model):
     updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
     updated_by = models.TextField(null=True, blank=True)
     menu_icon = models.CharField(max_length=50, null=True, blank=True)
-    
+    badge = models.TextField(null=True, blank=True)
     class Meta:
         db_table = 'menu_master'
 
