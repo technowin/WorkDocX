@@ -124,6 +124,7 @@ sudo tail -f /var/log/nginx/error.log
 
 sudo nginx -t
 
+sudo chown -R www-data:www-data /home/ubunru/WorkDocX
 
 pip3 freeze > requirements.txt  (To add new packages to "requirements.txt")
 
