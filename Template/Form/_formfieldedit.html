@@ -374,8 +374,72 @@
 
 
 
+
+
 </div>
 </div>
+
+
+<br/>
+
+
+{% for section_name, fields in sectioned_fields.items %}
+    {% for field in fields %}
+        {% if field.field_type == 'file' or field.field_type == 'file multiple' %}
+        <div class="row col-lg-12 mb-2 shadow justify-content-center" style="padding: 10px;text-align:center;border-radius: 15px;margin-left:0px;align-items:center;justify-items:center;">
+            <div class="accordion mb-3" id="accordionField{{ field.id }}">
+                <label class="form-label fw-bold">{{ field.label }}</label>
+
+    {% for file in field.files %}
+    
+        {% if forloop.first or forloop.counter0|divisibleby:2 %}
+        <div class="row">  {# Start a new row every 2 items #}
+        {% endif %}
+
+        <div class="col-md-6">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ field.id }}_{{ forloop.counter }}">
+                    <button class="form-label accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse{{ field.id }}_{{ forloop.counter }}"
+                            aria-expanded="false"
+                            aria-controls="collapse{{ field.id }}_{{ forloop.counter }}">
+                        {{ file.name }}
+                    </button>
+                </h2>
+                <div id="collapse{{ field.id }}_{{ forloop.counter }}"
+                     class="accordion-collapse collapse"
+                     aria-labelledby="heading{{ field.id }}_{{ forloop.counter }}"
+                     data-bs-parent="#accordionField{{ field.id }}">
+                    <div class="accordion-body">
+                        {% with file.url|lower as file_url %}
+                            {% if ".pdf" in file_url %}
+                                <iframe src="{{ file.url }}" width="100%" height="400px"></iframe>
+                            {% elif ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".webp" in file_url %}
+                                <img src="{{ file.url }}" class="img-fluid" alt="File preview" style="max-height: 400px;" />
+                            {% elif ".xls" in file_url or ".xlsx" in file_url %}
+                                <a href="{{ file.url }}" target="_blank" class="btn btn-success">Download Excel File</a>
+                            {% else %}
+                                <a href="{{ file.url }}" target="_blank" class="btn btn-secondary">Download File</a>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br/>
+
+        {% if forloop.counter|divisibleby:2 or forloop.last %}
+        <br/>
+        </div>  {# Close the row after 2 items or on the last one #}
+        {% endif %}
+    {% endfor %}
+</div>
+
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endfor %}
 
 <br/>
 {% if grouped_data %}
@@ -706,8 +770,7 @@
                             <thead>
                                 <tr>
                                     <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
-                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
-                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">Download</th>`;
+                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>`;
         
                     if (showDelete) {
                         tableHTML += `<th style="border-bottom: 1px solid #ccc; padding: 8px;">Delete</th>`;
@@ -730,8 +793,7 @@
                             tableHTML += `
                                 <tr>
                                     <td style="padding: 8px;">${srNo++}</td>
-                                    <td style="padding: 8px;">${file.name}</td>
-                                    <td style="padding: 8px;">${downloadIcon}</td>`;
+                                    <td style="padding: 8px;">${file.name}</td>`;
         
                             if (showDelete) {
                                 tableHTML += `<td style="padding: 8px;">${deleteIcon}</td>`;
@@ -1394,6 +1456,11 @@ document.getElementById('compareButton').addEventListener('click', function () {
     });
     
 </script>
+
+</script>
+
+
+
 
 
 

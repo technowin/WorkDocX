@@ -58,6 +58,7 @@ input[type="checkbox"],
 input[type="color"],
 input[type="password"],
 input[type="tel"],
+.accordion-button,
 input[type="file"]{
     border-radius: 10px!important ; 
     border: 1px solid grey !important ;
@@ -85,6 +86,7 @@ input[type="color"]:focus,
 input[type="tel"]:focus,
 input[type="checkbox"]:focus,
 input[type="file"]:focus,
+.accordion-button,:focus,
 select:focus,
 textarea:focus,
 .custom-textarea:focus,
