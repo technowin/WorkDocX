@@ -413,7 +413,12 @@
                                                 <div class="accordion-body">
                                                     {% with file.url|lower as file_url %}
                                                         {% if ".pdf" in file_url %}
-                                                            <iframe src="{{ file.url }}" width="100%" height="400px"></iframe>
+                                                        {% comment %} <iframe src="https://docs.google.com/gview?url={{ file.url }}&embedded=true"
+                                                                width="100%" height="400px" frameborder="0">
+                                                        </iframe> {% endcomment %}
+                                                        <iframe src="{{ file.url }}#toolbar=0&navpanes=0&scrollbar=0"
+                                                             width="100%" height="500px" style="border: none;"></iframe>
+                                                        {% comment %} <iframe src="{{ file.url }}" width="100%" height="400px"></iframe> {% endcomment %}
                                                         {% elif ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".webp" in file_url %}
                                                             <img src="{{ file.url }}" class="img-fluid" alt="File preview" style="max-height: 400px;" />
                                                         {% elif ".xls" in file_url or ".xlsx" in file_url %}
