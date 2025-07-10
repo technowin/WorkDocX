@@ -493,7 +493,7 @@
 
 {% comment %} added for operator dropdown {% endcomment %}
 
-{% comment %} <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+<div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -511,9 +511,9 @@
         <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
     </div>
 
-</div> {% endcomment %}
+</div> 
 
-      <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
+      {% comment %} <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -535,7 +535,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 {% comment %} <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
     width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
@@ -549,7 +549,7 @@
 
 {% comment %} added for category dropdown {% endcomment %}
 
-{% comment %} <div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+<div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -570,10 +570,10 @@
 </div>
 
 <div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
 
     <!-- Category Modal -->
-<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+{% comment %} <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -595,7 +595,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 
 </form>
@@ -699,7 +699,7 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
-                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3');
+                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3' );
         
                     let tableHTML = `
                         <table style="width:100%; text-align:left; border-collapse: collapse;">
@@ -998,34 +998,34 @@
                 const type = $('#type').val();
                 const reference_type = $('#reference_type').val();
 
-                //if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                //    
-//
-                //    e.preventDefault();
-//
-                //    const popup = document.getElementById('workflowPopup');
-                //    const overlay = document.getElementById('popupOverlay');
-//
-                //    // ✅ Show popup and overlay
-                //    popup.style.display = 'block';
-                //    overlay.style.display = 'block';
-                //    operatorDropdown.setAttribute('required', true);
-//
-                //    confirmSubmitBtn.onclick = function () {
-                //        debugger;
-                //        
-                //            form.action = "{% url 'common_form_post' %}";
-                //            form.submit(); // Manual submit
-                //        
-                //    };
-//
-                //    // Cancel button inside popu
-                //    cancelPopupBtn.onclick = function () {
-                //        workflowPopup.style.display = 'none';
-                //        popupOverlay.style.display = 'none';
-                //    };
-//
-                //}
+                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                    
+
+                    e.preventDefault();
+
+                    const popup = document.getElementById('workflowPopup');
+                    const overlay = document.getElementById('popupOverlay');
+
+                    // ✅ Show popup and overlay
+                    popup.style.display = 'block';
+                    overlay.style.display = 'block';
+                    operatorDropdown.setAttribute('required', true);
+
+                    confirmSubmitBtn.onclick = function () {
+                        debugger;
+                        
+                            form.action = "{% url 'common_form_post' %}";
+                            form.submit(); // Manual submit
+                        
+                    };
+
+                    // Cancel button inside popu
+                    cancelPopupBtn.onclick = function () {
+                        workflowPopup.style.display = 'none';
+                        popupOverlay.style.display = 'none';
+                    };
+
+                }
 
                 if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
                     e.preventDefault();
@@ -1040,43 +1040,42 @@
 
                     // Handle confirm button
                     document.getElementById('confirmSubmitBtn').onclick = function () {
-                        const form = document.getElementById('dynamicForm');
                         form.action = "{% url 'common_form_post' %}";
                         form.submit();
                     };
                 }
 
-                //else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                //    debugger;
-//
-                //    e.preventDefault();
-//
-                //    const popupD = document.getElementById('categoryPopup');
-                //    const overlayD = document.getElementById('categoryOverlay');
-//
-                //    // ✅ Show popup and overlay
-                //    popupD.style.display = 'block';
-                //    overlayD.style.display = 'block';
-                //    categorydropdownDprt.setAttribute('required', true);
-//
-                //    catconfirmSubmitBtn.onclick = function () {
-                //        // operatorDropdown.removeAttribute('required');
-                //        form.action = "{% url 'common_form_action' %}";
-//
-                //    };
-                //    if (catcancelPopupBtn) {
-                //        debugger;
-                //        e.preventDefault();
-                //        catcancelPopupBtn.onclick = function () {
-                //            popupD.style.display = 'none';
-                //            overlayD.style.display = 'none';
-                //            
-                //        };
-                //    } else {
-                //        console.error("catcancelPopupBtn not found in the DOM.");
-                //    }
-//
-                //}
+                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
+                    debugger;
+
+                    e.preventDefault();
+
+                    const popupD = document.getElementById('categoryPopup');
+                    const overlayD = document.getElementById('categoryOverlay');
+
+                    // ✅ Show popup and overlay
+                    popupD.style.display = 'block';
+                    overlayD.style.display = 'block';
+                    categorydropdownDprt.setAttribute('required', true);
+
+                    catconfirmSubmitBtn.onclick = function () {
+                        // operatorDropdown.removeAttribute('required');
+                        form.action = "{% url 'common_form_action' %}";
+
+                    };
+                    if (catcancelPopupBtn) {
+                        debugger;
+                        e.preventDefault();
+                        catcancelPopupBtn.onclick = function () {
+                            popupD.style.display = 'none';
+                            overlayD.style.display = 'none';
+                            
+                        };
+                    } else {
+                        console.error("catcancelPopupBtn not found in the DOM.");
+                    }
+
+                }
 
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
                     e.preventDefault();
@@ -1107,7 +1106,6 @@
                         form.submit();
                     };
                 }
-
                 else if (buttonType === 'Submit' && type === 'create') {
                     operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_post' %}";
