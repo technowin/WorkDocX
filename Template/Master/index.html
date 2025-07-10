@@ -33,16 +33,29 @@
            <!-- Index Card -->
           <div class="card " style="border-radius: 15px;">
               <div class="card-header d-flex justify-content-between align-items-center">
+                      {% if entity|stringformat:"s" == "form_master" %}
+                        <div>
+                          <select name="forms" id="forms" class="form-select form-select-sm" aria-label=".form-select-sm example" required >
+                            {% for item1 in forms %}
+                                <option  value="{{ item1.0 }}" {% if item1.0 == sf %}selected{% endif %}> {{ item1.1 }} </option>
+                            {% endfor %}
+                          </select>
+                        </div>   
+                      {% endif %}
+
                     {% if entity != 'form_master' %}
                       <h4 class="header-title"></h4> 
                     {% endif %}
                     <div>
                       {% if entity|stringformat:"s" == "form_master" %}
-                        <select name="forms" id="forms" class="form-select form-select-sm" aria-label=".form-select-sm example" required >
-                          {% for item1 in forms %}
-                              <option  value="{{ item1.0 }}" {% if item1.0 == sf %}selected{% endif %}> {{ item1.1 }} </option>
-                          {% endfor %}
-                        </select>
+                        <div class="text-end me-4">
+                          <form method="GET" action="{% if entity == 'user' %}/register_new_user {% elif entity == 'form' %}/form_builder{% elif entity == 'wfseq' %}/workflow_mapping{% elif entity == 'action' %}/form_action_builder{% else %}/masters{% endif %}">
+                              <input type="hidden" name="id" value="0">
+                              <input type="hidden" name="entity" value="{{entity}}">
+                              <input type="hidden" name="type" value="ed">               
+                              <button type="submit"  class="btn btn-sm btn-primary">Create</button>
+                           </form>
+                        </div>   
                       {% endif %}
                       {% if entity != 'form_master' %}
                         <div class="text-end me-4">
