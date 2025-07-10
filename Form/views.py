@@ -1174,6 +1174,7 @@ def form_master(request):
 def common_form_post(request):
     user = request.session.get('user_id', '')
     user_name = request.session.get('username', '')
+    entity = request.POST.get('entity')
     try:
         if request.method != "POST":
             return JsonResponse({"error": "Invalid request method"}, status=400)
@@ -1299,7 +1300,11 @@ def common_form_post(request):
 
         if already_exists is not True:
             handle_uploaded_files(request, form_name, created_by, form_data, user)
-            file_name = handle_generative_fields(form, form_data, created_by)
+            if  type == 'master':
+                if field.field_type == 'generative':
+                    file_name = handle_generative_fields(form, form_data, created_by)
+            else:
+                file_name = handle_generative_fields(form, form_data, created_by)
         else:
             messages.error(request, 'File Number Already Exists!')
         # callproc('create_dynamic_form_views')
