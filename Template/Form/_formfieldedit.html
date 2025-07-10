@@ -822,48 +822,75 @@
   </script>
 
   <script>
-    function deleteFile(encryptedPath, encryptedId,reference_type, type) {
-        debugger;
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "{% url 'delete_file' %}",
-                    method: "POST",
-                    contentType: "application/json",
-                    headers: {
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    },
-                    data: JSON.stringify({
-                        id: encryptedId,
-                        path: encryptedPath,
-                        reference_type :reference_type,
-                        type: type
-                    }),
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire('Deleted!', 'File has been deleted.', 'success').then(() => {
-                                location.reload(); // or remove the DOM element here
-                            });
-                        } else {
-                            Swal.fire('Error', response.error || 'Something went wrong.', 'error');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX error:", error);
-                        Swal.fire('Error', 'Error deleting file.', 'error');
+    function deleteFile(encryptedPath, encryptedId, reference_type, type) {
+    debugger;
+
+    const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+    const swalOptions = {
+        background: theme === 'dark' ? '#343a40' : '#ffffff',
+        color: theme === 'dark' ? '#f8f9fa' : '#212529',
+        confirmButtonColor: '#0d6efd',
+        customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+        }
+    };
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        ...swalOptions
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{% url 'delete_file' %}",
+                method: "POST",
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                data: JSON.stringify({
+                    id: encryptedId,
+                    path: encryptedPath,
+                    reference_type: reference_type,
+                    type: type
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'File has been deleted.',
+                            icon: 'success',
+                            ...swalOptions
+                        }).then(() => {
+                            location.reload(); // or remove the DOM element here
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: response.error || 'Something went wrong.',
+                            icon: 'error',
+                            ...swalOptions
+                        });
                     }
-                });
-            }
-        });
-    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Error deleting file.',
+                        icon: 'error',
+                        ...swalOptions
+                    });
+                }
+            });
+        }
+    });
+}
+
 
 
 
@@ -1387,17 +1414,29 @@ document.getElementById('compareButton').addEventListener('click', function () {
 
 </script>
 
+
 {% if messages %}
-{% for message in messages %}
   <script>
-  Swal.fire({
-    title: "{{ message.tags }}",
-    text: "{{ message }}",
-    icon: "{{ message.tags }}",
-    confirmButtonText: "OK",
-  });
-</script>
-{% endfor %}
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
 {% endif %}
+
 
 {% endblock %}

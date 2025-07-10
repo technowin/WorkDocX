@@ -2503,7 +2503,7 @@ def delete_file(request):
             if type == "reference" or reference_type == '1':
                 # Delete from FormFileTemp
                 FormFileTemp.objects.filter(id=file_id).delete()
-            elif type is None and reference_type is None:
+            else:
                 if os.path.exists(full_path):
                     os.remove(full_path)
                     FormFile.objects.filter(id=file_id).delete()
