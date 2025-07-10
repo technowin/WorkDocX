@@ -104,11 +104,11 @@ sudo ln -s /etc/nginx/sites-available/WorkDocX /etc/nginx/sites-enabled/
 
 cd /etc/nginx/sites-available/
 
-sudo rm default
+sudo rm WorkDocX
 
 cd /etc/nginx/sites-enabled/
 
-sudo rm TDMS
+sudo rm WorkDocX
 
 sudo gpasswd -a www-data ubuntu
 

@@ -23,7 +23,7 @@ from cryptography.fernet import Fernet
 # fernet = Fernet(SECRET_KEY)
 # DECRYPTED_PASSWORD = fernet.decrypt(ENCRYPTED_PASSWORD.encode()).decode()
 
-ALLOWED_HOSTS = ['15.207.169.98','13.232.86.95']
+ALLOWED_HOSTS = ['15.207.169.98']
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -41,7 +41,7 @@ DATABASES = {
         'USER': 'root',      # Replace with your database user
         'PASSWORD': 'Mysql_MH-047319',  # Replace with your database password
         # 'PASSWORD': 'Shrims8@2420',  # Replace with your database password
-        # 'HOST': '13.232.86.95',       # IP FOR TEST
+        # 'HOST': '15.207.169.98',       # IP FOR TEST
         'HOST': '127.0.0.1',       # IP FOR LOCAL VM
         'PORT': '3306',            
         'OPTIONS': {
