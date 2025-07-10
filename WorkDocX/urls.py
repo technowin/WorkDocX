@@ -27,6 +27,7 @@ from Form.views import *
 from Reports.views import *
 from MenuManager.views import *
 from Workflow.views import *
+from FileManager.views import *
 urlpatterns = [
     
     # Django Admin, use {% url 'admin:index' %}
@@ -58,6 +59,8 @@ urlpatterns = [
     path('ks/<int:document_id>/', ks, name='ks'),
     path('ocr_files', ocr_files, name='ocr_files'),
 
+    # File Manager
+      path('file_manager/', file_manager, name='file_manager'),
     # Form 
     path('form_builder/', form_builder, name='form_builder'),
     path('form_action_builder/', form_action_builder, name='form_action_builder'), 

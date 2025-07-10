@@ -104,11 +104,11 @@ sudo ln -s /etc/nginx/sites-available/WorkDocX /etc/nginx/sites-enabled/
 
 cd /etc/nginx/sites-available/
 
-sudo rm default
+sudo rm WorkDocX
 
 cd /etc/nginx/sites-enabled/
 
-sudo rm TDMS
+sudo rm WorkDocX
 
 sudo gpasswd -a www-data ubuntu
 
@@ -174,7 +174,7 @@ python manage.py migrate MenuManager
 python manage.py migrate Reports
 python manage.py migrate Workflow
 
-python manage.py startapp Workflow
+python manage.py startapp FileManager
 curl -s http://15.207.169.98/ocr_files
 
 git config --global user.name "technowin"
