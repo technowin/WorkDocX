@@ -301,6 +301,7 @@
             content.innerHTML = ''; // Clear previous preview
 
             if (response.success) {
+                debugger;
                 const ext = response.file_url.split('.').pop().toLowerCase();
 
                 if (['pdf'].includes(ext)) {

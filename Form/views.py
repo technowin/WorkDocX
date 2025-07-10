@@ -1058,18 +1058,47 @@ def form_master(request):
                                 field["regex_description"] = ""
 
                         # File field logic
+                        # if field["field_type"] in ["file", "file multiple", "text"]:
+                        #     file_validation = next((v for v in field["validations"]), None)
+                        #     field["accept"] = file_validation["value"] if file_validation else ""
+
+                        #     if reference_type == '1':
+                        #         file_exists = FormFileTemp.objects.filter(field_id=field["id"], form_data_id=form_data_id).exists()
+                        #     else:
+                        #         file_exists = FormFile.objects.filter(field_id=field["id"], form_data_id=form_data_id).exists()
+                        #     field["file_uploaded"] = 1 if file_exists else 0
+
+
+                        #     if file_exists and "required" in field["attributes"]:
+                        #         field["attributes"].remove("required")
+# Replace with your actual import path
+
                         if field["field_type"] in ["file", "file multiple", "text"]:
                             file_validation = next((v for v in field["validations"]), None)
                             field["accept"] = file_validation["value"] if file_validation else ""
 
                             if reference_type == '1':
-                                file_exists = FormFileTemp.objects.filter(field_id=field["id"], form_data_id=form_data_id).exists()
+                                file_qs = FormFileTemp.objects.filter(field_id=field["id"], form_data_id=form_data_id)
                             else:
-                                file_exists = FormFile.objects.filter(field_id=field["id"], form_data_id=form_data_id).exists()
+                                file_qs = FormFile.objects.filter(field_id=field["id"], form_data_id=form_data_id)
+
+                            file_exists = file_qs.exists()
                             field["file_uploaded"] = 1 if file_exists else 0
+
+                            # ✅ Include encrypted path
+                            field["files"] = [
+                                {
+                                    "name": file.uploaded_name,
+                                    "encrypted_path": enc(file.file_path),  # still keep this if needed
+                                    "url": request.build_absolute_uri(settings.MEDIA_URL + file.file_path)  # ⬅️ add this
+                                }
+                                for file in file_qs
+                            ] if file_exists else []
+
 
                             if file_exists and "required" in field["attributes"]:
                                 field["attributes"].remove("required")
+
 
 
                         # Set saved value
