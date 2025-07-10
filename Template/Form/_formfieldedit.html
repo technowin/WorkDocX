@@ -493,7 +493,7 @@
 
 {% comment %} added for operator dropdown {% endcomment %}
 
-{% comment %} <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+<div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -511,9 +511,9 @@
         <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
     </div>
 
-</div> {% endcomment %}
+</div> 
 
-      <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
+      {% comment %} <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -535,7 +535,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 {% comment %} <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
     width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
@@ -549,7 +549,7 @@
 
 {% comment %} added for category dropdown {% endcomment %}
 
-{% comment %} <div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+<div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -570,10 +570,10 @@
 </div>
 
 <div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
 
     <!-- Category Modal -->
-<div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+{% comment %} <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -595,7 +595,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 
 </form>
@@ -699,7 +699,7 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
-                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3');
+                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3' );
         
                     let tableHTML = `
                         <table style="width:100%; text-align:left; border-collapse: collapse;">
@@ -822,48 +822,75 @@
   </script>
 
   <script>
-    function deleteFile(encryptedPath, encryptedId,reference_type, type) {
-        debugger;
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "{% url 'delete_file' %}",
-                    method: "POST",
-                    contentType: "application/json",
-                    headers: {
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    },
-                    data: JSON.stringify({
-                        id: encryptedId,
-                        path: encryptedPath,
-                        reference_type :reference_type,
-                        type: type
-                    }),
-                    success: function(response) {
-                        if (response.success) {
-                            Swal.fire('Deleted!', 'File has been deleted.', 'success').then(() => {
-                                location.reload(); // or remove the DOM element here
-                            });
-                        } else {
-                            Swal.fire('Error', response.error || 'Something went wrong.', 'error');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("AJAX error:", error);
-                        Swal.fire('Error', 'Error deleting file.', 'error');
+    function deleteFile(encryptedPath, encryptedId, reference_type, type) {
+    debugger;
+
+    const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+    const swalOptions = {
+        background: theme === 'dark' ? '#343a40' : '#ffffff',
+        color: theme === 'dark' ? '#f8f9fa' : '#212529',
+        confirmButtonColor: '#0d6efd',
+        customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+        }
+    };
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        ...swalOptions
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{% url 'delete_file' %}",
+                method: "POST",
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                data: JSON.stringify({
+                    id: encryptedId,
+                    path: encryptedPath,
+                    reference_type: reference_type,
+                    type: type
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'File has been deleted.',
+                            icon: 'success',
+                            ...swalOptions
+                        }).then(() => {
+                            location.reload(); // or remove the DOM element here
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: response.error || 'Something went wrong.',
+                            icon: 'error',
+                            ...swalOptions
+                        });
                     }
-                });
-            }
-        });
-    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX error:", error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Error deleting file.',
+                        icon: 'error',
+                        ...swalOptions
+                    });
+                }
+            });
+        }
+    });
+}
+
 
 
 
@@ -998,34 +1025,34 @@
                 const type = $('#type').val();
                 const reference_type = $('#reference_type').val();
 
-                //if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                //    
-//
-                //    e.preventDefault();
-//
-                //    const popup = document.getElementById('workflowPopup');
-                //    const overlay = document.getElementById('popupOverlay');
-//
-                //    // ✅ Show popup and overlay
-                //    popup.style.display = 'block';
-                //    overlay.style.display = 'block';
-                //    operatorDropdown.setAttribute('required', true);
-//
-                //    confirmSubmitBtn.onclick = function () {
-                //        debugger;
-                //        
-                //            form.action = "{% url 'common_form_post' %}";
-                //            form.submit(); // Manual submit
-                //        
-                //    };
-//
-                //    // Cancel button inside popu
-                //    cancelPopupBtn.onclick = function () {
-                //        workflowPopup.style.display = 'none';
-                //        popupOverlay.style.display = 'none';
-                //    };
-//
-                //}
+                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                    
+
+                    e.preventDefault();
+
+                    const popup = document.getElementById('workflowPopup');
+                    const overlay = document.getElementById('popupOverlay');
+
+                    // ✅ Show popup and overlay
+                    popup.style.display = 'block';
+                    overlay.style.display = 'block';
+                    operatorDropdown.setAttribute('required', true);
+
+                    confirmSubmitBtn.onclick = function () {
+                        debugger;
+                        
+                            form.action = "{% url 'common_form_post' %}";
+                            form.submit(); // Manual submit
+                        
+                    };
+
+                    // Cancel button inside popu
+                    cancelPopupBtn.onclick = function () {
+                        workflowPopup.style.display = 'none';
+                        popupOverlay.style.display = 'none';
+                    };
+
+                }
 
                 if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
                     e.preventDefault();
@@ -1040,43 +1067,42 @@
 
                     // Handle confirm button
                     document.getElementById('confirmSubmitBtn').onclick = function () {
-                        const form = document.getElementById('dynamicForm');
                         form.action = "{% url 'common_form_post' %}";
                         form.submit();
                     };
                 }
 
-                //else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                //    debugger;
-//
-                //    e.preventDefault();
-//
-                //    const popupD = document.getElementById('categoryPopup');
-                //    const overlayD = document.getElementById('categoryOverlay');
-//
-                //    // ✅ Show popup and overlay
-                //    popupD.style.display = 'block';
-                //    overlayD.style.display = 'block';
-                //    categorydropdownDprt.setAttribute('required', true);
-//
-                //    catconfirmSubmitBtn.onclick = function () {
-                //        // operatorDropdown.removeAttribute('required');
-                //        form.action = "{% url 'common_form_action' %}";
-//
-                //    };
-                //    if (catcancelPopupBtn) {
-                //        debugger;
-                //        e.preventDefault();
-                //        catcancelPopupBtn.onclick = function () {
-                //            popupD.style.display = 'none';
-                //            overlayD.style.display = 'none';
-                //            
-                //        };
-                //    } else {
-                //        console.error("catcancelPopupBtn not found in the DOM.");
-                //    }
-//
-                //}
+                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
+                    debugger;
+
+                    e.preventDefault();
+
+                    const popupD = document.getElementById('categoryPopup');
+                    const overlayD = document.getElementById('categoryOverlay');
+
+                    // ✅ Show popup and overlay
+                    popupD.style.display = 'block';
+                    overlayD.style.display = 'block';
+                    categorydropdownDprt.setAttribute('required', true);
+
+                    catconfirmSubmitBtn.onclick = function () {
+                        // operatorDropdown.removeAttribute('required');
+                        form.action = "{% url 'common_form_action' %}";
+
+                    };
+                    if (catcancelPopupBtn) {
+                        debugger;
+                        e.preventDefault();
+                        catcancelPopupBtn.onclick = function () {
+                            popupD.style.display = 'none';
+                            overlayD.style.display = 'none';
+                            
+                        };
+                    } else {
+                        console.error("catcancelPopupBtn not found in the DOM.");
+                    }
+
+                }
 
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
                     e.preventDefault();
@@ -1107,7 +1133,6 @@
                         form.submit();
                     };
                 }
-
                 else if (buttonType === 'Submit' && type === 'create') {
                     operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_post' %}";
@@ -1389,17 +1414,29 @@ document.getElementById('compareButton').addEventListener('click', function () {
 
 </script>
 
+
 {% if messages %}
-{% for message in messages %}
   <script>
-  Swal.fire({
-    title: "{{ message.tags }}",
-    text: "{{ message }}",
-    icon: "{{ message.tags }}",
-    confirmButtonText: "OK",
-  });
-</script>
-{% endfor %}
+    document.addEventListener("DOMContentLoaded", function () {
+      const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      {% for message in messages %}
+        Swal.fire({
+          title: "{{ message.tags|title }}",
+          text: "{{ message|escapejs }}",
+          icon: "{{ message.tags }}", // valid: success, error, warning, info, question
+          confirmButtonText: "OK",
+          background: theme === 'dark' ? '#343a40' : '#ffffff',
+          color: theme === 'dark' ? '#f8f9fa' : '#212529',
+          confirmButtonColor: theme === 'dark' ? '#0d6efd' : '#0d6efd',
+          customClass: {
+            popup: 'rounded-4 shadow',
+            confirmButton: 'btn btn-primary px-4 py-2'
+          }
+        });
+      {% endfor %}
+    });
+  </script>
 {% endif %}
+
 
 {% endblock %}

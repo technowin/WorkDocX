@@ -1159,7 +1159,7 @@ def form_master(request):
                         return render(request, "Form/_formfieldedit.html", {"sectioned_fields": dict(sectioned_fields),"fields": fields,"action_fields":action_fields,"type":"edit","form":form,"form_data_id":form_data_id,"readonlyWF":readonlyWF,"viewStepWFSeq":'0',"action_data":action_data,"type":type,"reference_type":reference_type,"grouped_data":grouped_data})
             else:
                 type = request.GET.get("type")
-                form = Form.objects.all()
+                form = Form.objects.all().order_by('-id')
                 return render(request, "Form/form_master.html", {"form": form,"type":type})
     
     except Exception as e:
@@ -1174,6 +1174,7 @@ def form_master(request):
 def common_form_post(request):
     user = request.session.get('user_id', '')
     user_name = request.session.get('username', '')
+    entity = request.POST.get('entity')
     try:
         if request.method != "POST":
             return JsonResponse({"error": "Invalid request method"}, status=400)
@@ -1189,11 +1190,9 @@ def common_form_post(request):
         firstStep = request.POST.get("firstStep")
         
         
-        # form_id = request.POST.get(form_id_key, '').strip()
         form = get_object_or_404(Form, id=request.POST.get("form_id"))
 
         if type != 'master':
-            # action_id = request.PSOT.get("action_id")action_id = request.POST.get(action_id_key, '').strip()
             action = get_object_or_404(FormAction,id  = request.POST.get("action_id"))
 
         if type == 'master':
@@ -1297,10 +1296,17 @@ def common_form_post(request):
                             except FormField.DoesNotExist:
                                 pass  
 
+        
+
         if already_exists is not True:
             handle_uploaded_files(request, form_name, created_by, form_data, user)
-            file_name = handle_generative_fields(form, form_data, created_by)
-
+            if  type == 'master':
+                if field.field_type == 'generative':
+                    file_name = handle_generative_fields(form, form_data, created_by)
+            else:
+                file_name = handle_generative_fields(form, form_data, created_by)
+        else:
+            messages.error(request, 'File Number Already Exists!')
         # callproc('create_dynamic_form_views')
         messages.success(request, "Form data saved successfully!") 
         if workflow_YN == '1' and already_exists is not True:
@@ -1471,9 +1477,9 @@ def common_form_post(request):
                                 updated_by=user,
                             )
             
-            messages.success(request, "Workflow data saved successfully!")
-        else:
-            messages.error(request, 'File Number Already Exists!')
+        messages.success(request, "Workflow data saved successfully!")
+            # else:
+            #     messages.error(request, 'File Number Already Exists!')
     except Exception as e:
         print(f"Error fetching form data: {e}")
         tb = traceback.extract_tb(e.__traceback__)
@@ -2497,7 +2503,7 @@ def delete_file(request):
             if type == "reference" or reference_type == '1':
                 # Delete from FormFileTemp
                 FormFileTemp.objects.filter(id=file_id).delete()
-            elif type is None and reference_type is None:
+            else:
                 if os.path.exists(full_path):
                     os.remove(full_path)
                     FormFile.objects.filter(id=file_id).delete()

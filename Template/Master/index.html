@@ -49,7 +49,7 @@
                     <div>
                       {% if entity|stringformat:"s" == "form_master" %}
                         <div class="text-end me-4">
-                          <form method="GET" action="{% if entity == 'user' %}/register_new_user {% elif entity == 'form' %}/form_builder{% elif entity == 'wfseq' %}/workflow_mapping{% elif entity == 'action' %}/form_action_builder{% else %}/masters{% endif %}">
+                          <form method="GET" action="/form_master">
                               <input type="hidden" name="id" value="0">
                               <input type="hidden" name="entity" value="{{entity}}">
                               <input type="hidden" name="type" value="ed">               
