@@ -1334,8 +1334,8 @@ def common_form_post(request):
                     file_name = handle_generative_fields(form, form_data, created_by)
             else:
                 file_name = handle_generative_fields(form, form_data, created_by)
-        else:
-            messages.error(request, 'File Number Already Exists!')
+        # else:
+        #     messages.error(request, 'File Number Already Exists!')
         # callproc('create_dynamic_form_views')
         messages.success(request, "Form data saved successfully!") 
         if workflow_YN == '1' and already_exists is not True:
@@ -1506,9 +1506,9 @@ def common_form_post(request):
                                 updated_by=user,
                             )
             
-        messages.success(request, "Workflow data saved successfully!")
-            # else:
-            #     messages.error(request, 'File Number Already Exists!')
+            messages.success(request, "Workflow data saved successfully!")
+        else:
+            messages.error(request, 'File Number Already Exists!')
     except Exception as e:
         print(f"Error fetching form data: {e}")
         tb = traceback.extract_tb(e.__traceback__)
