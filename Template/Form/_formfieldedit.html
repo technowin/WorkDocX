@@ -283,10 +283,10 @@
                            {% if type == "create" %}
                                onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                             {% elif  type == "reference" %}
-                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }}, {{reference_type}},'{{type}}')"
+                            onclick="showScript( {{ matched_form_data_id }}, {{ field.id }}, {{reference_type}},'{{type}}','{{data_save_status}}')"
         
                            {% else %}
-                               onclick="showScript({{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                               onclick="showScript({{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}','{{data_save_status}}')"
                            {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
                         </i>
                     </div>
@@ -301,10 +301,10 @@
                        {% if type == "create" %}
                            onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
                         {% elif type == "reference"%}
-                           onclick="showScript( {{ matched_form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                           onclick="showScript( {{ matched_form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}','{{data_save_status}}')"
                         
                        {% else %}
-                           onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}')"
+                           onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}','{{data_save_status}}')"
                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
                     </i>
                 </div>
@@ -413,9 +413,6 @@
                                                 <div class="accordion-body">
                                                     {% with file.url|lower as file_url %}
                                                         {% if ".pdf" in file_url %}
-                                                        {% comment %} <iframe src="https://docs.google.com/gview?url={{ file.url }}&embedded=true"
-                                                                width="100%" height="400px" frameborder="0">
-                                                        </iframe> {% endcomment %}
                                                         <iframe src="{{ file.url }}#toolbar=0&navpanes=0&scrollbar=0"
                                                              width="100%" height="500px" style="border: none;"></iframe>
                                                         {% comment %} <iframe src="{{ file.url }}" width="100%" height="400px"></iframe> {% endcomment %}
@@ -754,7 +751,7 @@
 
         let selectedNewFiles = []; // Global array to store new files
 
-        function showScript(form_data_id, field_id,reference_type, type) {
+        function showScript(form_data_id, field_id,reference_type, type,data_save_status) {
             debugger;
             
             const inputElement = document.getElementById('file_input_' + field_id);
@@ -787,7 +784,7 @@
                     csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
                 success: function (data) {
-                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3' );
+                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3' || (type === 'reference' && data_save_status !== '1'));
         
                     let tableHTML = `
                         <table style="width:100%; text-align:left; border-collapse: collapse;">

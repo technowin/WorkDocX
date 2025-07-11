@@ -2653,7 +2653,7 @@ def get_regex_pattern(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
-
+@login_required
 def create_new_section(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -2977,7 +2977,7 @@ def get_versiondata(request):
         return JsonResponse({'error': 'An unexpected error occurred!'}, status=500)
     # return JsonResponse({'error': 'Version Not Found!'}, status=404)
     
-@xframe_options_exempt
+@login_required
 def preview_file(request):
     if request.method == 'POST':
         try:
@@ -3054,7 +3054,7 @@ def get_grouped_comments(version_no, form_data_id):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return grouped_data
-
+@login_required
 def check_file_status(request):
     if request.method == 'POST':
         file_name = request.POST.get('file_name')
