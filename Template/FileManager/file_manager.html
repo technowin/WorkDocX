@@ -4,6 +4,17 @@
 {% block title %}File Manager{% endblock title %}
 
 {% block extra_css %}
+
+<!-- third party css -->
+<link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/responsive.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/buttons.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/select.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedHeader.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/vendor/fixedColumns.bootstrap5.min.css' %}" rel="stylesheet" type="text/css" />
+<!-- third party css end -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
 <style>
 .menu-container {
     padding: 10px;
@@ -27,68 +38,63 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="row g-0">
-                <div class="col-xxl-3 border-end email-border border-5">
-                    <div class="offcanvas-xxl offcanvas-start h-100 file-offcanvas" tabindex="-1" id="fileSidebaroffcanvas" aria-labelledby="fileSidebaroffcanvasLabel">
-                        <div class="menu-container" style="font-weight:bold">
-                            <ul class="nav flex-column">
-                                {% for client in clients %}
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#client-{{ forloop.counter }}">
-                                        <i class="uil uil-building me-2"></i> {{ client.client }}
-                                    </a>
-                                    <div class="collapse" id="client-{{ forloop.counter }}">
-                                        <ul class="nav flex-column ms-4">
-                                            {% for department in client.departments %}
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#dept-{{ client.client|slugify }}-{{ forloop.counter }}">
-                                                    <i class="uil uil-sitemap me-2"></i> {{ department.department }}
-                                                </a>
-                                                <div class="collapse" id="dept-{{ client.client|slugify }}-{{ forloop.counter }}">
-                                                    <ul class="nav flex-column ms-4">
-                                                        {% for module in department.modules %}
-                                                        <li class="nav-item">
-                                                            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#module-{{ client.client|slugify }}-{{ department.department|slugify }}-{{ forloop.counter }}">
-                                                                <i class="uil uil-cube me-2"></i> {{ module.module }}
-                                                            </a>
-                                                            <div class="collapse" id="module-{{ client.client|slugify }}-{{ department.department|slugify }}-{{ forloop.counter }}">
-                                                                <ul class="nav flex-column ms-4">
-                                                                    <li class="nav-item">
-                                                                        <a class="nav-link module-link" href="#" data-client="{{ client.client }}" data-dept="{{ department.department }}" data-module="{{ module.module }}" data-type="documents">
-                                                                            <i class="uil uil-files-landscapes me-2"></i> Documents
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="nav-item">
-                                                                        <a class="nav-link module-link" href="#" data-client="{{ client.client }}" data-dept="{{ department.department }}" data-module="{{ module.module }}" data-type="metadata">
-                                                                            <i class="uil uil-label me-2"></i> Metadata
-                                                                        </a>
-                                                                    </li>
-                                                                    <li class="nav-item">
-                                                                        <a class="nav-link module-link" href="#" data-client="{{ client.client }}" data-dept="{{ department.department }}" data-module="{{ module.module }}" data-type="workflow">
-                                                                            <i class="uil uil-cog me-2"></i> Workflow
-                                                                        </a>
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
-                                                        </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+    <div class="row col-12">
+                <div class="card col-auto " style="border-radius: 10px!important;border: 1px solid grey!important;">
+                    <div class="menu-container" style="font-weight:bold">
+                        <ul class="nav flex-column">
+                            {% for client in clients %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#client-{{ forloop.counter }}">
+                                    <i class="uil uil-building me-2"></i> {{ client.client }}
+                                </a>
+                                <div class="collapse" id="client-{{ forloop.counter }}">
+                                    <ul class="nav flex-column ms-4">
+                                        {% for department in client.departments %}
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#dept-{{ client.client|slugify }}-{{ forloop.counter }}">
+                                                <i class="uil uil-sitemap me-2"></i> {{ department.department }}
+                                            </a>
+                                            <div class="collapse" id="dept-{{ client.client|slugify }}-{{ forloop.counter }}">
+                                                <ul class="nav flex-column ms-4">
+                                                    {% for module in department.modules %}
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#module-{{ client.client|slugify }}-{{ department.department|slugify }}-{{ forloop.counter }}">
+                                                            <i class="uil uil-cube me-2"></i> {{ module.module }}
+                                                        </a>
+                                                        <div class="collapse" id="module-{{ client.client|slugify }}-{{ department.department|slugify }}-{{ forloop.counter }}">
+                                                            <ul class="nav flex-column ms-4">
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link module-link" href="#" data-client="{{ client.client }}" data-dept="{{ department.department }}" data-module="{{ module.module }}" data-type="documents">
+                                                                        <i class="uil uil-files-landscapes me-2"></i> Documents
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link module-link" href="#" data-client="{{ client.client }}" data-dept="{{ department.department }}" data-module="{{ module.module }}" data-type="metadata">
+                                                                        <i class="uil uil-label me-2"></i> Metadata
+                                                                    </a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link module-link" href="#" data-client="{{ client.client }}" data-dept="{{ department.department }}" data-module="{{ module.module }}" data-type="workflow">
+                                                                        <i class="uil uil-cog me-2"></i> Workflow
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
-
-                <div class="col-xxl-9">
+                 &nbsp;&nbsp;&nbsp;
+                <div class="card col-9" style="border-radius: 10px!important;border: 1px solid grey!important;">
                     <div class="card-body">
                         <h5 class="mb-3 px-3">Recent</h5>
 
@@ -319,14 +325,41 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
     </div> <!-- end col -->
-</div><!-- end row -->
 
 
 {% endblock %}
 
+
 {% block extra_javascript %}
+
+ {% include "bootstrap/partials/syntax-highlight.html" %}
+
+<!-- Third party js -->
+<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'js/vendor/responsive.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.fixedHeader.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.html5.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
+<script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
+<script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+<!-- Third party js ends --> 
+
+<!-- Init js -->
+{% comment %} <script src="{% static 'js/pages/demo.datatable-init.js' %}"></script> {% endcomment %}
+<!-- Init js end -->
+
+{% comment %} <script>
+    $('#datatable').DataTable({
+        "pagingType": "full_numbers",
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+</script> {% endcomment %}
 
 {% endblock %}
