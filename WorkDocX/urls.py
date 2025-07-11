@@ -60,7 +60,9 @@ urlpatterns = [
     path('ocr_files', ocr_files, name='ocr_files'),
 
     # File Manager
-      path('file_manager/', file_manager, name='file_manager'),
+    path('file_manager/', file_manager, name='file_manager'),
+    path('get_module_data/', get_module_data, name='get_module_data'),
+
     # Form 
     path('form_builder/', form_builder, name='form_builder'),
     path('form_action_builder/', form_action_builder, name='form_action_builder'), 
