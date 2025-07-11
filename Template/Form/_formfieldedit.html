@@ -579,8 +579,8 @@
 
 </div>
 
-<div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
+{% comment %} <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
 
 {% comment %} ends here {% endcomment %}
 
@@ -1178,7 +1178,7 @@
 
                     // ✅ Show popup and overlay
                     popup.style.display = 'block';
-                    overlay.style.display = 'block';
+                   // overlay.style.display = 'block';
                     operatorDropdown.setAttribute('required', true);
 
                     confirmSubmitBtn.onclick = function () {
@@ -1189,7 +1189,7 @@
                     // Cancel button inside popup
                     cancelPopupBtn.onclick = function () {
                         workflowPopup.style.display = 'none';
-                        popupOverlay.style.display = 'none';
+                        //popupOverlay.style.display = 'none';
                     };
 
                 }
