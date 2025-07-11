@@ -89,5 +89,3 @@ Error 500
 
 
 pip install --no-deps --upgrade-strategy only-if-needed -r requirements/local.txt
-
-

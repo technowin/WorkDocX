@@ -184,3 +184,8 @@ def get_roster_data_tommorow(request):
         return JsonResponse({'result': 'fail', 'message': 'Something went wrong!'}, status=500)
 
     
+from .powerbi import get_powerbi_embed_info
+
+def dashboard_view(request):
+    embed_info = get_powerbi_embed_info()
+    return render(request, 'Dashboard/dashboardd.html', {"embed_info": embed_info})
