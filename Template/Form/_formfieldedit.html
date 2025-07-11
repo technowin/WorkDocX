@@ -721,6 +721,7 @@
 <script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
 <script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
 <script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+<script src="https://unpkg.com/dwt/dist/dynamsoft.webtwain.min.js"></script>
 
 {% endblock %}
 
@@ -752,7 +753,7 @@
         let selectedNewFiles = []; // Global array to store new files
 
         function showScript(form_data_id, field_id,reference_type, type,data_save_status) {
-            debugger;
+            
             
             const inputElement = document.getElementById('file_input_' + field_id);
             const newFiles = inputElement.files;
@@ -888,7 +889,7 @@
     }
 
     function downloadFile(encryptedPath) {
-        debugger;
+        
         const baseUrl = "{% url 'download_file' %}";
         const downloadUrl = `${baseUrl}?file=${encodeURIComponent(encryptedPath)}`;
         const a = document.createElement('a');
@@ -906,7 +907,7 @@
 
   <script>
     function deleteFile(encryptedPath, encryptedId, reference_type, type) {
-    debugger;
+    
 
     const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
 
@@ -983,7 +984,7 @@
 <script>
 
     function showFile(input) {
-        debugger;
+        
         const files = input.files;
 
         const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
@@ -1066,10 +1067,10 @@
 <script>
 
         {% comment %} document.querySelectorAll('.submit-btn').forEach(button => {
-            debugger;
+            
             button.addEventListener('click', function (e) {
                 
-                debugger;
+                
                 const form = document.getElementById('dynamicForm');
                 const buttonType = this.getAttribute('data-button-type');
                 const actionId = this.getAttribute('data-action-id');
@@ -1122,7 +1123,7 @@
                     operatorDropdown.setAttribute('required', true);
 
                     confirmSubmitBtn.onclick = function () {
-                        debugger;
+                        
                         
                             form.action = "{% url 'common_form_post' %}";
                             form.submit(); // Manual submit
@@ -1156,7 +1157,7 @@
                 }
 
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    debugger;
+                    
 
                     e.preventDefault();
 
@@ -1174,7 +1175,7 @@
 
                     };
                     if (catcancelPopupBtn) {
-                        debugger;
+                        
                         e.preventDefault();
                         catcancelPopupBtn.onclick = function () {
                             popupD.style.display = 'none';
@@ -1310,10 +1311,10 @@
             });
         }); {% endcomment %}
         document.querySelectorAll('.submit-btn').forEach(button => {
-            debugger;
+            
             button.addEventListener('click', function (e) {
                 
-                debugger;
+                
                 const form = document.getElementById('dynamicForm');
                 const buttonType = this.getAttribute('data-button-type');
                 const actionId = this.getAttribute('data-action-id');
@@ -1643,7 +1644,7 @@ document.getElementById('compareButton').addEventListener('click', function () {
 <script>
 
      $('.field_dropdown').change(function() {
-        debugger;
+        
         var selectedValue = $(this).val(); 
     
         if (selectedValue) {
@@ -1657,7 +1658,7 @@ document.getElementById('compareButton').addEventListener('click', function () {
                     
                 },
                 success: function(response) {
-                    debugger;
+                    
                     if (response.status === 0) {                    
                     
                     Swal.fire("You Can't Use This File Name.");
@@ -1693,6 +1694,42 @@ document.getElementById('compareButton').addEventListener('click', function () {
         });
     });
 
+
+</script>
+
+<script>
+
+    function startScan(fieldId) {
+        debugger;
+    Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer', function(obj) {
+        if (obj) {
+            obj.SelectSource();
+            obj.AcquireImage({
+                onSuccess: function () {
+                    let base64 = obj.SaveAsBase64('jpg');
+                    uploadScannedImage(base64, fieldId);
+                },
+                onFailure: function (errorCode, errorString) {
+                    alert("Scan failed: " + errorString);
+                }
+            });
+        }
+    });
+}
+
+function uploadScannedImage(base64Data, fieldId) {
+    const formData = new FormData();
+    formData.append('field_id', fieldId);
+    formData.append('image_data', base64Data);
+
+    fetch('/upload-scanned-file/', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.json())
+      .then(data => {
+          alert("Upload successful");
+      }).catch(err => alert("Upload failed"));
+}
 
 </script>
 

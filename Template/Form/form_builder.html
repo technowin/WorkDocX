@@ -510,9 +510,14 @@
 
           builder.innerHTML += `
            <div class="row col-md-12 draggable-field" data-id="${fieldId}">
+           
                 <div class="col-md-custom-0 drag-handle" style="cursor: grab;">
-                     <span class="btn btn-primary rounded-pill" style=><i class="fa fa-sort me-1"></i> </span>
+                    <span class="btn btn-primary d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px; border-radius: 50%;">
+                        <i class="fa fa-sort"></i>
+                    </span>
                 </div>
+
 
                 <div class="col-md-2 mb-3">
                     ${labelInputHtml}
