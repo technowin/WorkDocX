@@ -557,9 +557,8 @@
 
 <div>
 
-{% comment %} added for operator dropdown {% endcomment %}
-
-{% comment %} <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+    
+<div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -577,9 +576,69 @@
         <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
     </div>
 
-</div>  {% endcomment %}
+</div>
 
-{% comment %} <div id="workflowPopup" class="modal-content" style="display: none; position: fixed; top: 50%; left: 50%;transform: translate(-50%, -50%);
+<div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
+
+{% comment %} ends here {% endcomment %}
+
+
+
+{% comment %} added for category dropdown {% endcomment %}
+
+<div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
+
+    <label for="category_dropdownOpr">Select Category:</label>
+    {% comment %} <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in category_dropD %}
+            <option value="{{ item.value }}">{{ item.text }}</option>
+        {% endfor %}
+    </select> {% endcomment %}
+    <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in category_dropD %}
+            <option value="{{ item.value }}" {% if item.value == file_cat_val %}selected{% endif %}>{{ item.text }}</option>
+        {% endfor %}
+    </select>
+
+    <br>
+    <div style="margin-top: 15px; text-align: center;">
+        <button id="catconfirmSubmitBtn" class="btn btn-primary">Confirm</button>
+        <button id="catcancelPopupBtn" class="btn btn-secondary" type="button">Cancel</button>
+    </div>
+
+</div>
+
+<div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>
+
+{% comment %} added for operator dropdown {% endcomment %}
+{% comment %} 
+ <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
+
+    <label for="custom_dropdownOpr">Select Operator:</label>
+    <select name="custom_dropdownOpr" id="custom_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in WFoperator_dropdown %}
+            <option value="{{ item.0 }}">{{ item.1 }}</option>
+        {% endfor %}
+    </select>
+
+    <br>
+    <div style="margin-top: 15px; text-align: right;">
+        <button id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
+        <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
+    </div>
+
+</div>   {% endcomment %}
+
+ {% comment %} <div id="workflowPopup" class="modal-content" style="display: none; position: fixed; top: 50%; left: 50%;transform: translate(-50%, -50%);
     z-index: 9999;padding: 20px;border-radius: 8px;width: 400px;box-shadow: 0px 0px 10px rgba(0,0,0,0.5);background-color: var(--bs-body-bg);color: var(--bs-body-color);">
 
     <label for="custom_dropdownOpr" class="form-label">Select Operator:</label>
@@ -598,10 +657,10 @@
     <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
     width: 100vw; height: 30vh; "></div>
 
-</div> {% endcomment %}
+</div>  {% endcomment %}
 
 
-      <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
+      {% comment %} <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -623,7 +682,7 @@
       </div>
     </div>
   </div>
-</div> 
+</div>  {% endcomment %}
 
 
 
@@ -634,7 +693,7 @@
 
 {% comment %} added for category dropdown {% endcomment %}
 
-{% comment %} <div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
+ {% comment %} <div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
 
@@ -655,10 +714,10 @@
 </div>
 
 <div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
+    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div>  {% endcomment %}
 
     <!-- Category Modal -->
- <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+ {% comment %} <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -680,7 +739,7 @@
       </div>
     </div>
   </div>
-</div> 
+</div>  {% endcomment %}
 
 
 </form>
@@ -1066,11 +1125,11 @@
 
 <script>
 
-        {% comment %} document.querySelectorAll('.submit-btn').forEach(button => {
-            
+        document.querySelectorAll('.submit-btn').forEach(button => {
+            debugger;
             button.addEventListener('click', function (e) {
                 
-                
+                debugger;
                 const form = document.getElementById('dynamicForm');
                 const buttonType = this.getAttribute('data-button-type');
                 const actionId = this.getAttribute('data-action-id');
@@ -1084,7 +1143,6 @@
                 const popup = document.getElementById('workflowPopup');
                 const overlay = document.getElementById('popupOverlay');
                 const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                
                 const editORcreate = document.getElementById('editORcreate');
                 const categorydropdownDprt = document.getElementById('category_dropdownOpr');
                 const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
@@ -1103,6 +1161,7 @@
                 };
 
 
+
                 if (buttonType === 'Action') {
                     document.getElementById('clicked_action_id').value = actionId;
                 }
@@ -1110,7 +1169,7 @@
                 const reference_type = $('#reference_type').val();
 
                 if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    
+                    debugger;
 
                     e.preventDefault();
 
@@ -1123,41 +1182,19 @@
                     operatorDropdown.setAttribute('required', true);
 
                     confirmSubmitBtn.onclick = function () {
-                        
-                        
-                            form.action = "{% url 'common_form_post' %}";
-                            form.submit(); // Manual submit
-                        
+                        form.action = "{% url 'common_form_post' %}";
+
                     };
 
-                    // Cancel button inside popu
+                    // Cancel button inside popup
                     cancelPopupBtn.onclick = function () {
                         workflowPopup.style.display = 'none';
                         popupOverlay.style.display = 'none';
                     };
 
                 }
-
-                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    e.preventDefault();
-
-                    // Show Bootstrap modal
-                    const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
-                    modal.show();
-
-                    // Add 'required' to dropdown
-                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                    operatorDropdown.setAttribute('required', true);
-
-                    // Handle confirm button
-                    document.getElementById('confirmSubmitBtn').onclick = function () {
-                        form.action = "{% url 'common_form_post' %}";
-                        form.submit();
-                    };
-                }
-
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    
+                    debugger;
 
                     e.preventDefault();
 
@@ -1174,8 +1211,11 @@
                         form.action = "{% url 'common_form_action' %}";
 
                     };
+
+                    // Cancel button inside popup
+                    
                     if (catcancelPopupBtn) {
-                        
+                        debugger;
                         e.preventDefault();
                         catcancelPopupBtn.onclick = function () {
                             popupD.style.display = 'none';
@@ -1187,36 +1227,6 @@
                     }
 
                 }
-
-                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    e.preventDefault();
-
-                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
-                    categoryModal.show();
-
-                    const categoryDropdown = document.getElementById('category_dropdownOpr');
-
-                    // Confirm button inside modal
-                    document.getElementById('catconfirmSubmitBtn').onclick = function () {
-                        const categoryValue = categoryDropdown.value;
-
-
-                        // Optional: Append hidden input if needed
-                        let hiddenInput = document.getElementById('hiddenCategoryInput');
-                        if (!hiddenInput) {
-                            hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'category';  // Must match your Django field name
-                            hiddenInput.id = 'hiddenCategoryInput';
-                            form.appendChild(hiddenInput);
-                        }
-
-                        hiddenInput.value = categoryValue;
-
-                        form.action = "{% url 'common_form_action' %}";
-                        form.submit();
-                    };
-                }
                 else if (buttonType === 'Submit' && type === 'create') {
                     operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_post' %}";
@@ -1250,199 +1260,6 @@
                 }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
                     operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'reject_workflow_step' %}";
-                }
-                else if (buttonType === 'Version') {
-                    e.preventDefault();
-                    const newFormDataId = document.getElementById('new_data_id').value;
-                    const newFormDataId_op = document.getElementById('matched_form_data_id').value;
-                    fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
-                    .then(response => response.json())
-                    .then(response_data => {
-
-                    // Simulate fetch or AJAX to get version data
-                    // get_dataVersion().then(response_data => {
-                        let tableHtml = '';
-                        response_data.data_versions.forEach((row, index) => {
-                            tableHtml += `
-                                <tr>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${index + 1}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.file_name}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.version_no}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.baseline_date || ''}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_by}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_at}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_by || ''}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_at || ''}</td>
-                                </tr>`;
-                        });
-
-                        Swal.fire({
-                            title: `Version Details`,
-                            html: `
-                                <div style="max-height: 300px; overflow-y: auto; text-align: left;">
-                                    <table style="width:100%; border-collapse: collapse;" border="1">
-                                        <thead>
-                                            <tr>
-                                                <th>Sr No.</th>
-                                                <th>File Name</th>
-                                                <th style="width: 80px">Version</th>
-                                                <th>Baseline Date</th>
-                                                <th>Modified By</th>
-                                                <th>Modified At</th>
-                                                <th>Approved By</th>
-                                                <th>Approved At</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${tableHtml}
-                                        </tbody>
-                                    </table>
-                                </div>`,
-                            width: '80%',
-                            confirmButtonText: 'Close',
-                            ...swalOptions
-                        });
-                    }).catch(err => {
-                        Swal.fire('Not Found', 'Version not found!', 'warning');
-                    });
-
-                    return;
-                }
-            });
-        }); {% endcomment %}
-        document.querySelectorAll('.submit-btn').forEach(button => {
-            
-            button.addEventListener('click', function (e) {
-                
-                
-                const form = document.getElementById('dynamicForm');
-                const buttonType = this.getAttribute('data-button-type');
-                const actionId = this.getAttribute('data-action-id');
-
-                const workflow_YN = document.getElementById('workflow_YN');
-                //const dropdownContainer = document.getElementById('workflowDropdownContainer');
-                const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
-                const cancelPopupBtn = document.getElementById('cancelPopupBtn');
-                const firstStep = document.getElementById('firstStep');
-
-                const popup = document.getElementById('workflowPopup');
-                const overlay = document.getElementById('popupOverlay');
-                const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                
-                const editORcreate = document.getElementById('editORcreate');
-                const categorydropdownDprt = document.getElementById('category_dropdownOpr');
-                const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
-                const catcancelPopupBtn = document.getElementById('catcancelPopupBtn');
-
-                const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-
-                const swalOptions = {
-                    background: theme === 'dark' ? '#343a40' : '#ffffff',
-                    color: theme === 'dark' ? '#f8f9fa' : '#212529',
-                    confirmButtonColor: '#0d6efd',
-                    customClass: {
-                        popup: 'rounded-4 shadow',
-                        confirmButton: 'btn btn-primary px-4 py-2'
-                    }
-                };
-                 const type = $('#type').val();
-                const reference_type = $('#reference_type').val();
-
-                if (buttonType === 'Action') {
-                    document.getElementById('clicked_action_id').value = actionId;
-                }
-
-                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    e.preventDefault();
-
-                    // Show Bootstrap modal
-                    const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
-                    modal.show();
-
-                    // Add 'required' to dropdown
-                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                    operatorDropdown.setAttribute('required', true);
-
-                    // Handle confirm button
-                    document.getElementById('confirmSubmitBtn').onclick = function () {
-                        form.action = "{% url 'common_form_post' %}";
-                        form.submit();
-                    };
-                }
-
-
-
-                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    e.preventDefault();
-                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
-                    categoryModal.show();
-
-                    const categoryDropdown = document.getElementById('category_dropdownOpr');
-
-                    // Confirm button inside modal
-                    document.getElementById('catconfirmSubmitBtn').onclick = function () {
-                        const categoryValue = categoryDropdown.value;
-
-
-                        // Optional: Append hidden input if needed
-                        let hiddenInput = document.getElementById('hiddenCategoryInput');
-                        if (!hiddenInput) {
-                            hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'category';  // Must match your Django field name
-                            hiddenInput.id = 'hiddenCategoryInput';
-                            form.appendChild(hiddenInput);
-                        }
-
-                        hiddenInput.value = categoryValue;
-
-                        form.action = "{% url 'common_form_action' %}";
-                        form.submit();
-                    };
-                }
-                else if (buttonType === 'Submit' && type === 'create') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_post' %}";
-                     form.submit();
-                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reject_workflow_step' %}";
-                     form.submit();
-                } else if (buttonType === 'Submit' && type === 'edit') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_edit' %}";
-                     form.submit();
-                }else if (buttonType === 'Submit' && type === 'reference') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_edit' %}";
-                     form.submit();
-                } else if (reference_type == "1" && viewStepWFSeq != '3' && buttonType != 'Version') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reference_workflow' %}";
-                } else if (buttonType === 'Action    ') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_action' %}";
-                     form.submit();
-                }else if (type == "reference" && buttonType != 'Version') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reference_workflow' %}";
-                     form.submit();
-                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_post' %}";
-                     form.submit();
-                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 2) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_edit' %}";
-                    form.submit();
-                }else if (buttonType === 'Action' && parseInt(editORcreate.value) === 3) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_action' %}";
-                    form.submit();
-                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reject_workflow_step' %}";
-                    form.submit();
                 }
                 else if (buttonType === 'Version') {
                     e.preventDefault();
@@ -1503,6 +1320,396 @@
                 }
             });
         });
+
+
+</script>
+ <script>
+
+        {% comment %} document.querySelectorAll('.submit-btn').forEach(button => {
+            
+            button.addEventListener('click', function (e) {
+                
+                
+                const form = document.getElementById('dynamicForm');
+                const buttonType = this.getAttribute('data-button-type');
+                const actionId = this.getAttribute('data-action-id');
+
+                const workflow_YN = document.getElementById('workflow_YN');
+                //const dropdownContainer = document.getElementById('workflowDropdownContainer');
+                const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+                const cancelPopupBtn = document.getElementById('cancelPopupBtn');
+                const firstStep = document.getElementById('firstStep');
+
+                const popup = document.getElementById('workflowPopup');
+                const overlay = document.getElementById('popupOverlay');
+                const operatorDropdown = document.getElementById('custom_dropdownOpr');
+                
+                const editORcreate = document.getElementById('editORcreate');
+                const categorydropdownDprt = document.getElementById('category_dropdownOpr');
+                const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
+                const catcancelPopupBtn = document.getElementById('catcancelPopupBtn');
+
+                const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+                const swalOptions = {
+                    background: theme === 'dark' ? '#343a40' : '#ffffff',
+                    color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                    confirmButtonColor: '#0d6efd',
+                    customClass: {
+                        popup: 'rounded-4 shadow',
+                        confirmButton: 'btn btn-primary px-4 py-2'
+                    }
+                };
+
+
+                if (buttonType === 'Action') {
+                    document.getElementById('clicked_action_id').value = actionId;
+                }
+                const type = $('#type').val();
+                const reference_type = $('#reference_type').val();
+
+                else if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                    
+
+                    e.preventDefault();
+
+                    const popup = document.getElementById('workflowPopup');
+                    const overlay = document.getElementById('popupOverlay');
+
+                    // ✅ Show popup and overlay
+                    popup.style.display = 'block';
+                    overlay.style.display = 'block';
+                    operatorDropdown.setAttribute('required', true);
+
+                    confirmSubmitBtn.onclick = function () {
+                        
+                        
+                            form.action = "{% url 'common_form_post' %}";
+                            form.submit(); // Manual submit
+                        
+                    };
+
+                    // Cancel button inside popu
+                    cancelPopupBtn.onclick = function () {
+                        workflowPopup.style.display = 'none';
+                        popupOverlay.style.display = 'none';
+                    };
+
+                }
+
+               
+
+                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
+                    e.preventDefault();
+
+                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                    categoryModal.show();
+
+                    const categoryDropdown = document.getElementById('category_dropdownOpr');
+
+                    document.getElementById('catconfirmSubmitBtn').onclick = function () {
+                        const categoryValue = categoryDropdown.value;
+
+
+                        // Optional: Append hidden input if needed
+                        let hiddenInput = document.getElementById('hiddenCategoryInput');
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'category';  // Must match your Django field name
+                            hiddenInput.id = 'hiddenCategoryInput';
+                            form.appendChild(hiddenInput);
+                        }
+
+                        hiddenInput.value = categoryValue;
+
+                        form.action = "{% url 'common_form_action' %}";
+                        form.submit();
+                    };
+                }
+                else if (buttonType === 'Submit' && type === 'create') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_post' %}";
+                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reject_workflow_step' %}";
+                } else if (buttonType === 'Submit' && type === 'edit') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                }else if (buttonType === 'Submit' && type === 'reference') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                } else if (reference_type == "1" && viewStepWFSeq != '3' && buttonType != 'Version') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reference_workflow' %}";
+                } else if (buttonType === 'Action    ') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_action' %}";
+                }else if (type == "reference" && buttonType != 'Version') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reference_workflow' %}";
+                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_post' %}";
+                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 2) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                }else if (buttonType === 'Action' && parseInt(editORcreate.value) === 3) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_action' %}";
+                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reject_workflow_step' %}";
+                }
+                else if (buttonType === 'Version') {
+                    e.preventDefault();
+                    const newFormDataId = document.getElementById('new_data_id').value;
+                    const newFormDataId_op = document.getElementById('matched_form_data_id').value;
+                    fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
+                    .then(response => response.json())
+                    .then(response_data => {
+
+                    // Simulate fetch or AJAX to get version data
+                    // get_dataVersion().then(response_data => {
+                        let tableHtml = '';
+                        response_data.data_versions.forEach((row, index) => {
+                            tableHtml += `
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${index + 1}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.file_name}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.version_no}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.baseline_date || ''}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_by}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_at}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_by || ''}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_at || ''}</td>
+                                </tr>`;
+                        });
+
+                        Swal.fire({
+                            title: `Version Details`,
+                            html: `
+                                <div style="max-height: 300px; overflow-y: auto; text-align: left;">
+                                    <table style="width:100%; border-collapse: collapse;" border="1">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr No.</th>
+                                                <th>File Name</th>
+                                                <th style="width: 80px">Version</th>
+                                                <th>Baseline Date</th>
+                                                <th>Modified By</th>
+                                                <th>Modified At</th>
+                                                <th>Approved By</th>
+                                                <th>Approved At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${tableHtml}
+                                        </tbody>
+                                    </table>
+                                </div>`,
+                            width: '80%',
+                            confirmButtonText: 'Close',
+                            ...swalOptions
+                        });
+                    }).catch(err => {
+                        Swal.fire('Not Found', 'Version not found!', 'warning');
+                    });
+
+                    return;
+                }
+            });
+        });  {% endcomment %}
+         {% comment %} document.querySelectorAll('.submit-btn').forEach(button => {
+            
+            button.addEventListener('click', function (e) {
+                
+                
+                const form = document.getElementById('dynamicForm');
+                const buttonType = this.getAttribute('data-button-type');
+                const actionId = this.getAttribute('data-action-id');
+
+                const workflow_YN = document.getElementById('workflow_YN');
+                //const dropdownContainer = document.getElementById('workflowDropdownContainer');
+                const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
+                const cancelPopupBtn = document.getElementById('cancelPopupBtn');
+                const firstStep = document.getElementById('firstStep');
+
+                const popup = document.getElementById('workflowPopup');
+                const overlay = document.getElementById('popupOverlay');
+                const operatorDropdown = document.getElementById('custom_dropdownOpr');
+                
+                const editORcreate = document.getElementById('editORcreate');
+                const categorydropdownDprt = document.getElementById('category_dropdownOpr');
+                const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
+                const catcancelPopupBtn = document.getElementById('catcancelPopupBtn');
+
+                const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+
+                const swalOptions = {
+                    background: theme === 'dark' ? '#343a40' : '#ffffff',
+                    color: theme === 'dark' ? '#f8f9fa' : '#212529',
+                    confirmButtonColor: '#0d6efd',
+                    customClass: {
+                        popup: 'rounded-4 shadow',
+                        confirmButton: 'btn btn-primary px-4 py-2'
+                    }
+                };
+                 const type = $('#type').val();
+                const reference_type = $('#reference_type').val();
+
+                if (buttonType === 'Action') {
+                    document.getElementById('clicked_action_id').value = actionId;
+                }
+
+                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                    e.preventDefault();
+
+                    const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
+                    modal.show();
+                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
+                    operatorDropdown.setAttribute('required', true);
+
+                    // Handle confirm button
+                    document.getElementById('confirmSubmitBtn').onclick = function () {
+                        form.action = "{% url 'common_form_post' %}";
+                        form.submit();
+                    };
+                }
+
+
+
+                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
+                    e.preventDefault();
+                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+                    categoryModal.show();
+
+                    const categoryDropdown = document.getElementById('category_dropdownOpr');
+
+                    // Confirm button inside modal
+                    document.getElementById('catconfirmSubmitBtn').onclick = function () {
+                        const categoryValue = categoryDropdown.value;
+
+
+                        // Optional: Append hidden input if needed
+                        let hiddenInput = document.getElementById('hiddenCategoryInput');
+                        if (!hiddenInput) {
+                            hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'category';  // Must match your Django field name
+                            hiddenInput.id = 'hiddenCategoryInput';
+                            form.appendChild(hiddenInput);
+                        }
+
+                        hiddenInput.value = categoryValue;
+
+                        form.action = "{% url 'common_form_action' %}";
+                        form.submit();
+                    };
+                }
+                else if (buttonType === 'Submit' && type === 'create') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_post' %}";
+                     form.submit();
+                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reject_workflow_step' %}";
+                     form.submit();
+                }else if (buttonType === 'Submit' && type === 'edit') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                     form.submit();
+                }else if (buttonType === 'Submit' && type === 'reference') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                     form.submit();
+                } else if (reference_type == "1" && viewStepWFSeq != '3' && buttonType != 'Version') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reference_workflow' %}";
+                } else if (buttonType === 'Action    ') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_action' %}";
+                     form.submit();
+                }else if (type == "reference" && buttonType != 'Version') {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reference_workflow' %}";
+                     form.submit();
+                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_post' %}";
+                     form.submit();
+                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 2) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_edit' %}";
+                    form.submit();
+                }else if (buttonType === 'Action' && parseInt(editORcreate.value) === 3) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'common_form_action' %}";
+                    form.submit();
+                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
+                    operatorDropdown.removeAttribute('required');
+                    form.action = "{% url 'reject_workflow_step' %}";
+                    form.submit();
+                }
+                else if (buttonType === 'Version') {
+                    e.preventDefault();
+                    const newFormDataId = document.getElementById('new_data_id').value;
+                    const newFormDataId_op = document.getElementById('matched_form_data_id').value;
+                    fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
+                    .then(response => response.json())
+                    .then(response_data => {
+
+                    // Simulate fetch or AJAX to get version data
+                    // get_dataVersion().then(response_data => {
+                        let tableHtml = '';
+                        response_data.data_versions.forEach((row, index) => {
+                            tableHtml += `
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${index + 1}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.file_name}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.version_no}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.baseline_date || ''}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_by}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_at}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_by || ''}</td>
+                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_at || ''}</td>
+                                </tr>`;
+                        });
+
+                        Swal.fire({
+                            title: `Version Details`,
+                            html: `
+                                <div style="max-height: 300px; overflow-y: auto; text-align: left;">
+                                    <table style="width:100%; border-collapse: collapse;" border="1">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr No.</th>
+                                                <th>File Name</th>
+                                                <th style="width: 80px">Version</th>
+                                                <th>Baseline Date</th>
+                                                <th>Modified By</th>
+                                                <th>Modified At</th>
+                                                <th>Approved By</th>
+                                                <th>Approved At</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${tableHtml}
+                                        </tbody>
+                                    </table>
+                                </div>`,
+                            width: '80%',
+                            confirmButtonText: 'Close',
+                            ...swalOptions
+                        });
+                    }).catch(err => {
+                        Swal.fire('Not Found', 'Version not found!', 'warning');
+                    });
+
+                    return;
+                }
+            });
+        }); {% endcomment %}
 
 
 
