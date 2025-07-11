@@ -7,6 +7,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib.auth import authenticate, login ,logout,get_user_model
 from Account.forms import RegistrationForm
 from Account.models import *
+from FileManager.models import client_module
 from Masters.models import *
 import Db 
 import bcrypt
@@ -54,4 +55,35 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 def file_manager(request):
-    return render(request, 'FileManager/file_manager.html', {})
+    # Get all client_module data and organize it hierarchically
+    all_data = client_module.objects.all()
+    
+    # Create hierarchical structure
+    clients = {}
+    for item in all_data:
+        if item.client not in clients:
+            clients[item.client] = {'departments': {}}
+        
+        if item.department not in clients[item.client]['departments']:
+            clients[item.client]['departments'][item.department] = {'modules': []}
+            
+        clients[item.client]['departments'][item.department]['modules'].append({
+            'module': item.module,
+            'status': item.status
+        })
+    
+    # Convert to list format for template
+    clients_list = [
+        {
+            'client': client,
+            'departments': [
+                {
+                    'department': dept,
+                    'modules': data['modules']
+                }
+                for dept, data in client_data['departments'].items()
+            ]
+        }
+        for client, client_data in clients.items()
+    ]
+    return render(request, 'FileManager/file_manager.html', {'clients': clients_list})

@@ -14,7 +14,9 @@
 
             <!-- logo -->
             <a href="{% url 'dashboard:index' %}" class="navbar-brand me-lg-5">
-                <img src="{% static 'images/logo.png' %}" alt="" class="logo-dark" height="22"/>
+                {% comment %} <img src="{% static 'images/logo.png' %}" alt="" class="logo-dark" height="22"/> {% endcomment %}
+                <span style="color:white !important;font-weight:bold"><img src="{% static 'images/technologo2.png' %}" alt="logo" height="22">&nbsp;&nbsp;Technowin</span>
+
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
@@ -638,7 +640,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-6">
-                    <img src="{% static 'images/logo.png' %}" alt="" class="logo-dark" height="22"/>
+                    {% comment %} <img src="{% static 'images/logo.png' %}" alt="" class="logo-dark" height="22"/> {% endcomment %}
+                     <span style="color:white !important;font-weight:bold"><img src="{% static 'images/technologo2.png' %}" alt="logo" height="22">&nbsp;&nbsp;Technowin</span>
                     <p class="text-light text-opacity-50 mt-4">WorkDocX makes it easier to build better websites with
                         <br> great speed. Save hundreds of hours of design
                         <br> and development by using it.</p>

@@ -1,0 +1,65 @@
+
+{% extends "bootstrap/vertical_base.html" %}
+{% load static %}
+
+{% block title %}{{ name }}{% endblock title %}
+
+{% block extra_css %}
+<link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Remove default padding/margins from parent blocks */
+  .content-page, .content, .container-fluid {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #reportContainer {
+    position: fixed;
+    top: 60px;         /* height of top navbar */
+    left: 240px;       /* width of sidebar */
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    background-color: white;
+    z-index: 1;
+  }
+</style>
+{% endblock %}
+
+{% block page_title %}{% endblock %}
+
+{% block content %}
+<div id="reportContainer"></div>
+{% endblock %}
+
+{% block extra_javascript %}
+<script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.0/dist/powerbi.min.js"></script>
+
+<script>
+  const models = window['powerbi-client'].models;
+
+  const embedConfig = {
+    type: 'report',
+    id: '{{ embed_info.reportId }}',
+    embedUrl: '{{ embed_info.embedUrl }}',
+    accessToken: '{{ embed_info.embedToken }}',
+    tokenType: models.TokenType.Embed,
+    settings: {
+      panes: { filters: { visible: false }, pageNavigation: { visible: true } }
+    }
+  };
+
+  powerbi.embed(document.getElementById('reportContainer'), embedConfig);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% endblock %}

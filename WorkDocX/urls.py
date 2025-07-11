@@ -165,7 +165,9 @@ urlpatterns = [
     path('check_fileNameExistsInVersion/', check_fileNameExistsInVersion, name='check_fileNameExistsInVersion'),
     path('view_access/', view_access, name='view_access'),
 
-
+    #powerBI dashboard
+    path('power_bi', include('Dashboard.urls')),  # include app URL
+    
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
