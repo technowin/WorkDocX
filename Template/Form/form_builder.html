@@ -44,6 +44,22 @@
   padding: 0 10px;
 }
 
+@media (max-width: 767.98px) {
+  .draggable-field .col-md-custom-0 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .draggable-field .col-md-custom-0 span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+
 /* Tablet and up (≥ 768px) */
 @media (min-width: 768px) {
   .col-md-custom-0 { flex: 0 0 3.33%; max-width: 3.33%; }
@@ -510,7 +526,6 @@
 
           builder.innerHTML += `
            <div class="row col-md-12 draggable-field" data-id="${fieldId}">
-           
                 <div class="col-md-custom-0 drag-handle" style="cursor: grab;">
                     <span class="btn btn-primary d-flex align-items-center justify-content-center"
                         style="width: 40px; height: 40px; border-radius: 50%;">
