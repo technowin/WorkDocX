@@ -109,9 +109,8 @@ def get_module_data(request):
         header = callproc("stp_get_masters", ['fm_doc', 'i', 'header',user])
         rows = callproc("stp_get_masters",['fm_doc','i','data',user])
         data = rows
-       
-
         context = {'client': client,'department': department,'module': module,'data_type': data_type,'file_name':file_name,'header':header,'data':data}
+
     elif data_type == "metadata":
         sf = request.GET.get('sf', '')
         forms = callproc("stp_get_forms",['view_form',user])  
@@ -123,7 +122,6 @@ def get_module_data(request):
         for row in rows:
             encrypted_id = enc(str(row[0]))
             data.append((encrypted_id,) + row[1:])
-
         context = {'client': client,'department': department,'module': module,'data_type': data_type,'forms':forms,'header':header,'data':data}
 
     elif data_type == "workflow":
@@ -156,7 +154,7 @@ def wf_list(request,user,role_id):
     latest_steps = {}
     for item in WFIndexdata_raw:
         req_num = item[0]        # request number
-        increment_id = item[6]   # increment_id column (adjust index if different)
+        increment_id = item[6]   # increment_id column (adjust index if different)  
         if req_num not in latest_steps or increment_id > latest_steps[req_num][6]:
             latest_steps[req_num] = item
     WFIndexdata_raw = list(latest_steps.values())

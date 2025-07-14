@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import re
 from django import template
 
 register = template.Library()
@@ -90,3 +92,26 @@ def trim(value):
     if isinstance(value, str):
         return value.strip()
     return value
+
+@register.filter
+def is_date_near_expiry(value):
+    """Check if date is within 1 month of current date"""
+    try:
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', str(value)):
+            date_obj = datetime.strptime(str(value), '%Y-%m-%d').date()
+            today = datetime.now().date()
+            one_month_later = today + timedelta(days=30)
+            return today <= date_obj <= one_month_later
+    except (ValueError, TypeError):
+        pass
+    return False
+
+@register.filter
+def days_until_expiry(value):
+    """Calculate days remaining until expiry"""
+    try:
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', str(value)):
+            date_obj = datetime.strptime(str(value), '%Y-%m-%d').date()
+            return (date_obj - datetime.now().date()).days
+    except (ValueError, TypeError):
+        return None

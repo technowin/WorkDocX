@@ -1,3 +1,27 @@
+{% load custom_filters %} 
+<style>
+    /* Badge styling that works with both themes */
+    .expiry-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        position: relative;
+        top: -1px;
+        animation: pulse-badge 2s infinite;
+    }
+    
+    /* Dark mode adjustments */
+    [data-bs-theme="dark"] .expiry-badge {
+        background-color: rgba(var(--bs-danger-rgb), 0.2) !important;
+        border-color: rgba(var(--bs-danger-rgb), 0.5) !important;
+        color: #ff6b6b !important;
+    }
+    
+    @keyframes pulse-badge {
+        0% { opacity: 0.9; }
+        50% { opacity: 0.6; }
+        100% { opacity: 0.9; }
+    }
+</style>
 {% if data_type == "documents" %}
     <div class="card-header d-flex flex-wrap gap-2 justify-content-start justify-content-md-between align-items-center">
         <h5 class="mb-3 ">Documents - {{ module }} ({{ department }}, {{ client }})</h5>  
@@ -19,27 +43,34 @@
             </thead>
             <tbody>
                 {% for row in data %}
-                       <tr style="color:black">
-                           <td>{{ forloop.counter }}</td>
-                           {% for cell in row %}
-                                   <td>
-                                       {% if cell|length > 60 %}
-                                           <!-- <textarea rows="4" readonly>{{ cell }}</textarea>  -->
-                                           {{ cell }}
-                                       {% else %}
-                                           {{ cell }}
-                                       {% endif %}
-                                   </td>
-                           {% endfor %}
-                           <td class="text-center">
-                             <a href="#" class="btn btn-sm btn-primary"> <i class="uil uil-download"></i> Download</a>
-                           </td>
+                    {% with date_cell=row|last %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        {% for cell in row %}
+                            <td class="position-relative">
+                                {{ cell }}
 
-                       </tr>
+                                {% if forloop.last and date_cell|is_date_near_expiry %}
+                                    {% with days_remaining=date_cell|days_until_expiry %}
+                                    <span class="expiry-badge badge rounded-pill bg-danger bg-opacity-10 text-danger ms-2 border border-danger border-opacity-25">
+                                        <i class="bi bi-clock-history me-1"></i>
+                                        {{ days_remaining }} day{{ days_remaining|pluralize }}
+                                    </span>
+                                    {% endwith %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        <td class="text-center">
+                            <a href="#" class="btn btn-sm btn-primary">
+                                <i class="bi bi-download"></i> Download
+                            </a>
+                        </td>
+                    </tr>
+                    {% endwith %}
                 {% endfor %}
-             </tbody>
+            </tbody>
         </table>
-    </div>v
+    </div>
 
 {% elif data_type == "metadata" %}
     <div class="card-header d-flex flex-wrap gap-2 justify-content-start justify-content-md-between align-items-center">
@@ -136,3 +167,4 @@
 {% else %}
     <div class="alert alert-warning">Invalid data type requested</div>
 {% endif %}
+
