@@ -53,7 +53,7 @@
                                 {% if forloop.last and date_cell|is_date_near_expiry %}
                                     {% with days_remaining=date_cell|days_until_expiry %}
                                     <span class="expiry-badge badge rounded-pill bg-danger bg-opacity-10 text-danger ms-2 border border-danger border-opacity-25">
-                                        <i class="bi bi-clock-history me-1"></i>
+                                        <i class="uil-clock me-1"></i>
                                         {{ days_remaining }} day{{ days_remaining|pluralize }}
                                     </span>
                                     {% endwith %}
