@@ -1242,14 +1242,6 @@
 
                     // ✅ Confirm button action
                     confirmSubmitBtn.onclick = function () {
-                        // Optional: validate dropdown selection
-                        if (operatorDropdown.value === '') {
-                            alert('Please select an operator.');
-                            return;
-                        }
-
-                        // Set the form action and submit
-                        const form = document.getElementById('yourFormId'); // Replace with your actual form ID
                         form.action = "{% url 'common_form_post' %}";
                         form.submit();
                     };
