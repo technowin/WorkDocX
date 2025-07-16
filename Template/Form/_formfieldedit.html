@@ -1198,60 +1198,33 @@
                 const type = $('#type').val();
                 const reference_type = $('#reference_type').val();
 
-                //if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                //    debugger;
+                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
+                    debugger;
 //
-                //    e.preventDefault();
+                    e.preventDefault();
 //
-                //    const popup = document.getElementById('workflowPopup');
-                //    const overlay = document.getElementById('popupOverlay');
-//
-                //    // ✅ Show popup and overlay
-                //    popup.style.display = 'block';
-                //   // overlay.style.display = 'block';
-                //    operatorDropdown.setAttribute('required', true);
-//
-                //    confirmSubmitBtn.onclick = function () {
-                //        form.action = "{% url 'common_form_post' %}";
-//
-                //    };
-//
-                //    // Cancel button inside popup
-                //    cancelPopupBtn.onclick = function () {
-                //        workflowPopup.style.display = 'none';
-                //        //popupOverlay.style.display = 'none';
-                //    };
-//
-                //}
-
-                if (
-                    buttonType === 'Submit' &&
-                    parseInt(workflow_YN.value) === 1 &&
-                    parseInt(firstStep.value) === 1
-                ) {
-                    e.preventDefault(); // Stop the default form submission
-
                     const popup = document.getElementById('workflowPopup');
-                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                    const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
-                    const cancelPopupBtn = document.getElementById('cancelPopupBtn');
-
-                    // ✅ Show the popup
+                    const overlay = document.getElementById('popupOverlay');
+//
+                    // ✅ Show popup and overlay
                     popup.style.display = 'block';
+                   // overlay.style.display = 'block';
                     operatorDropdown.setAttribute('required', true);
-
-                    // ✅ Confirm button action
+//
                     confirmSubmitBtn.onclick = function () {
                         form.action = "{% url 'common_form_post' %}";
-                        form.submit();
+//
                     };
-
-                    // ✅ Cancel button action
+//
+                    // Cancel button inside popup
                     cancelPopupBtn.onclick = function () {
-                        popup.style.display = 'none';
-                        operatorDropdown.removeAttribute('required');
+                        workflowPopup.style.display = 'none';
+                        //popupOverlay.style.display = 'none';
                     };
+//
                 }
+
+                
 
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
                     debugger;
