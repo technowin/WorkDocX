@@ -557,8 +557,38 @@
 
 <div>
 
+    <!-- Dimmed background overlay -->
+<!-- Popup box -->
+<div id="workflowPopup" style="
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+    border-radius: 8px;
+    min-width: 300px;">
     
+    <label for="custom_dropdownOpr">Select Operator:</label>
+    <select name="custom_dropdownOpr" id="custom_dropdownOpr" class="form-control">
+        <option value="">--Select--</option>
+        {% for item in WFoperator_dropdown %}
+            <option value="{{ item.0 }}">{{ item.1 }}</option>
+        {% endfor %}
+    </select>
 
+    <br>
+    <div style="margin-top: 15px; text-align: right;">
+        <button id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
+        <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
+    </div>
+</div>
+
+
+    
+{% comment %} 
     <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
     box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
@@ -577,7 +607,7 @@
         <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
     </div>
 
-</div>
+</div> {% endcomment %}
 
 {% comment %} <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
     width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
@@ -1170,29 +1200,32 @@
 
                 if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
                     debugger;
-
+//
                     e.preventDefault();
-
+//
                     const popup = document.getElementById('workflowPopup');
                     const overlay = document.getElementById('popupOverlay');
-
+//
                     // ✅ Show popup and overlay
                     popup.style.display = 'block';
                    // overlay.style.display = 'block';
                     operatorDropdown.setAttribute('required', true);
-
+//
                     confirmSubmitBtn.onclick = function () {
                         form.action = "{% url 'common_form_post' %}";
-
+//
                     };
-
+//
                     // Cancel button inside popup
                     cancelPopupBtn.onclick = function () {
                         workflowPopup.style.display = 'none';
                         //popupOverlay.style.display = 'none';
                     };
-
+//
                 }
+
+                
+
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
                     debugger;
 
@@ -1520,7 +1553,7 @@
                 }
             });
         });  {% endcomment %}
-         document.querySelectorAll('.submit-btn').forEach(button => {
+         {% comment %} document.querySelectorAll('.submit-btn').forEach(button => {
             
             button.addEventListener('click', function (e) {
                 
@@ -1710,7 +1743,7 @@
                 }
             });
         });
-
+ {% endcomment %}
 
 
 </script>
