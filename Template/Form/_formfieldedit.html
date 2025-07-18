@@ -31,12 +31,48 @@
 <!-- Selectize.js CSS -->
 <link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
 <link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- PDF.js for PDF preview (optional) -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
 
 <style>
-      
+.upload-area {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.upload-area:hover {
+    background: rgba(0, 123, 255, 0.05) !important;
+}
+.file-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.file-item:hover {
+    background-color: #f8f9fa !important;
+}
+.file-item.active {
+    background-color: #e9f5ff !important;
+}
+.remove-file {
+    transition: all 0.2s ease;
+}
+.remove-file:hover {
+    transform: scale(1.1);
+}
+#scanner-preview {
+    overflow: auto;
+}
+.cropper-container {
+    margin: 0 auto;
+}
 </style>
 
 <!-- Bootstrap 5 Modal -->
@@ -271,9 +307,7 @@
                     <span class="slider"></span>
                 </label>
 
-            {% elif field.field_type == "file" %}
-                {% comment %} <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}" class="form-control custom-file-input"
-                    {% for attr in field.attributes %} {{ attr }} {% endfor %}> {% endcomment %}
+            {% comment %} {% elif field.field_type == "file" %}
                     <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
                         <input type="file" accept="{{ field.accept }}"  name="field_{{ field.id }}"
                                class="form-control custom-file-input" style="padding-right: 100px;" id="file_input_{{ field.id }}"
@@ -307,8 +341,52 @@
                            onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}','{{data_save_status}}')"
                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
                     </i>
-                </div>
+                </div> {% endcomment %}
 
+
+                {% elif field.field_type == "file" %}
+                    <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                        <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}"
+                            class="form-control custom-file-input" style="padding-right: 180px;" id="file_input_{{ field.id }}"
+                            {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
+                        
+                        <div style="position: absolute; right: 40px; top: 0; display: flex;">
+                            <!-- Scan Button -->
+                            <button type="button" class="btn btn-sm btn-secondary scan-btn" 
+                                    onclick="initiateScan('file_input_{{ field.id }}')"
+                                    {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
+                                <i class="fa-solid fa-scanner"></i> Scan
+                            </button>
+                        </div>
+                        
+                        {% comment %} <i class="fa-solid fa-eye eye-icon" {% endcomment %}
+                        <i class="fa fa-file"> </i>
+                        {% comment %} {% if type == "create" %}
+                            onclick="showFile(document.getElementById('file_input_{{ field.id }}'))"
+                            {% elif type == "reference" %}
+                            onclick="showScript({{ matched_form_data_id }}, {{ field.id }}, {{reference_type}},'{{type}}','{{data_save_status}}')"
+                        {% else %}
+                            onclick="showScript({{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}','{{data_save_status}}')"
+                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}> {% endcomment %}
+                        </i>
+                    </div>
+
+               {% elif field.field_type == "file multiple" %}
+                <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                    <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}" multiple
+                        class="form-control custom-file-input" style="padding-right: 40px;" id="file_input_{{ field.id }}"
+                        {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+
+                    <!-- File Icon inside input -->
+                   <img src="{% static 'images/file.png' %}"
+                        alt="Scan"
+                        onclick="initiateScan('file_input_{{ field.id }}', true)"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+                                height: 20px; cursor: pointer;"
+                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} style="pointer-events: none; opacity: 0.6;" {% endif %}>
+                    </i>
+                </div>
 
 
             {% elif field.field_type == "textarea" %}
@@ -812,6 +890,10 @@
 <script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
 <script src="https://unpkg.com/dwt/dist/dynamsoft.webtwain.min.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';</script>
+
 {% endblock %}
 
 <script>
@@ -1189,9 +1271,6 @@
                         confirmButton: 'btn btn-primary px-4 py-2'
                     }
                 };
-
-
-
                 if (buttonType === 'Action') {
                     document.getElementById('clicked_action_id').value = actionId;
                 }
@@ -1200,28 +1279,18 @@
 
                 if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
                     debugger;
-//
                     e.preventDefault();
-//
                     const popup = document.getElementById('workflowPopup');
                     const overlay = document.getElementById('popupOverlay');
-//
-                    // ✅ Show popup and overlay
                     popup.style.display = 'block';
-                   // overlay.style.display = 'block';
                     operatorDropdown.setAttribute('required', true);
-//
                     confirmSubmitBtn.onclick = function () {
                         form.action = "{% url 'common_form_post' %}";
-//
                     };
-//
-                    // Cancel button inside popup
                     cancelPopupBtn.onclick = function () {
                         workflowPopup.style.display = 'none';
-                        //popupOverlay.style.display = 'none';
                     };
-//
+
                 }
 
                 
@@ -1233,20 +1302,14 @@
 
                     const popupD = document.getElementById('categoryPopup');
                     const overlayD = document.getElementById('categoryOverlay');
-
-                    // ✅ Show popup and overlay
                     popupD.style.display = 'block';
                     overlayD.style.display = 'block';
                     categorydropdownDprt.setAttribute('required', true);
 
                     catconfirmSubmitBtn.onclick = function () {
-                        // operatorDropdown.removeAttribute('required');
                         form.action = "{% url 'common_form_action' %}";
 
                     };
-
-                    // Cancel button inside popup
-                    
                     if (catcancelPopupBtn) {
                         debugger;
                         e.preventDefault();
@@ -1301,9 +1364,6 @@
                     fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
                     .then(response => response.json())
                     .then(response_data => {
-
-                    // Simulate fetch or AJAX to get version data
-                    // get_dataVersion().then(response_data => {
                         let tableHtml = '';
                         response_data.data_versions.forEach((row, index) => {
                             tableHtml += `
@@ -1937,40 +1997,1074 @@ document.getElementById('compareButton').addEventListener('click', function () {
 
 </script>
 
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
 
-    function startScan(fieldId) {
-        debugger;
-    Dynamsoft.DWT.GetWebTwain('dwtcontrolContainer', function(obj) {
-        if (obj) {
-            obj.SelectSource();
-            obj.AcquireImage({
-                onSuccess: function () {
-                    let base64 = obj.SaveAsBase64('jpg');
-                    uploadScannedImage(base64, fieldId);
-                },
-                onFailure: function (errorCode, errorString) {
-                    alert("Scan failed: " + errorString);
+{% comment %} <script>
+// Scanner modal HTML with all features
+const scannerModalHTML = `
+<div class="modal fade" id="scannerModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Scanner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- File List Column -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Uploaded Documents</h6>
+                                    <button class="btn btn-sm btn-primary" id="add-more-files">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div id="uploaded-files-list" class="list-group list-group-flush" style="max-height: 500px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Column -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Document Preview</h6>
+                                    <div id="pagination-controls" class="d-none">
+                                        <button class="btn btn-sm btn-outline-secondary" id="prev-page" disabled>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <span class="mx-2" id="page-info">Page 1 of 1</span>
+                                        <button class="btn btn-sm btn-outline-secondary" id="next-page" disabled>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div id="single-preview-container" style="height: 500px; overflow-y: auto; display: flex; justify-content: center; align-items: center;">
+                                        <div class="text-center text-muted py-5" id="no-previews-message">
+                                            <i class="fas fa-file-alt fa-4x mb-3"></i>
+                                            <p>No documents to preview</p>
+                                        </div>
+                                        <div id="current-preview" class="d-none" style="width: 100%; height: 100%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="accept-scan">Accept Documents</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Upload Modal -->
+<div class="modal fade" id="fileUploadModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Documents</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area p-5 text-center border rounded" style="border: 2px dashed #ccc;">
+                    <p><i class="fas fa-file-upload fa-3x mb-3 text-primary"></i></p>
+                    <p>Drag & drop files here or</p>
+                    <button class="btn btn-primary" id="modal-browse-files">
+                        <i class="fas fa-folder-open mr-2"></i>Browse Files
+                    </button>
+                    <input type="file" id="modal-file-upload-input" accept=".pdf,.jpg,.jpeg,.png,.tiff" 
+                           style="display: none;" multiple>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+
+// Add the modal to your page
+document.body.insertAdjacentHTML('beforeend', scannerModalHTML);
+
+// Scanner functionality variables
+let currentScannerTarget = null;
+let allowMultiple = false;
+let scannedDocuments = [];
+let currentDocumentIndex = -1;
+let currentPageIndex = 1;
+let cropper = null;
+
+// Set PDF.js worker path
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+
+// Document class to manage files and their states
+class Document {
+    constructor(file) {
+        this.file = file;
+        this.type = file.type.includes('pdf') ? 'pdf' : 'image';
+        this.totalPages = 1;
+        this.previewGenerated = false;
+        this.pageCache = {};
+    }
+    
+    async loadPDF() {
+        if (this.type !== 'pdf') return;
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const pdf = await pdfjsLib.getDocument(event.target.result).promise;
+                    this.totalPages = pdf.numPages;
+                    this.pdf = pdf;
+                    resolve(pdf);
+                } catch (error) {
+                    reject(error);
                 }
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(this.file);
+        });
+    }
+    
+    async renderPage(pageNum) {
+        if (pageNum < 1 || pageNum > this.totalPages) return null;
+        
+        // Check cache first
+        if (this.pageCache[pageNum]) {
+            return this.pageCache[pageNum];
+        }
+        
+        if (this.type === 'pdf') {
+            if (!this.pdf) await this.loadPDF();
+            const page = await this.pdf.getPage(pageNum);
+            const viewport = page.getViewport({ scale: 1.0 });
+            
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+            
+            // Cache the canvas
+            this.pageCache[pageNum] = canvas;
+            return canvas;
+        } else {
+            // For images
+            return new Promise((resolve) => {
+                const img = document.createElement('img');
+                img.onload = () => {
+                    this.pageCache[1] = img;
+                    resolve(img);
+                };
+                img.src = URL.createObjectURL(this.file);
             });
+        }
+    }
+    
+    async generateAllPreviews() {
+        if (this.previewGenerated) return;
+        
+        if (this.type === 'pdf') {
+            if (!this.pdf) await this.loadPDF();
+            
+            // Pre-render first page for quick display
+            await this.renderPage(1);
+        } else {
+            await this.renderPage(1);
+        }
+        
+        this.previewGenerated = true;
+    }
+}
+
+// Initialize when modal opens
+$('#scannerModal').on('show.bs.modal', function() {
+    // Load existing files from input if any
+    const inputElement = document.getElementById(currentScannerTarget);
+    if (inputElement && inputElement.files.length > 0) {
+        scannedDocuments = Array.from(inputElement.files).map(file => new Document(file));
+        updateFileList();
+        generateAllPreviews();
+    } else {
+        scannedDocuments = [];
+        resetPreviewUI();
+    }
+});
+
+function setupFileUpload() {
+    // Main "Add" button
+    $('#add-more-files').on('click', function() {
+        $('#fileUploadModal').modal('show');
+    });
+    
+    // Modal file upload
+    const uploadArea = $('#fileUploadModal .upload-area');
+    const fileInput = $('#modal-file-upload-input');
+    
+    // Handle drag and drop
+    uploadArea.on('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).css('background', 'rgba(0, 123, 255, 0.1)');
+    });
+    
+    uploadArea.on('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).css('background', '');
+    });
+    
+    uploadArea.on('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).css('background', '');
+        
+        if (e.originalEvent.dataTransfer.files.length) {
+            handleNewFiles(e.originalEvent.dataTransfer.files);
+        }
+    });
+    
+    // Handle browse files button in modal
+    $('#modal-browse-files').on('click', function() {
+        fileInput.val('');
+        fileInput.attr('multiple', allowMultiple);
+        fileInput.click();
+    });
+    
+    // Handle file selection in modal
+    fileInput.on('change', function() {
+        if (this.files && this.files.length) {
+            handleNewFiles(this.files);
         }
     });
 }
 
-function uploadScannedImage(base64Data, fieldId) {
-    const formData = new FormData();
-    formData.append('field_id', fieldId);
-    formData.append('image_data', base64Data);
-
-    fetch('/upload-scanned-file/', {
-        method: 'POST',
-        body: formData
-    }).then(response => response.json())
-      .then(data => {
-          alert("Upload successful");
-      }).catch(err => alert("Upload failed"));
+function handleNewFiles(files) {
+    Array.from(files).forEach(file => {
+        // Check if file already exists
+        const fileExists = scannedDocuments.some(
+            doc => doc.file.name === file.name && doc.file.size === file.size
+        );
+        
+        if (!fileExists) {
+            scannedDocuments.push(new Document(file));
+        }
+    });
+    
+    updateFileList();
+    $('#fileUploadModal').modal('hide');
+    generateAllPreviews();
 }
 
+function updateFileList() {
+    const filesList = $('#uploaded-files-list');
+    filesList.empty();
+    
+    if (scannedDocuments.length === 0) {
+        filesList.append(`
+            <div class="list-group-item text-center text-muted">
+                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                <p>No documents added</p>
+            </div>
+        `);
+        return;
+    }
+    
+    scannedDocuments.forEach((doc, index) => {
+        const activeClass = index === currentDocumentIndex ? 'active' : '';
+        const pageInfo = doc.type === 'pdf' ? ` (${doc.totalPages} pages)` : '';
+        
+        filesList.append(`
+            <div class="list-group-item list-group-item-action ${activeClass} file-item" data-index="${index}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fas ${doc.type === 'pdf' ? 'fa-file-pdf text-danger' : 'fa-file-image text-primary'} mr-2"></i>
+                        <span>${doc.file.name}</span>
+                        <small class="text-muted">${pageInfo}</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+    
+    // Set up file item click handler
+    $('.file-item').on('click', function() {
+        const index = $(this).data('index');
+        currentDocumentIndex = index;
+        currentPageIndex = 1; // Reset to first page when changing document
+        $('.file-item').removeClass('active');
+        $(this).addClass('active');
+        updateCurrentPreview();
+    });
+    
+    // Set up remove file buttons
+    $('.remove-file').on('click', function(e) {
+        e.stopPropagation();
+        const index = $(this).data('index');
+        scannedDocuments.splice(index, 1);
+        
+        // Adjust current document index if needed
+        if (currentDocumentIndex === index) {
+            currentDocumentIndex = -1;
+            currentPageIndex = 1;
+        } else if (currentDocumentIndex > index) {
+            currentDocumentIndex--;
+        }
+        
+        updateFileList();
+        generateAllPreviews();
+    });
+}
+
+async function generateAllPreviews() {
+    if (scannedDocuments.length === 0) {
+        resetPreviewUI();
+        return;
+    }
+    
+    $('#no-previews-message').hide();
+    $('#current-preview').addClass('d-none');
+    $('#current-preview').html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading preview...</p></div>');
+    $('#current-preview').removeClass('d-none');
+    
+    // Generate previews for all documents
+    const previewPromises = scannedDocuments.map(doc => doc.generateAllPreviews());
+    await Promise.all(previewPromises);
+    
+    // If no document is selected, select the first one
+    if (currentDocumentIndex === -1 && scannedDocuments.length > 0) {
+        currentDocumentIndex = 0;
+        $('.file-item[data-index="0"]').addClass('active');
+    }
+    
+    updateCurrentPreview();
+}
+
+function updateCurrentPreview() {
+    if (currentDocumentIndex === -1 || scannedDocuments.length === 0) {
+        resetPreviewUI();
+        return;
+    }
+    
+    const doc = scannedDocuments[currentDocumentIndex];
+    
+    // Update pagination controls
+    updatePaginationControls(doc);
+    
+    // Show loading spinner
+    $('#current-preview').html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading page...</p></div>');
+    
+    // Load the current page
+    doc.renderPage(currentPageIndex).then(pageElement => {
+        $('#current-preview').empty();
+        
+        if (pageElement instanceof HTMLCanvasElement) {
+            const img = document.createElement('img');
+            img.src = pageElement.toDataURL();
+            img.style.maxHeight = '100%';
+            img.style.maxWidth = '100%';
+            $('#current-preview').append(img);
+        } else if (pageElement instanceof HTMLImageElement) {
+            const img = document.createElement('img');
+            img.src = pageElement.src;
+            img.style.maxHeight = '100%';
+            img.style.maxWidth = '100%';
+            $('#current-preview').append(img);
+        }
+    }).catch(error => {
+        console.error('Error rendering page:', error);
+        $('#current-preview').html('<div class="alert alert-danger">Error loading page</div>');
+    });
+}
+
+function updatePaginationControls(doc) {
+    const paginationControls = $('#pagination-controls');
+    const pageInfo = $('#page-info');
+    const prevBtn = $('#prev-page');
+    const nextBtn = $('#next-page');
+    
+    if (doc.type === 'pdf' && doc.totalPages > 1) {
+        paginationControls.removeClass('d-none');
+        pageInfo.text(`Page ${currentPageIndex} of ${doc.totalPages}`);
+        
+        prevBtn.prop('disabled', currentPageIndex <= 1);
+        nextBtn.prop('disabled', currentPageIndex >= doc.totalPages);
+    } else {
+        paginationControls.addClass('d-none');
+    }
+}
+
+function resetPreviewUI() {
+    $('#current-preview').addClass('d-none').empty();
+    $('#no-previews-message').show();
+    $('#pagination-controls').addClass('d-none');
+    currentDocumentIndex = -1;
+    currentPageIndex = 1;
+}
+
+// Pagination event handlers
+$('#prev-page').on('click', function() {
+    if (currentDocumentIndex === -1) return;
+    
+    const doc = scannedDocuments[currentDocumentIndex];
+    if (currentPageIndex > 1) {
+        currentPageIndex--;
+        updateCurrentPreview();
+    }
+});
+
+$('#next-page').on('click', function() {
+    if (currentDocumentIndex === -1) return;
+    
+    const doc = scannedDocuments[currentDocumentIndex];
+    if (currentPageIndex < doc.totalPages) {
+        currentPageIndex++;
+        updateCurrentPreview();
+    }
+});
+
+// Accept scan handler
+$('#accept-scan').on('click', function() {
+    if (!currentScannerTarget || scannedDocuments.length === 0) return;
+    
+    const inputElement = document.getElementById(currentScannerTarget);
+    const dataTransfer = new DataTransfer();
+    
+    // Add all document files to transfer object
+    scannedDocuments.forEach(doc => {
+        dataTransfer.items.add(doc.file);
+    });
+    
+    // Assign files to input
+    inputElement.files = dataTransfer.files;
+    
+    // Trigger change event
+    const event = new Event('change', { bubbles: true });
+    inputElement.dispatchEvent(event);
+    
+    // Close modal
+    $('#scannerModal').modal('hide');
+});
+
+// Initialize when page loads
+$(document).ready(function() {
+    setupFileUpload();
+});
+
+// Clean up when modals close
+$('#scannerModal').on('hidden.bs.modal', function() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    
+    // Clean up object URLs
+    scannedDocuments.forEach(doc => {
+        if (doc.type === 'image' && doc.pageCache[1]) {
+            URL.revokeObjectURL(doc.pageCache[1].src);
+        }
+    });
+});
+
+// Public function to initiate scanning
+window.initiateScan = function(targetId, multiple = false) {
+    currentScannerTarget = targetId;
+    allowMultiple = multiple;
+    $('#scannerModal').modal('show');
+};
+</script> {% endcomment %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+
+<script>
+// Scanner functionality class
+class DocumentScanner {
+    constructor(targetId, allowMultiple) {
+        this.targetId = targetId;
+        this.allowMultiple = allowMultiple;
+        this.scannedDocuments = [];
+        this.currentDocumentIndex = -1;
+        this.currentPageIndex = 1;
+        this.modalId = `scannerModal_${targetId}`;
+        this.cropperModalId = `cropperModal_${targetId}`;
+        this.fileUploadModalId = `fileUploadModal_${targetId}`;
+        this.cropper = null;
+        
+        this.initModal();
+    }
+    
+    initModal() {
+        // Create unique modal HTML for this instance
+        const modalHTML = `
+<div class="modal fade" id="${this.modalId}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Scanner</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- File List Column -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Uploaded Documents</h6>
+                                    <button class="btn btn-sm btn-primary add-more-files">
+                                        <i class="fas fa-plus"></i> Add
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="uploaded-files-list list-group list-group-flush" style="max-height: 500px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Column -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Document Preview</h6>
+                                    <div class="pagination-controls d-none">
+                                        <button class="btn btn-sm btn-outline-secondary prev-page" disabled>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <span class="mx-2 page-info">Page 1 of 1</span>
+                                        <button class="btn btn-sm btn-outline-secondary next-page" disabled>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="single-preview-container" style="height: 500px; overflow-y: auto; display: flex; justify-content: center; align-items: center;">
+                                        <div class="text-center text-muted py-5 no-previews-message">
+                                            <i class="fas fa-file-alt fa-4x mb-3"></i>
+                                            <p>No documents to preview</p>
+                                        </div>
+                                        <div class="current-preview d-none" style="width: 100%; height: 100%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary accept-scan">Accept Documents</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Upload Modal -->
+<div class="modal fade" id="${this.fileUploadModalId}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Documents</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area p-5 text-center border rounded" style="border: 2px dashed #ccc;">
+                    <p><i class="fas fa-file-upload fa-3x mb-3 text-primary"></i></p>
+                    <p>Drag & drop files here or</p>
+                    <button class="btn btn-primary modal-browse-files">
+                        <i class="fas fa-folder-open mr-2"></i>Browse Files
+                    </button>
+                    <input type="file" class="modal-file-upload-input" accept=".pdf,.jpg,.jpeg,.png,.tiff" 
+                           style="display: none;" ${this.allowMultiple ? 'multiple' : ''}>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+        `;
+        
+        // Add the modal to the page if it doesn't exist
+        if (!document.getElementById(this.modalId)) {
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            this.setupEventHandlers();
+        }
+    }
+    
+    setupEventHandlers() {
+        const self = this;
+        
+        // File upload setup
+        $(`#${this.modalId} .add-more-files`).on('click', function() {
+            $(`#${self.fileUploadModalId}`).modal('show');
+        });
+        
+        // Modal file upload
+        const uploadArea = $(`#${this.fileUploadModalId} .upload-area`);
+        const fileInput = $(`#${this.fileUploadModalId} .modal-file-upload-input`);
+        
+        // Handle drag and drop
+        uploadArea.on('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css('background', 'rgba(0, 123, 255, 0.1)');
+        });
+        
+        uploadArea.on('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css('background', '');
+        });
+        
+        uploadArea.on('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).css('background', '');
+            
+            if (e.originalEvent.dataTransfer.files.length) {
+                self.handleNewFiles(e.originalEvent.dataTransfer.files);
+            }
+        });
+        
+        // Handle browse files button in modal
+        $(`#${this.fileUploadModalId} .modal-browse-files`).on('click', function() {
+            fileInput.val('');
+            fileInput.click();
+        });
+        
+        // Handle file selection in modal
+        fileInput.on('change', function() {
+            if (this.files && this.files.length) {
+                self.handleNewFiles(this.files);
+            }
+        });
+        
+        // File list item click
+        $(`#${this.modalId}`).on('click', '.file-item', function() {
+            const index = $(this).data('index');
+            self.currentDocumentIndex = index;
+            self.currentPageIndex = 1;
+            $(`#${self.modalId} .file-item`).removeClass('active');
+            $(this).addClass('active');
+            self.updateCurrentPreview();
+        });
+        
+        // Remove file button
+        $(`#${this.modalId}`).on('click', '.remove-file', function(e) {
+            e.stopPropagation();
+            const index = $(this).data('index');
+            self.scannedDocuments.splice(index, 1);
+            
+            // Adjust current document index if needed
+            if (self.currentDocumentIndex === index) {
+                self.currentDocumentIndex = -1;
+                self.currentPageIndex = 1;
+            } else if (self.currentDocumentIndex > index) {
+                self.currentDocumentIndex--;
+            }
+            
+            self.updateFileList();
+            self.generateAllPreviews();
+        });
+        
+        // Pagination controls
+        $(`#${this.modalId} .prev-page`).on('click', function() {
+            if (self.currentDocumentIndex === -1) return;
+            
+            const doc = self.scannedDocuments[self.currentDocumentIndex];
+            if (self.currentPageIndex > 1) {
+                self.currentPageIndex--;
+                self.updateCurrentPreview();
+            }
+        });
+        
+        $(`#${this.modalId} .next-page`).on('click', function() {
+            if (self.currentDocumentIndex === -1) return;
+            
+            const doc = self.scannedDocuments[self.currentDocumentIndex];
+            if (self.currentPageIndex < doc.totalPages) {
+                self.currentPageIndex++;
+                self.updateCurrentPreview();
+            }
+        });
+        
+        // Accept scan handler
+        $(`#${this.modalId} .accept-scan`).on('click', function() {
+            if (!self.targetId || self.scannedDocuments.length === 0) return;
+            
+            const inputElement = document.getElementById(self.targetId);
+            const dataTransfer = new DataTransfer();
+            
+            // Add all document files to transfer object
+            self.scannedDocuments.forEach(doc => {
+                dataTransfer.items.add(doc.file);
+            });
+            
+            // Assign files to input
+            inputElement.files = dataTransfer.files;
+            
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            inputElement.dispatchEvent(event);
+            
+            // Close modal
+            $(`#${self.modalId}`).modal('hide');
+        });
+        
+        // Clean up when modal closes
+        $(`#${self.modalId}`).on('hidden.bs.modal', function() {
+            if (self.cropper) {
+                self.cropper.destroy();
+                self.cropper = null;
+            }
+            
+            // Clean up object URLs
+            self.scannedDocuments.forEach(doc => {
+                if (doc.type === 'image' && doc.pageCache[1]) {
+                    URL.revokeObjectURL(doc.pageCache[1].src);
+                }
+            });
+        });
+        
+        // Reset when file upload modal closes
+        $(`#${self.fileUploadModalId}`).on('hidden.bs.modal', function() {
+            fileInput.val('');
+        });
+    }
+    
+    show() {
+        // Reset the scanner state
+        this.scannedDocuments = [];
+        this.currentDocumentIndex = -1;
+        this.currentPageIndex = 1;
+        
+        // Load existing files from input if any
+        const inputElement = document.getElementById(this.targetId);
+        if (inputElement && inputElement.files.length > 0) {
+            Array.from(inputElement.files).forEach(file => {
+                this.scannedDocuments.push(new this.Document(file));
+            });
+            
+            if (this.scannedDocuments.length > 0) {
+                this.currentDocumentIndex = 0;
+            }
+        }
+        
+        this.updateFileList();
+        this.generateAllPreviews();
+        $(`#${this.modalId}`).modal('show');
+    }
+    
+    // Document class to manage files and their states
+    Document = class {
+        constructor(file) {
+            this.file = file;
+            this.type = file.type.includes('pdf') ? 'pdf' : 'image';
+            this.totalPages = 1;
+            this.previewGenerated = false;
+            this.pageCache = {};
+        }
+        
+        async loadPDF() {
+            if (this.type !== 'pdf') return;
+            
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const pdf = await pdfjsLib.getDocument(event.target.result).promise;
+                        this.totalPages = pdf.numPages;
+                        this.pdf = pdf;
+                        resolve(pdf);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(this.file);
+            });
+        }
+        
+        async renderPage(pageNum) {
+            if (pageNum < 1 || pageNum > this.totalPages) return null;
+            
+            // Check cache first
+            if (this.pageCache[pageNum]) {
+                return this.pageCache[pageNum];
+            }
+            
+            if (this.type === 'pdf') {
+                if (!this.pdf) await this.loadPDF();
+                const page = await this.pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 1.0 });
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+                
+                // Cache the canvas
+                this.pageCache[pageNum] = canvas;
+                return canvas;
+            } else {
+                // For images
+                return new Promise((resolve) => {
+                    const img = document.createElement('img');
+                    img.onload = () => {
+                        this.pageCache[1] = img;
+                        resolve(img);
+                    };
+                    img.src = URL.createObjectURL(this.file);
+                });
+            }
+        }
+        
+        async generateAllPreviews() {
+            if (this.previewGenerated) return;
+            
+            if (this.type === 'pdf') {
+                if (!this.pdf) await this.loadPDF();
+                
+                // Pre-render first page for quick display
+                await this.renderPage(1);
+            } else {
+                await this.renderPage(1);
+            }
+            
+            this.previewGenerated = true;
+        }
+    }
+    
+    handleNewFiles(files) {
+        const self = this;
+        Array.from(files).forEach(file => {
+            // Check if file already exists
+            const fileExists = self.scannedDocuments.some(
+                doc => doc.file.name === file.name && doc.file.size === file.size
+            );
+            
+            if (!fileExists) {
+                self.scannedDocuments.push(new self.Document(file));
+            }
+        });
+        
+        self.updateFileList();
+        $(`#${self.fileUploadModalId}`).modal('hide');
+        self.generateAllPreviews();
+    }
+    
+    updateFileList() {
+        const filesList = $(`#${this.modalId} .uploaded-files-list`);
+        filesList.empty();
+        
+        if (this.scannedDocuments.length === 0) {
+            filesList.append(`
+                <div class="list-group-item text-center text-muted">
+                    <i class="fas fa-file-alt fa-2x mb-2"></i>
+                    <p>No documents added</p>
+                </div>
+            `);
+            return;
+        }
+        
+        this.scannedDocuments.forEach((doc, index) => {
+            const activeClass = index === this.currentDocumentIndex ? 'active' : '';
+            const pageInfo = doc.type === 'pdf' ? ` (${doc.totalPages} pages)` : '';
+            
+            filesList.append(`
+                <div class="list-group-item list-group-item-action ${activeClass} file-item" data-index="${index}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas ${doc.type === 'pdf' ? 'fa-file-pdf text-danger' : 'fa-file-image text-primary'} mr-2"></i>
+                            <span>${doc.file.name}</span>
+                            <small class="text-muted">${pageInfo}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+        
+        // If no document is selected, select the first one
+        if (this.currentDocumentIndex === -1 && this.scannedDocuments.length > 0) {
+            this.currentDocumentIndex = 0;
+            $(`#${this.modalId} .file-item[data-index="0"]`).addClass('active');
+        }
+    }
+    
+    async generateAllPreviews() {
+        if (this.scannedDocuments.length === 0) {
+            this.resetPreviewUI();
+            return;
+        }
+        
+        $(`#${this.modalId} .no-previews-message`).hide();
+        $(`#${this.modalId} .current-preview`).addClass('d-none');
+        $(`#${this.modalId} .current-preview`).html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading preview...</p></div>');
+        $(`#${this.modalId} .current-preview`).removeClass('d-none');
+        
+        // Generate previews for all documents
+        const previewPromises = this.scannedDocuments.map(doc => doc.generateAllPreviews());
+        await Promise.all(previewPromises);
+        
+        this.updateCurrentPreview();
+    }
+    
+    updateCurrentPreview() {
+    if (this.currentDocumentIndex === -1 || this.scannedDocuments.length === 0) {
+        this.resetPreviewUI();
+        return;
+    }
+
+    const doc = this.scannedDocuments[this.currentDocumentIndex];
+    
+    // Update pagination controls
+    this.updatePaginationControls(doc);
+    
+    // Show loading spinner
+    $(`#${this.modalId} .current-preview`).html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading page...</p></div>');
+    
+    // Load the current page
+    doc.renderPage(this.currentPageIndex).then(pageElement => {
+        const previewContainer = $(`#${this.modalId} .current-preview`);
+        previewContainer.empty();
+        
+        if (pageElement instanceof HTMLCanvasElement) {
+            const container = document.createElement('div');
+            container.style.width = '100%';
+            container.style.height = '100%';
+            container.style.overflow = 'auto';
+            container.style.padding = '20px';
+            container.style.backgroundColor = '#f8f9fa'; // Light gray background like first image
+            container.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)'; // Subtle shadow
+            
+            const img = document.createElement('img');
+            img.src = pageElement.toDataURL();
+            img.style.width = 'auto';  // Let image determine its own width
+            img.style.maxWidth = '100%'; // But constrain to container
+            img.style.height = 'auto';
+            img.style.display = 'block';
+            img.style.margin = '0 auto'; // Center horizontally
+            img.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)'; // Subtle shadow on content
+            
+            container.appendChild(img);
+            previewContainer.append(container);
+            
+            // Set container styles
+            previewContainer.css({
+                'overflow': 'hidden', // Container won't scroll, inner div will
+                'background-color': 'transparent',
+                'padding': '0',
+                'display': 'flex',
+                'justify-content': 'center',
+                'align-items': 'flex-start' // Align to top
+            });
+            
+        } else if (pageElement instanceof HTMLImageElement) {
+            const img = document.createElement('img');
+            img.src = pageElement.src;
+            img.style.width = 'auto';
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+            img.style.display = 'block';
+            img.style.margin = '0 auto';
+            previewContainer.append(img);
+        }
+    }).catch(error => {
+        console.error('Error rendering page:', error);
+        $(`#${this.modalId} .current-preview`).html('<div class="alert alert-danger">Error loading page</div>');
+    });
+}
+    
+    updatePaginationControls(doc) {
+        const paginationControls = $(`#${this.modalId} .pagination-controls`);
+        const pageInfo = $(`#${this.modalId} .page-info`);
+        const prevBtn = $(`#${this.modalId} .prev-page`);
+        const nextBtn = $(`#${this.modalId} .next-page`);
+        
+        if (doc.type === 'pdf' && doc.totalPages > 1) {
+            paginationControls.removeClass('d-none');
+            pageInfo.text(`Page ${this.currentPageIndex} of ${doc.totalPages}`);
+            
+            prevBtn.prop('disabled', this.currentPageIndex <= 1);
+            nextBtn.prop('disabled', this.currentPageIndex >= doc.totalPages);
+        } else {
+            paginationControls.addClass('d-none');
+        }
+    }
+    
+    resetPreviewUI() {
+        $(`#${this.modalId} .current-preview`).addClass('d-none').empty();
+        $(`#${this.modalId} .no-previews-message`).show();
+        $(`#${this.modalId} .pagination-controls`).addClass('d-none');
+        this.currentDocumentIndex = -1;
+        this.currentPageIndex = 1;
+    }
+}
+
+// Set PDF.js worker path
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+
+// Scanner instances cache
+const scannerInstances = {};
+
+// Public function to initiate scanning
+window.initiateScan = function(targetId, allowMultiple = false) {
+    // Create or reuse scanner instance for this target
+    if (!scannerInstances[targetId]) {
+        scannerInstances[targetId] = new DocumentScanner(targetId, allowMultiple);
+    }
+    
+    // Update multiple setting in case it changed
+    scannerInstances[targetId].allowMultiple = allowMultiple;
+    
+    // Show the scanner
+    scannerInstances[targetId].show();
+};
 </script>
 
 

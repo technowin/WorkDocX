@@ -122,7 +122,7 @@ textarea:focus,
 }
 
 /* Eye Icon (e.g., for password toggle) */
-.eye-icon {
+.fa-file {
   color: var(--ct-primary);
   font-size: 1.25rem;
   position: absolute;
@@ -134,7 +134,7 @@ textarea:focus,
   cursor: pointer;
 }
 
-.eye-icon:hover {
+.fa-file:hover {
   font-size: 1.5rem;
   color: var(--ct-link-hover-color); /* fallback if not defined */
   text-shadow: 0 0 8px rgba(13, 110, 253, 0.5); /* Bootstrap primary glow */
