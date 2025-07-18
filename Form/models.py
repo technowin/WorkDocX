@@ -255,6 +255,7 @@ class WorkflowVersionControl(models.Model):
     form_data =  models.ForeignKey('Form.FormData',null=True, blank=True, on_delete=models.CASCADE, related_name='form_data_version_id')
     file_name = models.TextField(null=True, blank=True)
     version_no = models.FloatField(null=True, blank=True)
+    workflow_id = models.IntegerField(null=True,blank=True)
     temp_version = models.FloatField(null=True, blank=True)
     baseline_date = models.DateTimeField(auto_now_add=False, null=True, blank=True)
     modified_by = models.TextField(null=True, blank=True)
