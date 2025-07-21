@@ -457,7 +457,7 @@
 
 
 <br/>
-{% if role_id != '2' %}
+{% comment %} {% if role_id != '2' %}
     {% if type != 'reference' %}
         {% for section_name, fields in sectioned_fields.items %}
             {% for field in fields %}
@@ -491,7 +491,6 @@
                                                         {% if ".pdf" in file_url %}
                                                         <iframe src="{{ file.url }}#toolbar=0&navpanes=0&scrollbar=0"
                                                              width="100%" height="500px" style="border: none;"></iframe>
-                                                        {% comment %} <iframe src="{{ file.url }}" width="100%" height="400px"></iframe> {% endcomment %}
                                                         {% elif ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".webp" in file_url %}
                                                             <img src="{{ file.url }}" class="img-fluid" alt="File preview" style="max-height: 400px;" />
                                                         {% elif ".xls" in file_url or ".xlsx" in file_url %}
@@ -508,7 +507,7 @@
 
                                 {% if forloop.counter|divisibleby:2 or forloop.last %}
                                 <br/>
-                                </div>  {# Close the row after 2 items or on the last one #}
+                                </div>  
                             {% endif %}
                         {% endfor %}
                         </div>
@@ -517,7 +516,7 @@
             {% endfor %}
         {% endfor %}
     {% endif %}
-{% endif %}
+{% endif %} {% endcomment %}
 
 <br/>
 {% if grouped_data %}
@@ -1613,502 +1612,6 @@ document.getElementById('compareButton').addEventListener('click', function () {
 <script src="https://cdn.jsdelivr.net/npm/fernet@0.3.2/fernet.min.js"></script>
 
 
-{% comment %} <script>
-// Scanner functionality class
-class DocumentScanner {
-    constructor(targetId, allowMultiple) {
-        this.targetId = targetId;
-        this.allowMultiple = allowMultiple;
-        this.scannedDocuments = [];
-        this.currentDocumentIndex = -1;
-        this.currentPageIndex = 1;
-        this.modalId = `scannerModal_${targetId}`;
-        this.cropperModalId = `cropperModal_${targetId}`;
-        this.cropper = null;
-        
-        this.initModal();
-    }
-    
-    initModal() {
-        // Create unique modal HTML for this instance
-        const modalHTML = `
-<div class="modal fade" id="${this.modalId}" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Document Scanner</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <div class="row">
-                        <!-- File List Column -->
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">Uploaded Documents</h6>
-                                    <button class="btn btn-sm btn-primary add-more-files">
-                                        <i class="fas fa-plus"></i> Add
-                                    </button>
-                                    <input type="file" class="d-none file-upload-input" accept=".pdf,.jpg,.jpeg,.png,.tiff" 
-                                           ${this.allowMultiple ? 'multiple' : ''}>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="uploaded-files-list list-group list-group-flush" style="max-height: 500px; overflow-y: auto;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Preview Column -->
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">Document Preview</h6>
-                                    <div class="pagination-controls d-none">
-                                        <button class="btn btn-sm btn-outline-secondary prev-page" disabled>
-                                            <i class="fas fa-chevron-left"></i>
-                                        </button>
-                                        <span class="mx-2 page-info">Page 1 of 1</span>
-                                        <button class="btn btn-sm btn-outline-secondary next-page" disabled>
-                                            <i class="fas fa-chevron-right"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="single-preview-container" style="height: 500px; overflow-y: auto; display: flex; justify-content: center; align-items: center;">
-                                        <div class="text-center text-muted py-5 no-previews-message">
-                                            <i class="fas fa-file-alt fa-4x mb-3"></i>
-                                            <p>No documents to preview</p>
-                                        </div>
-                                        <div class="current-preview d-none" style="width: 100%; height: 100%;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary accept-scan">Accept Documents</button>
-            </div>
-        </div>
-    </div>
-</div>
-        `;
-        
-        // Add the modal to the page if it doesn't exist
-        if (!document.getElementById(this.modalId)) {
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            this.setupEventHandlers();
-        }
-    }
-    
-    setupEventHandlers() {
-        const self = this;
-        const fileInput = $(`#${this.modalId} .file-upload-input`);
-        
-        // File upload setup - directly trigger file input
-        $(`#${this.modalId} .add-more-files`).on('click', function() {
-            fileInput.val('');
-            fileInput.click();
-        });
-        
-        // Handle file selection
-        fileInput.on('change', function() {
-            if (this.files && this.files.length) {
-                self.handleNewFiles(this.files);
-            }
-        });
-        
-        // File list item click
-        $(`#${this.modalId}`).on('click', '.file-item', function() {
-            const index = $(this).data('index');
-            self.currentDocumentIndex = index;
-            self.currentPageIndex = 1;
-            $(`#${self.modalId} .file-item`).removeClass('active');
-            $(this).addClass('active');
-            self.updateCurrentPreview();
-        });
-        
-        // Remove file button
-        $(`#${this.modalId}`).on('click', '.remove-file', function(e) {
-            e.stopPropagation();
-            const index = $(this).data('index');
-            self.scannedDocuments.splice(index, 1);
-            
-            // Adjust current document index if needed
-            if (self.currentDocumentIndex === index) {
-                self.currentDocumentIndex = -1;
-                self.currentPageIndex = 1;
-            } else if (self.currentDocumentIndex > index) {
-                self.currentDocumentIndex--;
-            }
-            
-            self.updateFileList();
-            self.generateAllPreviews();
-        });
-        
-        // Pagination controls
-        $(`#${this.modalId} .prev-page`).on('click', function() {
-            if (self.currentDocumentIndex === -1) return;
-            
-            const doc = self.scannedDocuments[self.currentDocumentIndex];
-            if (self.currentPageIndex > 1) {
-                self.currentPageIndex--;
-                self.updateCurrentPreview();
-            }
-        });
-        
-        $(`#${this.modalId} .next-page`).on('click', function() {
-            if (self.currentDocumentIndex === -1) return;
-            
-            const doc = self.scannedDocuments[self.currentDocumentIndex];
-            if (self.currentPageIndex < doc.totalPages) {
-                self.currentPageIndex++;
-                self.updateCurrentPreview();
-            }
-        });
-        
-        // Accept scan handler
-        $(`#${this.modalId} .accept-scan`).on('click', function() {
-            if (!self.targetId || self.scannedDocuments.length === 0) return;
-            
-            const inputElement = document.getElementById(self.targetId);
-            const dataTransfer = new DataTransfer();
-            
-            // Add all document files to transfer object
-            self.scannedDocuments.forEach(doc => {
-                dataTransfer.items.add(doc.file);
-            });
-            
-            // Assign files to input
-            inputElement.files = dataTransfer.files;
-            
-            // Trigger change event
-            const event = new Event('change', { bubbles: true });
-            inputElement.dispatchEvent(event);
-            
-            // Close modal
-            $(`#${self.modalId}`).modal('hide');
-        });
-        
-        // Clean up when modal closes
-        $(`#${self.modalId}`).on('hidden.bs.modal', function() {
-            if (self.cropper) {
-                self.cropper.destroy();
-                self.cropper = null;
-            }
-            
-            // Clean up object URLs
-            self.scannedDocuments.forEach(doc => {
-                if (doc.type === 'image' && doc.pageCache[1]) {
-                    URL.revokeObjectURL(doc.pageCache[1].src);
-                }
-            });
-        });
-    }
-    
-    show() {
-        // Reset the scanner state
-        this.scannedDocuments = [];
-        this.currentDocumentIndex = -1;
-        this.currentPageIndex = 1;
-        
-        // Load existing files from input if any
-        const inputElement = document.getElementById(this.targetId);
-        if (inputElement && inputElement.files.length > 0) {
-            Array.from(inputElement.files).forEach(file => {
-                this.scannedDocuments.push(new this.Document(file));
-            });
-            
-            if (this.scannedDocuments.length > 0) {
-                this.currentDocumentIndex = 0;
-            }
-        }
-        
-        this.updateFileList();
-        this.generateAllPreviews();
-        $(`#${this.modalId}`).modal('show');
-    }
-    
-    // Document class to manage files and their states
-    Document = class {
-        constructor(file) {
-            this.file = file;
-            this.type = file.type.includes('pdf') ? 'pdf' : 'image';
-            this.totalPages = 1;
-            this.previewGenerated = false;
-            this.pageCache = {};
-        }
-        
-        async loadPDF() {
-            if (this.type !== 'pdf') return;
-            
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    try {
-                        const pdf = await pdfjsLib.getDocument(event.target.result).promise;
-                        this.totalPages = pdf.numPages;
-                        this.pdf = pdf;
-                        resolve(pdf);
-                    } catch (error) {
-                        reject(error);
-                    }
-                };
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(this.file);
-            });
-        }
-        
-        async renderPage(pageNum) {
-            if (pageNum < 1 || pageNum > this.totalPages) return null;
-            
-            // Check cache first
-            if (this.pageCache[pageNum]) {
-                return this.pageCache[pageNum];
-            }
-            
-            if (this.type === 'pdf') {
-                if (!this.pdf) await this.loadPDF();
-                const page = await this.pdf.getPage(pageNum);
-                const viewport = page.getViewport({ scale: 1.0 });
-                
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                
-                await page.render({
-                    canvasContext: context,
-                    viewport: viewport
-                }).promise;
-                
-                // Cache the canvas
-                this.pageCache[pageNum] = canvas;
-                return canvas;
-            } else {
-                // For images
-                return new Promise((resolve) => {
-                    const img = document.createElement('img');
-                    img.onload = () => {
-                        this.pageCache[1] = img;
-                        resolve(img);
-                    };
-                    img.src = URL.createObjectURL(this.file);
-                });
-            }
-        }
-        
-        async generateAllPreviews() {
-            if (this.previewGenerated) return;
-            
-            if (this.type === 'pdf') {
-                if (!this.pdf) await this.loadPDF();
-                
-                // Pre-render first page for quick display
-                await this.renderPage(1);
-            } else {
-                await this.renderPage(1);
-            }
-            
-            this.previewGenerated = true;
-        }
-    }
-    
-    handleNewFiles(files) {
-        const self = this;
-        Array.from(files).forEach(file => {
-            // Check if file already exists
-            const fileExists = self.scannedDocuments.some(
-                doc => doc.file.name === file.name && doc.file.size === file.size
-            );
-            
-            if (!fileExists) {
-                self.scannedDocuments.push(new self.Document(file));
-            }
-        });
-        
-        self.updateFileList();
-        self.generateAllPreviews();
-    }
-    
-    updateFileList() {
-        const filesList = $(`#${this.modalId} .uploaded-files-list`);
-        filesList.empty();
-        
-        if (this.scannedDocuments.length === 0) {
-            filesList.append(`
-                <div class="list-group-item text-center text-muted">
-                    <i class="fas fa-file-alt fa-2x mb-2"></i>
-                    <p>No documents added</p>
-                </div>
-            `);
-            return;
-        }
-        
-        this.scannedDocuments.forEach((doc, index) => {
-            const activeClass = index === this.currentDocumentIndex ? 'active' : '';
-            const pageInfo = doc.type === 'pdf' ? ` (${doc.totalPages} pages)` : '';
-            
-            filesList.append(`
-                <div class="list-group-item list-group-item-action ${activeClass} file-item" data-index="${index}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fas ${doc.type === 'pdf' ? 'fa-file-pdf text-danger' : 'fa-file-image text-primary'} mr-2"></i>
-                            <span>${doc.file.name}</span>
-                            <small class="text-muted">${pageInfo}</small>
-                        </div>
-                        <div>
-                            <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `);
-        });
-        
-        // If no document is selected, select the first one
-        if (this.currentDocumentIndex === -1 && this.scannedDocuments.length > 0) {
-            this.currentDocumentIndex = 0;
-            $(`#${this.modalId} .file-item[data-index="0"]`).addClass('active');
-        }
-    }
-    
-    async generateAllPreviews() {
-        if (this.scannedDocuments.length === 0) {
-            this.resetPreviewUI();
-            return;
-        }
-        
-        $(`#${this.modalId} .no-previews-message`).hide();
-        $(`#${this.modalId} .current-preview`).addClass('d-none');
-        $(`#${this.modalId} .current-preview`).html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading preview...</p></div>');
-        $(`#${this.modalId} .current-preview`).removeClass('d-none');
-        
-        // Generate previews for all documents
-        const previewPromises = this.scannedDocuments.map(doc => doc.generateAllPreviews());
-        await Promise.all(previewPromises);
-        
-        this.updateCurrentPreview();
-    }
-    
-    updateCurrentPreview() {
-        if (this.currentDocumentIndex === -1 || this.scannedDocuments.length === 0) {
-            this.resetPreviewUI();
-            return;
-        }
-
-        const doc = this.scannedDocuments[this.currentDocumentIndex];
-        
-        // Update pagination controls
-        this.updatePaginationControls(doc);
-        
-        // Show loading spinner
-        $(`#${this.modalId} .current-preview`).html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading page...</p></div>');
-        
-        // Load the current page
-        doc.renderPage(this.currentPageIndex).then(pageElement => {
-            const previewContainer = $(`#${this.modalId} .current-preview`);
-            previewContainer.empty();
-            
-            if (pageElement instanceof HTMLCanvasElement) {
-                const container = document.createElement('div');
-                container.style.width = '100%';
-                container.style.height = '100%';
-                container.style.overflow = 'auto';
-                container.style.padding = '20px';
-                container.style.backgroundColor = '#f8f9fa';
-                container.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-                
-                const img = document.createElement('img');
-                img.src = pageElement.toDataURL();
-                img.style.width = 'auto';
-                img.style.maxWidth = '100%';
-                img.style.height = 'auto';
-                img.style.display = 'block';
-                img.style.margin = '0 auto';
-                img.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
-                
-                container.appendChild(img);
-                previewContainer.append(container);
-                
-                previewContainer.css({
-                    'overflow': 'hidden',
-                    'background-color': 'transparent',
-                    'padding': '0',
-                    'display': 'flex',
-                    'justify-content': 'center',
-                    'align-items': 'flex-start'
-                });
-                
-            } else if (pageElement instanceof HTMLImageElement) {
-                const img = document.createElement('img');
-                img.src = pageElement.src;
-                img.style.width = 'auto';
-                img.style.maxWidth = '100%';
-                img.style.height = 'auto';
-                img.style.display = 'block';
-                img.style.margin = '0 auto';
-                previewContainer.append(img);
-            }
-        }).catch(error => {
-            console.error('Error rendering page:', error);
-            $(`#${this.modalId} .current-preview`).html('<div class="alert alert-danger">Error loading page</div>');
-        });
-    }
-    
-    updatePaginationControls(doc) {
-        const paginationControls = $(`#${this.modalId} .pagination-controls`);
-        const pageInfo = $(`#${this.modalId} .page-info`);
-        const prevBtn = $(`#${this.modalId} .prev-page`);
-        const nextBtn = $(`#${this.modalId} .next-page`);
-        
-        if (doc.type === 'pdf' && doc.totalPages > 1) {
-            paginationControls.removeClass('d-none');
-            pageInfo.text(`Page ${this.currentPageIndex} of ${doc.totalPages}`);
-            
-            prevBtn.prop('disabled', this.currentPageIndex <= 1);
-            nextBtn.prop('disabled', this.currentPageIndex >= doc.totalPages);
-        } else {
-            paginationControls.addClass('d-none');
-        }
-    }
-    
-    resetPreviewUI() {
-        $(`#${this.modalId} .current-preview`).addClass('d-none').empty();
-        $(`#${this.modalId} .no-previews-message`).show();
-        $(`#${this.modalId} .pagination-controls`).addClass('d-none');
-        this.currentDocumentIndex = -1;
-        this.currentPageIndex = 1;
-    }
-}
-
-// Set PDF.js worker path
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
-
-// Scanner instances cache
-const scannerInstances = {};
-
-// Public function to initiate scanning
-window.initiateScan = function(targetId, allowMultiple = false) {
-    // Create or reuse scanner instance for this target
-    if (!scannerInstances[targetId]) {
-        scannerInstances[targetId] = new DocumentScanner(targetId, allowMultiple);
-    }
-    
-    // Update multiple setting in case it changed
-    scannerInstances[targetId].allowMultiple = allowMultiple;
-    
-    // Show the scanner
-    scannerInstances[targetId].show();
-};
-</script> {% endcomment %}
-
 <script>
 // Scanner functionality class
 class DocumentScanner {
@@ -2149,9 +1652,11 @@ class DocumentScanner {
                             <div class="card">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">Uploaded Documents</h6>
-                                    <button class="btn btn-sm btn-primary add-more-files">
-                                        <i class="fas fa-plus"></i> Add
-                                    </button>
+                                    {% if readonlyWF != '1' and viewStepWFSeq != '3' %}
+                                        <button class="btn btn-sm btn-primary add-more-files">
+                                            <i class="fas fa-plus"></i> Add
+                                        </button>
+                                        {% endif %}
                                     <input type="file" class="d-none file-upload-input"  
                                            ${this.allowMultiple ? 'multiple' : ''}>
                                 </div>
@@ -2191,8 +1696,10 @@ class DocumentScanner {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            {% if readonlyWF != '1' and viewStepWFSeq != '3' %}
                 <button type="button" class="btn btn-primary accept-scan">Accept Documents</button>
+            {% endif %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
