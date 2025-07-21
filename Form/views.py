@@ -2581,10 +2581,10 @@ def get_uploaded_files(request):
             full_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, cleaned_path))
             exists = os.path.exists(full_path)
 
-            file_id = enc(str(f.id))  # Use current file's ID
+            file_id = str(f.id)
 
             if exists:
-                encrypted_url = enc(f.file_path)
+                encrypted_url = f.file_path
                 status = 1
             else:
                 encrypted_url = ''
@@ -2593,8 +2593,8 @@ def get_uploaded_files(request):
             file_list.append({
                 'name': f.uploaded_name,
                 'status': status,
-                'encrypted_url': encrypted_url,
-                'file_id': file_id  # Correctly encrypted ID for each file
+                'url': encrypted_url,
+                'file_id': file_id  
             })
 
         return JsonResponse({'files': file_list})
@@ -3071,4 +3071,6 @@ def check_file_status(request):
             return JsonResponse({"status": -1, "error": str(e)})
 
     return JsonResponse({"status": -1, "error": "Invalid request method"})
+
+
 
