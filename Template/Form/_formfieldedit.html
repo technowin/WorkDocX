@@ -208,15 +208,6 @@
             {% comment %} <input type="hidden" name="selected_operator" id="hidden_operator_input"> {% endcomment %}
             
 
-            {% comment %} {% if field.field_type == "select"  %}
-                <select class="form-control select" name="field_{{ field.id }}"
-                    {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
-                    <option value="" selected disabled>-- Select --</option>
-                    {% for option in field.values %}
-                        <option value="{{ option }}" {% if option == field.value %} selected {% endif %}>{{ option }}</option>
-                    {% endfor %}
-                </select> {% endcomment %}
-
         {% if field.field_type == "select" %}
     
                 {% if file_no_value %}
@@ -374,12 +365,20 @@
                         {% for attr in field.attributes %} {{ attr }} {% endfor %}
                         {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
 
-                    <!-- File Icon inside input -->
+                    {% if readonlyWF == '1' or viewStepWFSeq == '3' %}
+                    <i class="fa-solid fa-eye eye-icon"
+                            onclick="initiateScan('file_input_{{ field.id }}', true, '{{ field.id }}', '{{ form_data_id }}', '{{ reference_type }}', '{{ type }}')"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 20px; cursor: pointer;"
+                            {% if readonlyWF == '1' or viewStepWFSeq == '3' %} style="pointer-events: none; opacity: 0.6;" {% endif %}>
+                    </i>
+                    {% else %}
+
                     <img src="{% static 'images/file.png' %}"
                         alt="Scan"
                         onclick="initiateScan('file_input_{{ field.id }}', true, '{{ field.id }}', '{{ form_data_id }}', '{{ reference_type }}', '{{ type }}')"
                         style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 20px; cursor: pointer;"
                         {% if readonlyWF == '1' or viewStepWFSeq == '3' %} style="pointer-events: none; opacity: 0.6;" {% endif %}>
+                    {% endif %}
                 </div>
 
 
@@ -1199,12 +1198,13 @@ class DocumentScanner {
 <div class="modal fade" id="${this.modalId}" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Document Scanner</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+          <div class="modal-header d-flex justify-content-between align-items-center">
+            <h5 class="modal-title mb-0">Document Scanner</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+
+
             <div class="modal-body">
                 <div class="container-fluid">
                     <div class="row">
