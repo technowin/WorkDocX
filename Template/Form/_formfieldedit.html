@@ -31,15 +31,52 @@
 <!-- Selectize.js CSS -->
 <link href="{% static 'css/selectize.min.css' %}" rel="stylesheet" type="text/css" >
 <link href="{% static 'css/form_builder.css' %}" rel="stylesheet" type="text/css" >
+
+<!-- PDF.js for PDF preview (optional) -->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
 
 <style>
-      
+.upload-area {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.upload-area:hover {
+    background: rgba(0, 123, 255, 0.05) !important;
+}
+.file-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.file-item:hover {
+    background-color: #f8f9fa !important;
+}
+.file-item.active {
+    background-color: #e9f5ff !important;
+}
+.remove-file {
+    transition: all 0.2s ease;
+}
+.remove-file:hover {
+    transform: scale(1.1);
+}
+#scanner-preview {
+    overflow: auto;
+}
+.cropper-container {
+    margin: 0 auto;
+}
 </style>
 
 <!-- Bootstrap 5 Modal -->
+
 
 
 <div class="modal fade" id="livePreviewModal" tabindex="-1" aria-labelledby="livePreviewModalLabel" aria-hidden="true">
@@ -118,11 +155,16 @@
 
 <div class="row">
 
+    <input type="hidden" name="selected_operator" id="hidden_operator_input">
+    <input type="hidden" id="hiddenCategoryInput" name="category_dropdownOpr">
+
     {% for section_name, fields in sectioned_fields.items %}
     <div class="section-wrapper col-md-12 my-4 p-3 {% if not section_name %}no-section{% endif %}">
         {% if section_name %}
             <div class="section-header">{{ section_name }}</div>
         {% endif %}
+
+        
 
         {% for field in fields %}
             {% if forloop.counter0|divisibleby:4 %}
@@ -149,7 +191,7 @@
             <input type="hidden" id="reference_type" name="reference_type" value="{{ reference_type }}">
 
 
-            <input type="hidden" id="custom_dropdownOpr" name="custom_dropdownOpr">
+            {% comment %} <input type="hidden" id="custom_dropdownOpr" name="custom_dropdownOpr"> {% endcomment %}
             <input type="hidden" id="firstStep" name="firstStep" value="{{ firstStep }}">
 
             <label class="form-label fw-bold">{{ field.label }}</label>
@@ -160,17 +202,11 @@
             <input type="hidden" id = "viewStepWFSeq" name = "viewStepWFSeq" value ="{{viewStepWFSeq}}">
             <input type="hidden" id = "new_form_data_id" name = "new_form_data_id" value ="{{new_form_data_id}}">
             <input type="hidden" id = "inward_req_id" name = "inward_req_id" value ="{{inward_req_id}}">
-            <input type="hidden" id="category_dropdownOpr" name="category_dropdownOpr">
+            {% comment %} <input type="hidden" id="category_dropdownOpr" name="category_dropdownOpr"> {% endcomment %}
+            {% comment %} <input type="hidden" id="hiddenCategoryInput" name="category_dropdownOpr"> {% endcomment %}
+            {% comment %} <input type="hidden" name="custom_dropdownOpr" id="custom_dropdownOpr"> {% endcomment %}
+            {% comment %} <input type="hidden" name="selected_operator" id="hidden_operator_input"> {% endcomment %}
             
-
-            {% comment %} {% if field.field_type == "select"  %}
-                <select class="form-control select" name="field_{{ field.id }}"
-                    {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' or viewStepWFSeq == '3'  %} disabled {% endif %}>
-                    <option value="" selected disabled>-- Select --</option>
-                    {% for option in field.values %}
-                        <option value="{{ option }}" {% if option == field.value %} selected {% endif %}>{{ option }}</option>
-                    {% endfor %}
-                </select> {% endcomment %}
 
         {% if field.field_type == "select" %}
     
@@ -271,9 +307,7 @@
                     <span class="slider"></span>
                 </label>
 
-            {% elif field.field_type == "file" %}
-                {% comment %} <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}" class="form-control custom-file-input"
-                    {% for attr in field.attributes %} {{ attr }} {% endfor %}> {% endcomment %}
+            {% comment %} {% elif field.field_type == "file" %}
                     <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
                         <input type="file" accept="{{ field.accept }}"  name="field_{{ field.id }}"
                                class="form-control custom-file-input" style="padding-right: 100px;" id="file_input_{{ field.id }}"
@@ -307,8 +341,45 @@
                            onclick="showScript( {{ form_data_id }}, {{ field.id }},{{reference_type}},'{{type}}','{{data_save_status}}')"
                        {% endif %} {% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3'  %} disabled {% endif %}>
                     </i>
-                </div>
+                </div> {% endcomment %}
 
+
+                {% elif field.field_type == "file" %}
+                    <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                        <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}"
+                            class="form-control custom-file-input" style="padding-right: 180px;" id="file_input_{{ field.id }}"
+                            {% for attr in field.attributes %} {{ attr }} {% endfor %}{% if readonlyWF == '1' %} disabled {% endif %}{% if viewStepWFSeq == '3' %} disabled {% endif %}>
+                        
+                        <img src="{% static 'images/file.png' %}"
+                            alt="Scan"
+                            onclick="initiateScan('file_input_{{ field.id }}', false, '{{ field.id }}', '{{ form_data_id }}', '{{ reference_type }}', '{{ type }}')"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 20px; cursor: pointer;"
+                            {% if readonlyWF == '1' or viewStepWFSeq == '3' %} style="pointer-events: none; opacity: 0.6;" {% endif %}>
+                            
+                    </div>
+
+               {% elif field.field_type == "file multiple" %}
+                <div class="file-upload-wrapper" style="position: relative; display: inline-block; width: 100%;">
+                    <input type="file" accept="{{ field.accept }}" name="field_{{ field.id }}" multiple
+                        class="form-control custom-file-input" style="padding-right: 40px;" id="file_input_{{ field.id }}"
+                        {% for attr in field.attributes %} {{ attr }} {% endfor %}
+                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} disabled {% endif %}>
+
+                    {% if readonlyWF == '1' or viewStepWFSeq == '3' %}
+                    <i class="fa-solid fa-eye eye-icon"
+                            onclick="initiateScan('file_input_{{ field.id }}', true, '{{ field.id }}', '{{ form_data_id }}', '{{ reference_type }}', '{{ type }}')"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 20px; cursor: pointer;"
+                            {% if readonlyWF == '1' or viewStepWFSeq == '3' %} style="pointer-events: none; opacity: 0.6;" {% endif %}>
+                    </i>
+                    {% else %}
+
+                    <img src="{% static 'images/file.png' %}"
+                        alt="Scan"
+                        onclick="initiateScan('file_input_{{ field.id }}', true, '{{ field.id }}', '{{ form_data_id }}', '{{ reference_type }}', '{{ type }}')"
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); height: 20px; cursor: pointer;"
+                        {% if readonlyWF == '1' or viewStepWFSeq == '3' %} style="pointer-events: none; opacity: 0.6;" {% endif %}>
+                    {% endif %}
+                </div>
 
 
             {% elif field.field_type == "textarea" %}
@@ -378,71 +449,6 @@
 
 </div>
 </div>
-
-
-<br/>
-{% if role_id != '2' %}
-    {% if type != 'reference' %}
-        {% for section_name, fields in sectioned_fields.items %}
-            {% for field in fields %}
-                {% if field.field_type == 'file' or field.field_type == 'file multiple' %}
-                <div class="row col-lg-12 mb-2 shadow justify-content-center" style="padding: 10px;text-align:center;border-radius: 15px;margin-left:0px;align-items:center;justify-items:center;">
-                    <div class="accordion mb-3" id="accordionField{{ field.id }}">
-                        <label class="form-label fw-bold">{{ field.label }}</label>
-
-                            {% for file in field.files %}
-                                {% if forloop.first or forloop.counter0|divisibleby:2 %}
-                                    <div class="row"> 
-                                {% endif %}
-
-                                    <div class="col-md-6">
-                                        <div class="accordion-item1">
-                                            <h2 class="accordion-header" id="heading{{ field.id }}_{{ forloop.counter }}">
-                                                <button class="form-label accordion-button collapsed" type="button"
-                                                        data-bs-toggle="collapse"
-                                                        data-bs-target="#collapse{{ field.id }}_{{ forloop.counter }}"
-                                                        aria-expanded="false"
-                                                        aria-controls="collapse{{ field.id }}_{{ forloop.counter }}">
-                                                    {{ file.name }}
-                                                </button>
-                                            </h2>
-                                            <div id="collapse{{ field.id }}_{{ forloop.counter }}"
-                                                class="accordion-collapse collapse"
-                                                aria-labelledby="heading{{ field.id }}_{{ forloop.counter }}"
-                                                data-bs-parent="#accordionField{{ field.id }}">
-                                                <div class="accordion-body">
-                                                    {% with file.url|lower as file_url %}
-                                                        {% if ".pdf" in file_url %}
-                                                        <iframe src="{{ file.url }}#toolbar=0&navpanes=0&scrollbar=0"
-                                                             width="100%" height="500px" style="border: none;"></iframe>
-                                                        {% comment %} <iframe src="{{ file.url }}" width="100%" height="400px"></iframe> {% endcomment %}
-                                                        {% elif ".jpg" in file_url or ".jpeg" in file_url or ".png" in file_url or ".webp" in file_url %}
-                                                            <img src="{{ file.url }}" class="img-fluid" alt="File preview" style="max-height: 400px;" />
-                                                        {% elif ".xls" in file_url or ".xlsx" in file_url %}
-                                                            <a href="{{ file.url }}" target="_blank" class="btn btn-success">Download Excel File</a>
-                                                        {% else %}
-                                                            <a href="{{ file.url }}" target="_blank" class="btn btn-secondary">Download File</a>
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <br/>
-
-                                {% if forloop.counter|divisibleby:2 or forloop.last %}
-                                <br/>
-                                </div>  {# Close the row after 2 items or on the last one #}
-                            {% endif %}
-                        {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
-    {% endif %}
-{% endif %}
-
 <br/>
 {% if grouped_data %}
 
@@ -554,54 +560,12 @@
 
 
 
-
 <div>
 
-{% comment %} added for operator dropdown {% endcomment %}
-
-{% comment %} <div id="workflowPopup" style="display: none; position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
-
-    <label for="custom_dropdownOpr">Select Operator:</label>
-    <select name="custom_dropdownOpr" id="custom_dropdownOpr" class="form-control">
-        <option value="">--Select--</option>
-        {% for item in WFoperator_dropdown %}
-            <option value="{{ item.0 }}">{{ item.1 }}</option>
-        {% endfor %}
-    </select>
-
-    <br>
-    <div style="margin-top: 15px; text-align: right;">
-        <button id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
-        <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
-    </div>
-
-</div>  {% endcomment %}
-
-{% comment %} <div id="workflowPopup" class="modal-content" style="display: none; position: fixed; top: 50%; left: 50%;transform: translate(-50%, -50%);
-    z-index: 9999;padding: 20px;border-radius: 8px;width: 400px;box-shadow: 0px 0px 10px rgba(0,0,0,0.5);background-color: var(--bs-body-bg);color: var(--bs-body-color);">
-
-    <label for="custom_dropdownOpr" class="form-label">Select Operator:</label>
-    <select name="custom_dropdownOpr" id="custom_dropdownOpr" class="form-select">
-        <option value="">--Select--</option>
-        {% for item in WFoperator_dropdown %}
-            <option value="{{ item.0 }}">{{ item.1 }}</option>
-        {% endfor %}
-    </select>
-
-    <div class="mt-3 text-end">
-        <button id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
-        <button id="cancelPopupBtn" class="btn btn-secondary">Cancel</button>
-    </div>
-
-    <div id="popupOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; "></div>
-
-</div> {% endcomment %}
+</form>
 
 
-      <div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
+<div class="modal fade" id="workflowModal" tabindex="-1" aria-labelledby="workflowModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -619,45 +583,14 @@
       </div>
       <div class="modal-footer">
         <button type="button" id="confirmSubmitBtn" class="btn btn-primary">Confirm</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="cancelModalBtn" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
       </div>
     </div>
   </div>
-</div> 
+</div>  
 
 
 
-
-{% comment %} ends here {% endcomment %}
-
-
-
-{% comment %} added for category dropdown {% endcomment %}
-
-{% comment %} <div id="categoryPopup" style="display: none; position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%); z-index: 9999; background: white; padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.5); border-radius: 8px;">
-
-    <label for="category_dropdownOpr">Select Category:</label>
-    <select name="category_dropdownOpr" id="category_dropdownOpr" class="form-control">
-        <option value="">--Select--</option>
-        {% for item in category_dropD %}
-            <option value="{{ item.value }}" {% if item.value == file_cat_val %}selected{% endif %}>{{ item.text }}</option>
-        {% endfor %}
-    </select>
-
-    <br>
-    <div style="margin-top: 15px; text-align: center;">
-        <button id="catconfirmSubmitBtn" class="btn btn-primary">Confirm</button>
-        <button id="catcancelPopupBtn" class="btn btn-secondary" type="button">Cancel</button>
-    </div>
-
-</div>
-
-<div id="categoryOverlay" style="display: none; position: fixed; top: 0; left: 0;
-    width: 100vw; height: 30vh; background: rgba(0,0,0,0.3); z-index: 9990;"></div> {% endcomment %}
-
-    <!-- Category Modal -->
  <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -681,9 +614,6 @@
     </div>
   </div>
 </div> 
-
-
-</form>
 
   </div>
     </div>
@@ -721,6 +651,11 @@
 <script src="{% static 'js/vendor/buttons.flash.min.js' %}"></script>
 <script src="{% static 'js/vendor/buttons.print.min.js' %}"></script>
 <script src="{% static 'js/vendor/fixedColumns.bootstrap5.min.js' %}"></script>
+<script src="https://unpkg.com/dwt/dist/dynamsoft.webtwain.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';</script>
 
 {% endblock %}
 
@@ -745,139 +680,6 @@
     const viewStepWFSeq = "{{ viewStepWFSeq }}";
 </script>
 
-
-<script>
-
-
-        let selectedNewFiles = []; // Global array to store new files
-
-        function showScript(form_data_id, field_id,reference_type, type,data_save_status) {
-            debugger;
-            
-            const inputElement = document.getElementById('file_input_' + field_id);
-            const newFiles = inputElement.files;
-        
-            if (selectedNewFiles.length === 0 && newFiles.length > 0) {
-                selectedNewFiles = Array.from(newFiles);
-            }
-
-            const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-
-            const swalOptions = {
-                background: theme === 'dark' ? '#343a40' : '#ffffff',
-                color: theme === 'dark' ? '#f8f9fa' : '#212529',
-                confirmButtonColor: '#0d6efd',
-                customClass: {
-                    popup: 'rounded-4 shadow',
-                    confirmButton: 'btn btn-primary px-4 py-2'
-                }
-            };
-        
-            $.ajax({
-                url: "{% url 'get_uploaded_files' %}",
-                type: 'POST',
-                data: {
-                    field_id: field_id,
-                    form_data_id: form_data_id,
-                    reference_type:reference_type,
-                    type:type,
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function (data) {
-                    const showDelete = !(readonlyWF === '1' || viewStepWFSeq === '3' || (type === 'reference' && data_save_status !== '1'));
-        
-                    let tableHTML = `
-                        <table style="width:100%; text-align:left; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
-                                    <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>`;
-        
-                    if (showDelete) {
-                        tableHTML += `<th style="border-bottom: 1px solid #ccc; padding: 8px;">Delete</th>`;
-                    }
-        
-                    tableHTML += `</tr></thead><tbody>`;
-        
-                    let srNo = 1;
-        
-                    if (data.files && data.files.length > 0) {
-                        data.files.forEach((file) => {
-                            let downloadIcon = file.status === 1
-                                ? `<a href="javascript:void(0);" onclick="downloadFile('${file.encrypted_url}')" title="Download File"><i class="fa-solid fa-download"></i></a>`
-                                : `--`;
-        
-                            let deleteIcon = file.status === 1
-                                ? `<a href="javascript:void(0);" onclick="deleteFile('${file.encrypted_url}', '${file.file_id}','${reference_type}','${type}')" ><i class="fa fa-trash" style="color:red;" aria-hidden="true"></i></a>`
-                                : `--`;
-        
-                            tableHTML += `
-                                <tr>
-                                    <td style="padding: 8px;">${srNo++}</td>
-                                    <td style="padding: 8px;">${file.name}</td>`;
-        
-                            if (showDelete) {
-                                tableHTML += `<td style="padding: 8px;">${deleteIcon}</td>`;
-                            }
-        
-                            tableHTML += `</tr>`;
-                        });
-                    }
-        
-                    selectedNewFiles.forEach((file, index) => {
-                        tableHTML += `
-                            <tr>
-                                <td style="padding: 8px;">${srNo++}</td>
-                                <td style="padding: 8px;">${file.name}</td>
-                                <td style="padding: 8px;">
-                                    <i class="fa-solid fa-file-circle-plus" title="File will be uploaded after saving"></i>
-                                </td>`;
-        
-                        if (showDelete) {
-                            tableHTML += `<td style="padding: 8px;"></td>`;
-                        }
-        
-                        tableHTML += `</tr>`;
-                    });
-        
-                    const colspan = showDelete ? 4 : 3;
-        
-                    if ((data.files?.length ?? 0) === 0 && selectedNewFiles.length === 0) {
-                        tableHTML += `
-                            <tr>
-                                <td colspan="${colspan}" style="padding: 8px; text-align: center; color: #111;">
-                                    No files available
-                                </td>
-                            </tr>
-                        `;
-                    }
-        
-                    tableHTML += `</tbody></table>`;
-        
-                    Swal.fire({
-                        title: 'Uploaded Files',
-                        html: tableHTML,
-                        width: '800px',
-                        confirmButtonText: 'Close',
-                        ...swalOptions
-                    });
-                },
-                error: function (xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong while fetching documents.',
-                        ...swalOptions
-                    });
-                }
-            });
-        }
-        
-
-
-
-    </script>
     <script>
 
     function removeNewFile(index) {
@@ -888,7 +690,7 @@
     }
 
     function downloadFile(encryptedPath) {
-        debugger;
+        
         const baseUrl = "{% url 'download_file' %}";
         const downloadUrl = `${baseUrl}?file=${encodeURIComponent(encryptedPath)}`;
         const a = document.createElement('a');
@@ -906,7 +708,7 @@
 
   <script>
     function deleteFile(encryptedPath, encryptedId, reference_type, type) {
-    debugger;
+    
 
     const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
 
@@ -975,115 +777,30 @@
 }
 
 
-
-
-    </script>
+  </script>
 
 
 <script>
 
-    function showFile(input) {
-        debugger;
-        const files = input.files;
-
-        const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-
-        const swalOptions = {
-            background: theme === 'dark' ? '#343a40' : '#ffffff',
-            color: theme === 'dark' ? '#f8f9fa' : '#212529',
-            confirmButtonColor: '#0d6efd',
-            customClass: {
-                popup: 'rounded-4 shadow',
-                confirmButton: 'btn btn-primary px-4 py-2'
-            }
-        };
-
-        if (!files || files.length === 0) {
-            Swal.fire({
-                icon: 'info',
-                title: 'No Files Selected',
-                text: 'Please select files to view them.',
-                confirmButtonText: 'Okay',
-                ...swalOptions
-            });
-            return;
-        }
-
-        let tableHTML = `
-            <table style="width:100%; text-align:left; border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">Sr No.</th>
-                        <th style="border-bottom: 1px solid #ccc; padding: 8px;">File Name</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        Array.from(files).forEach((file, index) => {
-            tableHTML += `
-                <tr>
-                    <td style="padding: 8px;">${index + 1}</td>
-                    <td style="padding: 8px;">${file.name}</td>
-                </tr>
-            `;
-        });
-
-        tableHTML += `</tbody></table>`;
-
-        Swal.fire({
-            title: 'Selected Files',
-            html: tableHTML,
-            width: '600px',
-            confirmButtonText: 'Close',
-            ...swalOptions
-        });
-    }
-
-    function removeNewFile(rowId, index) {
-        document.getElementById(rowId)?.remove();
-        if (newFiles) {
-            newFiles.splice(index, 1); // remove the file from array
-        }
-
-        // Optional: if all files removed, show "No files available"
-        if (newFiles.length === 0 && (!data.files || data.files.length === 0)) {
-            const tableBody = document.getElementById("your-table-body-id");
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="padding: 8px; text-align: center; color: gray;">
-                        No files available
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-
-
-</script>
-
-<script>
-
-        {% comment %} document.querySelectorAll('.submit-btn').forEach(button => {
-            debugger;
+        document.querySelectorAll('.submit-btn').forEach(button => {
+            
             button.addEventListener('click', function (e) {
-                
                 debugger;
+                
+                
                 const form = document.getElementById('dynamicForm');
                 const buttonType = this.getAttribute('data-button-type');
                 const actionId = this.getAttribute('data-action-id');
 
                 const workflow_YN = document.getElementById('workflow_YN');
-                //const dropdownContainer = document.getElementById('workflowDropdownContainer');
+               // const dropdownContainer = document.getElementById('workflowDropdownContainer');
                 const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
                 const cancelPopupBtn = document.getElementById('cancelPopupBtn');
                 const firstStep = document.getElementById('firstStep');
 
                 const popup = document.getElementById('workflowPopup');
                 const overlay = document.getElementById('popupOverlay');
-                const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                
+                //const operatorDropdown = document.getElementById('custom_dropdownOpr');
                 const editORcreate = document.getElementById('editORcreate');
                 const categorydropdownDprt = document.getElementById('category_dropdownOpr');
                 const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
@@ -1100,8 +817,11 @@
                         confirmButton: 'btn btn-primary px-4 py-2'
                     }
                 };
-
-
+                
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
                 if (buttonType === 'Action') {
                     document.getElementById('clicked_action_id').value = actionId;
                 }
@@ -1109,339 +829,90 @@
                 const reference_type = $('#reference_type').val();
 
                 if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    
-
                     e.preventDefault();
 
-                    const popup = document.getElementById('workflowPopup');
-                    const overlay = document.getElementById('popupOverlay');
+                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
+                    const modalElement = document.getElementById('workflowModal');
+                    const modal = new bootstrap.Modal(modalElement);
 
-                    // ✅ Show popup and overlay
-                    popup.style.display = 'block';
-                    overlay.style.display = 'block';
-                    operatorDropdown.setAttribute('required', true);
-
-                    confirmSubmitBtn.onclick = function () {
-                        debugger;
-                        
-                            form.action = "{% url 'common_form_post' %}";
-                            form.submit(); // Manual submit
-                        
-                    };
-
-                    // Cancel button inside popu
-                    cancelPopupBtn.onclick = function () {
-                        workflowPopup.style.display = 'none';
-                        popupOverlay.style.display = 'none';
-                    };
-
-                }
-
-                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    e.preventDefault();
-
-                    // Show Bootstrap modal
-                    const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
                     modal.show();
 
-                    // Add 'required' to dropdown
-                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                    operatorDropdown.setAttribute('required', true);
-
-                    // Handle confirm button
                     document.getElementById('confirmSubmitBtn').onclick = function () {
+                        debugger;
+                        const operatorDropdown = document.getElementById('custom_dropdownOpr'); // get it freshly
+                        const selectedValue = operatorDropdown.value;
+                        const hiddenOperatorInput = document.getElementById('hidden_operator_input');
+                        hiddenOperatorInput.value = selectedValue;
+                        console.log("Final hidden input value:", hiddenOperatorInput.value);
                         form.action = "{% url 'common_form_post' %}";
                         form.submit();
                     };
-                }
 
-                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    debugger;
-
-                    e.preventDefault();
-
-                    const popupD = document.getElementById('categoryPopup');
-                    const overlayD = document.getElementById('categoryOverlay');
-
-                    // ✅ Show popup and overlay
-                    popupD.style.display = 'block';
-                    overlayD.style.display = 'block';
-                    categorydropdownDprt.setAttribute('required', true);
-
-                    catconfirmSubmitBtn.onclick = function () {
-                        // operatorDropdown.removeAttribute('required');
-                        form.action = "{% url 'common_form_action' %}";
-
+                    // Cancel button inside modal
+                    document.getElementById('cancelModalBtn').onclick = function () {
+                        modal.hide();
+                        console.log("Modal cancelled, no submission");
+                        
                     };
-                    if (catcancelPopupBtn) {
-                        debugger;
-                        e.preventDefault();
-                        catcancelPopupBtn.onclick = function () {
-                            popupD.style.display = 'none';
-                            overlayD.style.display = 'none';
-                            
-                        };
-                    } else {
-                        console.error("catcancelPopupBtn not found in the DOM.");
-                    }
-
                 }
-
                 else if (buttonType === 'Action' && viewStepWFSeq === '3') {
                     e.preventDefault();
-
-                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
-                    categoryModal.show();
 
                     const categoryDropdown = document.getElementById('category_dropdownOpr');
+                    const categoryModalElement = document.getElementById('categoryModal');
+                    const categoryModal = new bootstrap.Modal(categoryModalElement);
+                    categoryModal.show();
 
-                    // Confirm button inside modal
+                    // Confirm button: Add selected category to form and submit
                     document.getElementById('catconfirmSubmitBtn').onclick = function () {
                         const categoryValue = categoryDropdown.value;
 
-
-                        // Optional: Append hidden input if needed
                         let hiddenInput = document.getElementById('hiddenCategoryInput');
                         if (!hiddenInput) {
                             hiddenInput = document.createElement('input');
                             hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'category';  // Must match your Django field name
+                            hiddenInput.name = 'category';  // This name is used in Django request.POST.get('category')
                             hiddenInput.id = 'hiddenCategoryInput';
                             form.appendChild(hiddenInput);
                         }
 
                         hiddenInput.value = categoryValue;
+                        console.log("Setting category to hidden input:", hiddenInput.value);
 
                         form.action = "{% url 'common_form_action' %}";
                         form.submit();
                     };
-                }
-                else if (buttonType === 'Submit' && type === 'create') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_post' %}";
-                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reject_workflow_step' %}";
-                } else if (buttonType === 'Submit' && type === 'edit') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_edit' %}";
-                }else if (buttonType === 'Submit' && type === 'reference') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_edit' %}";
-                } else if (reference_type == "1" && viewStepWFSeq != '3' && buttonType != 'Version') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reference_workflow' %}";
-                } else if (buttonType === 'Action    ') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_action' %}";
-                }else if (type == "reference" && buttonType != 'Version') {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reference_workflow' %}";
-                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_post' %}";
-                }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 2) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_edit' %}";
-                }else if (buttonType === 'Action' && parseInt(editORcreate.value) === 3) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'common_form_action' %}";
-                }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
-                    form.action = "{% url 'reject_workflow_step' %}";
-                }
-                else if (buttonType === 'Version') {
-                    e.preventDefault();
-                    const newFormDataId = document.getElementById('new_data_id').value;
-                    const newFormDataId_op = document.getElementById('matched_form_data_id').value;
-                    fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
-                    .then(response => response.json())
-                    .then(response_data => {
 
-                    // Simulate fetch or AJAX to get version data
-                    // get_dataVersion().then(response_data => {
-                        let tableHtml = '';
-                        response_data.data_versions.forEach((row, index) => {
-                            tableHtml += `
-                                <tr>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${index + 1}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.file_name}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.version_no}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.baseline_date || ''}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_by}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.modified_at}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_by || ''}</td>
-                                    <td style="border: 1px solid #ddd; padding: 8px;">${row.approved_at || ''}</td>
-                                </tr>`;
-                        });
-
-                        Swal.fire({
-                            title: `Version Details`,
-                            html: `
-                                <div style="max-height: 300px; overflow-y: auto; text-align: left;">
-                                    <table style="width:100%; border-collapse: collapse;" border="1">
-                                        <thead>
-                                            <tr>
-                                                <th>Sr No.</th>
-                                                <th>File Name</th>
-                                                <th style="width: 80px">Version</th>
-                                                <th>Baseline Date</th>
-                                                <th>Modified By</th>
-                                                <th>Modified At</th>
-                                                <th>Approved By</th>
-                                                <th>Approved At</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${tableHtml}
-                                        </tbody>
-                                    </table>
-                                </div>`,
-                            width: '80%',
-                            confirmButtonText: 'Close',
-                            ...swalOptions
-                        });
-                    }).catch(err => {
-                        Swal.fire('Not Found', 'Version not found!', 'warning');
+                    // Cancel button: Just close the modal, do NOT submit
+                    categoryModalElement.querySelector('[data-bs-dismiss="modal"]').addEventListener('click', function () {
+                        categoryModal.hide();
+                        console.log("User canceled category selection — no form submitted.");
                     });
-
-                    return;
-                }
-            });
-        }); {% endcomment %}
-        document.querySelectorAll('.submit-btn').forEach(button => {
-            debugger;
-            button.addEventListener('click', function (e) {
-                
-                debugger;
-                const form = document.getElementById('dynamicForm');
-                const buttonType = this.getAttribute('data-button-type');
-                const actionId = this.getAttribute('data-action-id');
-
-                const workflow_YN = document.getElementById('workflow_YN');
-                //const dropdownContainer = document.getElementById('workflowDropdownContainer');
-                const confirmSubmitBtn = document.getElementById('confirmSubmitBtn');
-                const cancelPopupBtn = document.getElementById('cancelPopupBtn');
-                const firstStep = document.getElementById('firstStep');
-
-                const popup = document.getElementById('workflowPopup');
-                const overlay = document.getElementById('popupOverlay');
-                const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                
-                const editORcreate = document.getElementById('editORcreate');
-                const categorydropdownDprt = document.getElementById('category_dropdownOpr');
-                const catconfirmSubmitBtn = document.getElementById('catconfirmSubmitBtn');
-                const catcancelPopupBtn = document.getElementById('catcancelPopupBtn');
-
-                const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
-
-                const swalOptions = {
-                    background: theme === 'dark' ? '#343a40' : '#ffffff',
-                    color: theme === 'dark' ? '#f8f9fa' : '#212529',
-                    confirmButtonColor: '#0d6efd',
-                    customClass: {
-                        popup: 'rounded-4 shadow',
-                        confirmButton: 'btn btn-primary px-4 py-2'
-                    }
-                };
-                 const type = $('#type').val();
-                const reference_type = $('#reference_type').val();
-
-                if (buttonType === 'Action') {
-                    document.getElementById('clicked_action_id').value = actionId;
-                }
-
-                if (buttonType === 'Submit' && parseInt(workflow_YN.value) === 1 && parseInt(firstStep.value) === 1) {
-                    e.preventDefault();
-
-                    // Show Bootstrap modal
-                    const modal = new bootstrap.Modal(document.getElementById('workflowModal'));
-                    modal.show();
-
-                    // Add 'required' to dropdown
-                    const operatorDropdown = document.getElementById('custom_dropdownOpr');
-                    operatorDropdown.setAttribute('required', true);
-
-                    // Handle confirm button
-                    document.getElementById('confirmSubmitBtn').onclick = function () {
-                        form.action = "{% url 'common_form_post' %}";
-                        form.submit();
-                    };
                 }
 
 
-
-                else if (buttonType === 'Action' && viewStepWFSeq === '3') {
-                    e.preventDefault();
-                    const categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
-                    categoryModal.show();
-
-                    const categoryDropdown = document.getElementById('category_dropdownOpr');
-
-                    // Confirm button inside modal
-                    document.getElementById('catconfirmSubmitBtn').onclick = function () {
-                        const categoryValue = categoryDropdown.value;
-
-
-                        // Optional: Append hidden input if needed
-                        let hiddenInput = document.getElementById('hiddenCategoryInput');
-                        if (!hiddenInput) {
-                            hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'category';  // Must match your Django field name
-                            hiddenInput.id = 'hiddenCategoryInput';
-                            form.appendChild(hiddenInput);
-                        }
-
-                        hiddenInput.value = categoryValue;
-
-                        form.action = "{% url 'common_form_action' %}";
-                        form.submit();
-                    };
-                }
                 else if (buttonType === 'Submit' && type === 'create') {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_post' %}";
-                     form.submit();
                 }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'reject_workflow_step' %}";
-                     form.submit();
                 } else if (buttonType === 'Submit' && type === 'edit') {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_edit' %}";
-                     form.submit();
                 }else if (buttonType === 'Submit' && type === 'reference') {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_edit' %}";
-                     form.submit();
                 } else if (reference_type == "1" && viewStepWFSeq != '3' && buttonType != 'Version') {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'reference_workflow' %}";
-                } else if (buttonType === 'Action    ') {
-                    operatorDropdown.removeAttribute('required');
+                } else if (buttonType === 'Action') {
                     form.action = "{% url 'common_form_action' %}";
-                     form.submit();
                 }else if (type == "reference" && buttonType != 'Version') {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'reference_workflow' %}";
-                     form.submit();
                 }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_post' %}";
-                     form.submit();
                 }else if (buttonType === 'Submit' && parseInt(editORcreate.value) === 2) {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_edit' %}";
-                    form.submit();
                 }else if (buttonType === 'Action' && parseInt(editORcreate.value) === 3) {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'common_form_action' %}";
-                    form.submit();
                 }else if (buttonType === 'Reject' && parseInt(workflow_YN.value) === 1) {
-                    operatorDropdown.removeAttribute('required');
                     form.action = "{% url 'reject_workflow_step' %}";
-                    form.submit();
                 }
                 else if (buttonType === 'Version') {
                     e.preventDefault();
@@ -1450,9 +921,6 @@
                     fetch(`/get_versiondata?newFormDataId=${newFormDataId}&newFormDataId_op=${newFormDataId_op}`)
                     .then(response => response.json())
                     .then(response_data => {
-
-                    // Simulate fetch or AJAX to get version data
-                    // get_dataVersion().then(response_data => {
                         let tableHtml = '';
                         response_data.data_versions.forEach((row, index) => {
                             tableHtml += `
@@ -1504,10 +972,9 @@
         });
 
 
-
 </script>
 
-<script>
+ <script>
 function validateRegexInput(inputElement) {
         const pattern = inputElement.getAttribute("data-regex");
         const value = inputElement.value;
@@ -1643,7 +1110,7 @@ document.getElementById('compareButton').addEventListener('click', function () {
 <script>
 
      $('.field_dropdown').change(function() {
-        debugger;
+        
         var selectedValue = $(this).val(); 
     
         if (selectedValue) {
@@ -1657,7 +1124,7 @@ document.getElementById('compareButton').addEventListener('click', function () {
                     
                 },
                 success: function(response) {
-                    debugger;
+                    
                     if (response.status === 0) {                    
                     
                     Swal.fire("You Can't Use This File Name.");
@@ -1694,6 +1161,642 @@ document.getElementById('compareButton').addEventListener('click', function () {
     });
 
 
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+<!-- For base64 URL-safe decoding -->
+<script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.2/base64.min.js"></script>
+<!-- For Fernet encryption/decryption -->
+<script src="https://cdn.jsdelivr.net/npm/fernet@0.3.2/fernet.min.js"></script>
+
+
+<script>
+// Scanner functionality class
+class DocumentScanner {
+    constructor(targetId, allowMultiple, fieldId, formDataId, referenceType, type) {
+        this.targetId = targetId;
+        this.allowMultiple = allowMultiple;
+        this.fieldId = fieldId;
+        this.formDataId = formDataId;
+        this.referenceType = referenceType;
+        this.type = type;
+        this.scannedDocuments = [];
+        this.currentDocumentIndex = -1;
+        this.currentPageIndex = 1;
+        this.modalId = `scannerModal_${targetId}`;
+        this.cropperModalId = `cropperModal_${targetId}`;
+        this.cropper = null;
+        
+        this.initModal();
+    }
+    
+    initModal() {
+        // Create unique modal HTML for this instance
+        const modalHTML = `
+<div class="modal fade" id="${this.modalId}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header d-flex justify-content-between align-items-center">
+            <h5 class="modal-title mb-0">Document Scanner</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+
+
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <!-- File List Column -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Uploaded Documents</h6>
+                                    {% if readonlyWF != '1' and viewStepWFSeq != '3' %}
+                                        <button class="btn btn-sm btn-primary add-more-files">
+                                            <i class="fas fa-plus"></i> Add
+                                        </button>
+                                        {% endif %}
+                                    <input type="file" class="d-none file-upload-input"  
+                                           ${this.allowMultiple ? 'multiple' : ''}>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="uploaded-files-list list-group list-group-flush" style="max-height: 500px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview Column -->
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Document Preview</h6>
+                                    <div class="pagination-controls d-none">
+                                        <button class="btn btn-sm btn-outline-secondary prev-page" disabled>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <span class="mx-2 page-info">Page 1 of 1</span>
+                                        <button class="btn btn-sm btn-outline-secondary next-page" disabled>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="single-preview-container" style="height: 500px; overflow-y: auto; display: flex; justify-content: center; align-items: center;">
+                                        <div class="text-center text-muted py-5 no-previews-message">
+                                            <i class="fas fa-file-alt fa-4x mb-3"></i>
+                                            <p>No documents to preview</p>
+                                        </div>
+                                        <div class="current-preview d-none" style="width: 100%; height: 100%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            {% if readonlyWF != '1' and viewStepWFSeq != '3' %}
+                <button type="button" class="btn btn-primary accept-scan">Accept Documents</button>
+            {% endif %}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+        `;
+        
+        // Add the modal to the page if it doesn't exist
+        if (!document.getElementById(this.modalId)) {
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            this.setupEventHandlers();
+        }
+    }
+
+    setupEventHandlers() {
+        const self = this;
+        const fileInput = $(`#${this.modalId} .file-upload-input`);
+        
+        // File upload setup - directly trigger file input
+        $(`#${this.modalId} .add-more-files`).on('click', function() {
+            fileInput.val('');
+            fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.on('change', function() {
+            if (this.files && this.files.length) {
+                self.handleNewFiles(this.files);
+            }
+        });
+        
+        // File list item click
+        $(`#${this.modalId}`).on('click', '.file-item', function() {
+            const index = $(this).data('index');
+            self.currentDocumentIndex = index;
+            self.currentPageIndex = 1;
+            $(`#${self.modalId} .file-item`).removeClass('active');
+            $(this).addClass('active');
+            self.updateCurrentPreview();
+        });
+        
+        // Remove file button
+        $(`#${this.modalId}`).on('click', '.remove-file', function(e) {
+            e.stopPropagation();
+            const index = $(this).data('index');
+            self.scannedDocuments.splice(index, 1);
+            
+            // Adjust current document index if needed
+            if (self.currentDocumentIndex === index) {
+                self.currentDocumentIndex = -1;
+                self.currentPageIndex = 1;
+            } else if (self.currentDocumentIndex > index) {
+                self.currentDocumentIndex--;
+            }
+            
+            self.updateFileList();
+            self.generateAllPreviews();
+        });
+        
+        // Pagination controls
+        $(`#${this.modalId} .prev-page`).on('click', function() {
+            if (self.currentDocumentIndex === -1) return;
+            
+            const doc = self.scannedDocuments[self.currentDocumentIndex];
+            if (self.currentPageIndex > 1) {
+                self.currentPageIndex--;
+                self.updateCurrentPreview();
+            }
+        });
+        
+        $(`#${this.modalId} .next-page`).on('click', function() {
+            if (self.currentDocumentIndex === -1) return;
+            
+            const doc = self.scannedDocuments[self.currentDocumentIndex];
+            if (self.currentPageIndex < doc.totalPages) {
+                self.currentPageIndex++;
+                self.updateCurrentPreview();
+            }
+        });
+        
+        // Accept scan handler
+        $(`#${this.modalId} .accept-scan`).on('click', function() {
+            if (!self.targetId || self.scannedDocuments.length === 0) return;
+            
+            const inputElement = document.getElementById(self.targetId);
+            const dataTransfer = new DataTransfer();
+            
+            // Add all document files to transfer object
+            self.scannedDocuments.forEach(doc => {
+                dataTransfer.items.add(doc.file);
+            });
+            
+            // Assign files to input
+            inputElement.files = dataTransfer.files;
+            
+            // Trigger change event
+            const event = new Event('change', { bubbles: true });
+            inputElement.dispatchEvent(event);
+            
+            // Close modal
+            $(`#${self.modalId}`).modal('hide');
+        });
+        
+        // Clean up when modal closes
+        $(`#${self.modalId}`).on('hidden.bs.modal', function() {
+            if (self.cropper) {
+                self.cropper.destroy();
+                self.cropper = null;
+            }
+            
+            // Clean up object URLs
+            self.scannedDocuments.forEach(doc => {
+                if (doc.type === 'image' && doc.pageCache[1]) {
+                    URL.revokeObjectURL(doc.pageCache[1].src);
+                }
+            });
+        });
+    }
+    
+    async show() {
+        // Reset the scanner state
+        this.scannedDocuments = [];
+        this.currentDocumentIndex = -1;
+        this.currentPageIndex = 1;
+        
+        // First check for existing files via AJAX
+        await this.fetchExistingFiles();
+        
+        // Then load any existing files from input if any
+        const inputElement = document.getElementById(this.targetId);
+        if (inputElement && inputElement.files.length > 0) {
+            Array.from(inputElement.files).forEach(file => {
+                this.scannedDocuments.push(new this.Document(file));
+            });
+        }
+        
+        // Set current document index if we have files
+        if (this.scannedDocuments.length > 0) {
+            this.currentDocumentIndex = 0;
+        }
+        
+        this.updateFileList();
+        this.generateAllPreviews();
+        $(`#${this.modalId}`).modal('show');
+    }
+
+    getMimeType(filename) {
+        const extension = filename.split('.').pop().toLowerCase();
+        const mimeTypes = {
+            'pdf': 'application/pdf',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'tiff': 'image/tiff',
+            'tif': 'image/tiff',
+            'bmp': 'image/bmp',
+            'gif': 'image/gif',
+            'txt': 'text/plain',
+            'csv': 'text/csv',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls': 'application/vnd.ms-excel',
+            'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        };
+        return mimeTypes[extension] || 'application/octet-stream';
+    }
+    
+
+    
+    async fetchExistingFiles() {
+        try {
+            const response = await $.ajax({
+                url: "{% url 'get_uploaded_files' %}",
+                type: 'POST',
+                data: {
+                    field_id: this.fieldId,
+                    form_data_id: this.formDataId,
+                    reference_type: this.referenceType,
+                    type: this.type,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                }
+            });
+            
+            if (response.files && response.files.length > 0) {
+                
+                for (const fileData of response.files) {
+                    try {
+                        if (fileData.status === 1 && fileData.url) {
+                            // Create the full URL by combining with MEDIA_URL
+                            const fullUrl = `/media/${fileData.url}`;
+                            
+                            // Create file object from the URL
+                            const file = await this.urlToFile(
+                                fullUrl,
+                                fileData.name,
+                                this.getMimeType(fileData.name)
+                            );
+                            
+                            // Add to documents list with metadata
+                            this.scannedDocuments.push(new this.Document(file, {
+                                originalData: fileData,
+                                isExisting: true,
+                                fileId: fileData.file_id,
+                                originalPath: fileData.url
+                            }));
+                        } else {
+                            // Add as failed document if status is 0 or URL missing
+                            this.scannedDocuments.push(new this.FailedDocument(fileData));
+                        }
+                    } catch (error) {
+                        console.error('Error processing file:', fileData.name, error);
+                        this.scannedDocuments.push(new this.FailedDocument(fileData));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching existing files:', error);
+        }
+    }
+
+    async urlToFile(url, filename, mimeType) {
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const blob = await response.blob();
+            return new File([blob], filename, { type: mimeType });
+        } catch (error) {
+            console.error('Error creating file from URL:', error);
+            throw error;
+        }
+    }
+
+    // Add this to your Document class to handle failed files
+    FailedDocument = class {
+        constructor(fileData) {
+            this.fileData = fileData;
+            this.isFailed = true;
+            this.name = fileData.name;
+        }
+        
+        // Simple method to show error in preview
+        async renderPage() {
+            const div = document.createElement('div');
+            div.className = 'alert alert-danger';
+            div.innerHTML = `Failed to load: ${this.fileData.name}`;
+            return div;
+        }
+    }
+    
+    Document = class {
+        constructor(file) {
+            this.file = file;
+            this.type = file.type.includes('pdf') ? 'pdf' : 'image';
+            this.totalPages = 1;
+            this.previewGenerated = false;
+            this.pageCache = {};
+        }
+        
+        async loadPDF() {
+            if (this.type !== 'pdf') return;
+            
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const pdf = await pdfjsLib.getDocument(event.target.result).promise;
+                        this.totalPages = pdf.numPages;
+                        this.pdf = pdf;
+                        resolve(pdf);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(this.file);
+            });
+        }
+        
+        async renderPage(pageNum) {
+            if (pageNum < 1 || pageNum > this.totalPages) return null;
+            
+            // Check cache first
+            if (this.pageCache[pageNum]) {
+                return this.pageCache[pageNum];
+            }
+            
+            if (this.type === 'pdf') {
+                if (!this.pdf) await this.loadPDF();
+                const page = await this.pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 1.0 });
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                await page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                }).promise;
+                
+                // Cache the canvas
+                this.pageCache[pageNum] = canvas;
+                return canvas;
+            } else {
+                // For images
+                return new Promise((resolve) => {
+                    const img = document.createElement('img');
+                    img.onload = () => {
+                        this.pageCache[1] = img;
+                        resolve(img);
+                    };
+                    img.src = URL.createObjectURL(this.file);
+                });
+            }
+        }
+        
+        async generateAllPreviews() {
+            if (this.previewGenerated) return;
+            
+            if (this.type === 'pdf') {
+                if (!this.pdf) await this.loadPDF();
+                
+                // Pre-render first page for quick display
+                await this.renderPage(1);
+            } else {
+                await this.renderPage(1);
+            }
+            
+            this.previewGenerated = true;
+        }
+    }
+    
+    handleNewFiles(files) {
+        
+        const self = this;
+        Array.from(files).forEach(file => {
+            // Check if file already exists
+            const fileExists = self.scannedDocuments.some(
+                doc => doc.file.name === file.name && doc.file.size === file.size
+            );
+            
+            if (!fileExists) {
+                self.scannedDocuments.push(new self.Document(file));
+            }
+        });
+        
+        self.updateFileList();
+        self.generateAllPreviews();
+    }
+    
+    updateFileList() {
+        const filesList = $(`#${this.modalId} .uploaded-files-list`);
+        filesList.empty();
+        
+        if (this.scannedDocuments.length === 0) {
+            filesList.append(`
+                <div class="list-group-item text-center text-muted">
+                    <i class="fas fa-file-alt fa-2x mb-2"></i>
+                    <p>No documents added</p>
+                </div>
+            `);
+            return;
+        }
+        
+        this.scannedDocuments.forEach((doc, index) => {
+            const activeClass = index === this.currentDocumentIndex ? 'active' : '';
+            const pageInfo = doc.type === 'pdf' ? ` (${doc.totalPages} pages)` : '';
+            
+            filesList.append(`
+                <div class="list-group-item list-group-item-action ${activeClass} file-item" data-index="${index}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas ${doc.type === 'pdf' ? 'fa-file-pdf text-danger' : 'fa-file-image text-primary'} mr-2"></i>
+                            <span>${doc.file.name}</span>
+                            <small class="text-muted">${pageInfo}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-danger remove-file" data-index="${index}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+        
+        // If no document is selected, select the first one
+        if (this.currentDocumentIndex === -1 && this.scannedDocuments.length > 0) {
+            this.currentDocumentIndex = 0;
+            $(`#${this.modalId} .file-item[data-index="0"]`).addClass('active');
+        }
+    }
+    
+    async generateAllPreviews() {
+        if (this.scannedDocuments.length === 0) {
+            this.resetPreviewUI();
+            return;
+        }
+        
+        $(`#${this.modalId} .no-previews-message`).hide();
+        $(`#${this.modalId} .current-preview`).addClass('d-none');
+        $(`#${this.modalId} .current-preview`).html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading preview...</p></div>');
+        $(`#${this.modalId} .current-preview`).removeClass('d-none');
+        
+        // Generate previews for all documents
+        const previewPromises = this.scannedDocuments.map(doc => doc.generateAllPreviews());
+        await Promise.all(previewPromises);
+        
+        this.updateCurrentPreview();
+    }
+    
+    updateCurrentPreview() {
+        if (this.currentDocumentIndex === -1 || this.scannedDocuments.length === 0) {
+            this.resetPreviewUI();
+            return;
+        }
+
+        const doc = this.scannedDocuments[this.currentDocumentIndex];
+        
+        // Update pagination controls
+        this.updatePaginationControls(doc);
+        
+        // Show loading spinner
+        $(`#${this.modalId} .current-preview`).html('<div class="text-center p-4"><div class="spinner-border text-primary"></div><p>Loading page...</p></div>');
+        
+        // Load the current page
+        doc.renderPage(this.currentPageIndex).then(pageElement => {
+            const previewContainer = $(`#${this.modalId} .current-preview`);
+            previewContainer.empty();
+            
+            if (pageElement instanceof HTMLCanvasElement) {
+                const container = document.createElement('div');
+                container.style.width = '100%';
+                container.style.height = '100%';
+                container.style.overflow = 'auto';
+                container.style.padding = '20px';
+                container.style.backgroundColor = '#f8f9fa';
+                container.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                
+                const img = document.createElement('img');
+                img.src = pageElement.toDataURL();
+                img.style.width = 'auto';
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                img.style.margin = '0 auto';
+                img.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)';
+                
+                container.appendChild(img);
+                previewContainer.append(container);
+                
+                previewContainer.css({
+                    'overflow': 'hidden',
+                    'background-color': 'transparent',
+                    'padding': '0',
+                    'display': 'flex',
+                    'justify-content': 'center',
+                    'align-items': 'flex-start'
+                });
+                
+            } else if (pageElement instanceof HTMLImageElement) {
+                const img = document.createElement('img');
+                img.src = pageElement.src;
+                img.style.width = 'auto';
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                img.style.margin = '0 auto';
+                previewContainer.append(img);
+            }
+        }).catch(error => {
+            console.error('Error rendering page:', error);
+            $(`#${this.modalId} .current-preview`).html('<div class="alert alert-danger">Error loading page</div>');
+        });
+    }
+    
+    updatePaginationControls(doc) {
+        const paginationControls = $(`#${this.modalId} .pagination-controls`);
+        const pageInfo = $(`#${this.modalId} .page-info`);
+        const prevBtn = $(`#${this.modalId} .prev-page`);
+        const nextBtn = $(`#${this.modalId} .next-page`);
+        
+        if (doc.type === 'pdf' && doc.totalPages > 1) {
+            paginationControls.removeClass('d-none');
+            pageInfo.text(`Page ${this.currentPageIndex} of ${doc.totalPages}`);
+            
+            prevBtn.prop('disabled', this.currentPageIndex <= 1);
+            nextBtn.prop('disabled', this.currentPageIndex >= doc.totalPages);
+        } else {
+            paginationControls.addClass('d-none');
+        }
+    }
+    
+    resetPreviewUI() {
+        $(`#${this.modalId} .current-preview`).addClass('d-none').empty();
+        $(`#${this.modalId} .no-previews-message`).show();
+        $(`#${this.modalId} .pagination-controls`).addClass('d-none');
+        this.currentDocumentIndex = -1;
+        this.currentPageIndex = 1;
+    }
+}
+
+// Set PDF.js worker path
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
+
+// Scanner instances cache
+const scannerInstances = {};
+
+// Modified public function to initiate scanning with additional parameters
+window.initiateScan = function(targetId, allowMultiple = false, fieldId = null, formDataId = null, referenceType = null, type = null) {
+    
+    // Create or reuse scanner instance for this target
+    if (!scannerInstances[targetId]) {
+        scannerInstances[targetId] = new DocumentScanner(
+            targetId, 
+            allowMultiple,
+            fieldId,
+            formDataId,
+            referenceType,
+            type
+        );
+    } else {
+        // Update parameters in case they changed
+        scannerInstances[targetId].fieldId = fieldId;
+        scannerInstances[targetId].formDataId = formDataId;
+        scannerInstances[targetId].referenceType = referenceType;
+        scannerInstances[targetId].type = type;
+    }
+    
+    // Update multiple setting in case it changed
+    scannerInstances[targetId].allowMultiple = allowMultiple;
+    
+    // Show the scanner
+    scannerInstances[targetId].show();
+};
 </script>
 
 

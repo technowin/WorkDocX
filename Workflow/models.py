@@ -48,7 +48,7 @@ class workflow_matrix(models.Model):
     step_name = models.TextField(null=True, blank=True)
     button_type_id = models.IntegerField(null=True, blank=True)
     button_act_details = models.IntegerField(null=True, blank=True)
-       
+    wf_id = models.IntegerField(null=True, blank=True)
     # form_action = models.TextField(null=True, blank=True)
     # workflow_action = models.TextField(null=True, blank=True)
     # next_step = models.TextField(null=True, blank=True)

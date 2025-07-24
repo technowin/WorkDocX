@@ -1334,8 +1334,8 @@ def common_form_post(request):
                     file_name = handle_generative_fields(form, form_data, created_by)
             else:
                 file_name = handle_generative_fields(form, form_data, created_by)
-        else:
-            messages.error(request, 'File Number Already Exists!')
+        # else:
+        #     messages.error(request, 'File Number Already Exists!')
         # callproc('create_dynamic_form_views')
         messages.success(request, "Form data saved successfully!") 
         if workflow_YN == '1' and already_exists is not True:
@@ -1376,7 +1376,7 @@ def common_form_post(request):
                 # action_id=request.POST.get('action_id', ''),
                 status = status_from_matrix or '',
                 step_id=request.POST.get('step_id', ''),
-                operator=request.POST.get('custom_dropdownOpr', ''),
+                operator=request.POST.get('selected_operator', ''),
                 file_number=fileNumber_input_WF,
                 user_id=user,
                 created_by=user,
@@ -1414,7 +1414,7 @@ def common_form_post(request):
                     status=workflow_detail.status,
                     user_id=workflow_detail.user_id,
                     req_id=workflow_detail.req_id,
-                    operator=request.POST.get('custom_dropdownOpr', ''),
+                    operator=request.POST.get('selected_operator', ''),
                     form_id=request.POST.get('form_id', ''),
                     created_by=user,
                     # created_by=workflow_detail.updated_by,
@@ -1506,9 +1506,9 @@ def common_form_post(request):
                                 updated_by=user,
                             )
             
-        messages.success(request, "Workflow data saved successfully!")
-            # else:
-            #     messages.error(request, 'File Number Already Exists!')
+            messages.success(request, "Workflow data saved successfully!")
+        else:
+            messages.error(request, 'File Number Already Exists!')
     except Exception as e:
         print(f"Error fetching form data: {e}")
         tb = traceback.extract_tb(e.__traceback__)
@@ -2581,10 +2581,10 @@ def get_uploaded_files(request):
             full_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, cleaned_path))
             exists = os.path.exists(full_path)
 
-            file_id = enc(str(f.id))  # Use current file's ID
+            file_id = str(f.id)
 
             if exists:
-                encrypted_url = enc(f.file_path)
+                encrypted_url = f.file_path
                 status = 1
             else:
                 encrypted_url = ''
@@ -2593,8 +2593,8 @@ def get_uploaded_files(request):
             file_list.append({
                 'name': f.uploaded_name,
                 'status': status,
-                'encrypted_url': encrypted_url,
-                'file_id': file_id  # Correctly encrypted ID for each file
+                'url': encrypted_url,
+                'file_id': file_id  
             })
 
         return JsonResponse({'files': file_list})
@@ -3071,4 +3071,6 @@ def check_file_status(request):
             return JsonResponse({"status": -1, "error": str(e)})
 
     return JsonResponse({"status": -1, "error": "Invalid request method"})
+
+
 

@@ -20,7 +20,8 @@ class="authentication-bg position-relative"
                     <span><img src="{% static 'images/logo-dark.png' %}" alt="dark logo" height="22"></span>
                 </a>
                 <a href="{% url 'dashboard:index' %}" class="logo-light">
-                    <span><img src="{% static 'images/logo.png' %}" alt="logo" height="22"></span>
+                    {% comment %} <span><img src="{% static 'images/logo.png' %}" alt="logo" height="22"></span> {% endcomment %}
+                    <span style="color:white !important;font-weight:bold"><img src="{% static 'images/technologo2.png' %}" alt="logo" height="22">&nbsp;&nbsp;Technowin</span>
                 </a>
             </div>
 
