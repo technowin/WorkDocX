@@ -184,8 +184,29 @@ def get_roster_data_tommorow(request):
         return JsonResponse({'result': 'fail', 'message': 'Something went wrong!'}, status=500)
 
     
+# from .powerbi import get_powerbi_embed_info
+
+# def dashboard_view(request):
+#     embed_info = get_powerbi_embed_info()
+#     return render(request, 'Dashboard/dashboardd.html', {"embed_info": embed_info})
+
 from .powerbi import get_powerbi_embed_info
+from Masters.models import para_master
 
 def dashboard_view(request):
-    embed_info = get_powerbi_embed_info()
-    return render(request, 'Dashboard/dashboardd.html', {"embed_info": embed_info})
+    LIGHT_REPORT_ID = para_master.objects.filter(
+        para_name='PB Dashboard', para_details='REPORT_ID'
+    ).values_list('description', flat=True).first()
+
+    DARK_REPORT_ID = para_master.objects.filter(
+        para_name='PB Dashboard', para_details='REPORT_ID2'
+    ).values_list('description', flat=True).first()
+
+    light_embed_info = get_powerbi_embed_info(LIGHT_REPORT_ID)
+    dark_embed_info = get_powerbi_embed_info(DARK_REPORT_ID)
+
+    return render(request, 'Dashboard/dashboardd.html', {
+        "light_report": light_embed_info,
+        "dark_report": dark_embed_info
+    })
+

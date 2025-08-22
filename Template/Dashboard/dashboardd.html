@@ -8,6 +8,8 @@
 <link href="{% static 'css/vendor/dataTables.bootstrap5.min.css' %}" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
+
+
 <style>
   html, body {
     margin: 0;
@@ -39,13 +41,19 @@
 {% block page_title %}{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<button id="themeToggleBtn" style="position: absolute; top: 10px; right: 22px; z-index: 1000; background: none; border: none;">
+  <i class="fa-solid fa-moon" id="themeIcon" style="font-size: 24px;"></i>
+ Theme
+</button>
+
 <div id="reportContainer"></div>
 {% endblock %}
 
 {% block extra_javascript %}
 <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.0/dist/powerbi.min.js"></script>
 
-<script>
+{% comment %} <script>
   const models = window['powerbi-client'].models;
 
   const embedConfig = {
@@ -60,6 +68,69 @@
   };
 
   powerbi.embed(document.getElementById('reportContainer'), embedConfig);
+</script> {% endcomment %}
+
+<script>
+  const models = window['powerbi-client'].models;
+
+  const lightConfig = {
+    type: 'report',
+    id: '{{ light_report.reportId }}',
+    embedUrl: '{{ light_report.embedUrl }}',
+    accessToken: '{{ light_report.embedToken }}',
+    tokenType: models.TokenType.Embed,
+    settings: {
+      panes: { filters: { visible: false }, pageNavigation: { visible: true } }
+    }
+  };
+
+  const darkConfig = {
+    type: 'report',
+    id: '{{ dark_report.reportId }}',
+    embedUrl: '{{ dark_report.embedUrl }}',
+    accessToken: '{{ dark_report.embedToken }}',
+    tokenType: models.TokenType.Embed,
+    settings: {
+      panes: { filters: { visible: false }, pageNavigation: { visible: true } }
+    }
+  };
+
+  let isDark = false;  // Initial theme is light
+
+  // Embed initial report
+  let currentReport = powerbi.embed(document.getElementById('reportContainer'), lightConfig);
+
+  // Toggle theme on button click
+  document.getElementById('themeToggleBtn').addEventListener('click', function () {
+  // Reset current report
+  powerbi.reset(document.getElementById('reportContainer'));
+
+  // Toggle flag
+  isDark = !isDark;
+
+  // Embed appropriate theme
+  currentReport = powerbi.embed(
+    document.getElementById('reportContainer'),
+    isDark ? darkConfig : lightConfig
+  );
+
+  // Update icon
+  const icon = document.getElementById('themeIcon');
+  if (isDark) {
+    icon.classList.remove('fa-moon');
+    icon.classList.add('fa-sun');
+    icon.style.color = 'gold'; 
+  } else {
+    icon.classList.remove('fa-sun');
+    icon.classList.add('fa-moon');
+    icon.style.color = 'black';  
+  }
+});
+
 </script>
+
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% endblock %}
